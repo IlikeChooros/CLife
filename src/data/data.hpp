@@ -19,13 +19,6 @@ class Data{
     std::vector<double> expect;
 };
 
-void
-delete_data(Data* ptr){
-    delete ptr;
-    ptr = 0;
-}
-
-
 class Point{
 
 public:
