@@ -12,4 +12,4 @@ target_include_directories(ui
     ${CMAKE_CURRENT_LIST_DIR}
   )
 
-target_link_libraries(ui sfml-graphics sfml-window sfml-system)
+target_link_libraries(ui sfml-graphics sfml-window sfml-system core)

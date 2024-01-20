@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <core/core.hpp>
 
 START_NAMESPACE_UI
 

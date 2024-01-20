@@ -1,7 +1,7 @@
 #include "TestCase.hpp"
 
 size_t micros(){
-    return std::chrono::system_clock::now().time_since_epoch().count();
+    return std::chrono::system_clock::now().time_since_epoch().count() / 1000;
 }
 
 START_NAMESPACE_TESTS
@@ -44,7 +44,7 @@ START_NAMESPACE_TESTS
             auto startNs = micros();
             test();
             auto timeNs = micros() - startNs;
-            _report(timeNs, ((micros() - timeNs) / 1000), 0);
+            _report(timeNs, timeNs / 1000, 0);
             _successfulPass();
         } catch(const std::runtime_error& e){
             _onFail(e);

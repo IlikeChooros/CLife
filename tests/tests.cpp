@@ -7,6 +7,7 @@ START_NAMESPACE_TESTS
         using testBase = std::shared_ptr<TestCase>;
         std::vector<testBase> tests = {
             testBase(new SimpleNeuronTest()),
+            testBase(new SimpleLayerTest()),
         };
 
         int failed = 0;

@@ -1,7 +1,6 @@
 add_executable(tests unit-tests.cpp)
 add_library(testlib tests.cpp TestCase.cpp)
 
-message(STATUS "-------------> ${core}")
 
 target_link_libraries(testlib PRIVATE core)
 
