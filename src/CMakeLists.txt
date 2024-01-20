@@ -8,12 +8,13 @@ add_subdirectory(core)
 
 target_link_libraries(
     ${PROJECT_NAME} 
-        PRIVATE 
+        PUBLIC 
             # tests
             # backend
             ui
             core
-            
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system) 
+
+
+target_link_libraries(${PROJECT_NAME} PUBLIC sfml-graphics sfml-window sfml-system) 

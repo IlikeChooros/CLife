@@ -1,4 +1,6 @@
-#include "NeuralNetwork.hpp"
+#include "core/NeuralNetwork.hpp"
+
+START_NAMESPACE_NEURAL_NETWORK
 
 NeuralNetwork::
 NeuralNetwork(const std::vector<int>& structure){
@@ -181,3 +183,6 @@ classify(){
 
     return index;
 }
+
+
+END_NAMESPACE

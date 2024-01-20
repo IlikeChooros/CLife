@@ -1,10 +1,13 @@
 #pragma once
 
-#include "../random-gen/Random.hpp"
+#include "namespaces.hpp"
+#include "../../../random-gen/Random.hpp"
 #include "./Activation/activation.hpp"
 
 #include <vector>
 #include <memory>
+
+START_NAMESPACE_NEURAL_NETWORK
 
 class BaseNeuron
 {
@@ -112,3 +115,5 @@ public:
     double
     calculate_gradient(const double& expected);
 };
+
+END_NAMESPACE

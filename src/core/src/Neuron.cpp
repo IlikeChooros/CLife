@@ -1,4 +1,6 @@
-#include "Neuron.hpp"
+#include "core/Neuron.hpp"
+
+START_NAMESPACE_NEURAL_NETWORK
 
 BaseNeuron::
 BaseNeuron(int conn, BaseActivation* act): _activationFunctor(act){
@@ -78,7 +80,7 @@ BaseNeuron::
 activation(){
     double output = bias;
     auto _conn = weights.size();
-    for (int i=0; i<_conn; ++i){
+    for (size_t i=0; i<_conn; ++i){
         output += weights[i] * _inputs[i];
     }
 
@@ -92,7 +94,7 @@ BaseNeuron::
 printNeuron() {
     printf("Neuron: \n \t Biases: %f, %f\n \t Weights: \n \t", bias, gradient_bias);
     
-    for (int i = 0; i < weights.size(); i++){
+    for (size_t i = 0; i < weights.size(); i++){
         printf("%f (%f), ", weights[i], gradient_weights[i]);
     }
     printf("\n");
@@ -106,7 +108,7 @@ calculate_gradient(const double& deriv_){
     gradient_bias += node_const;
 
     auto _conn = _inputs.size();
-    for (int i=0; i<_conn; ++i){
+    for (size_t i=0; i<_conn; ++i){
         gradient_weights[i] += _inputs[i] * node_const;
     }
 
@@ -132,7 +134,7 @@ calculate_gradient(const double& expected){
     double node_const = 2 * (_activation - expected) * _activationFunctor->derivative(_activation);
 
     auto _conn = _inputs.size();
-    for (int i=0; i<_conn; ++i){
+    for (size_t i=0; i<_conn; ++i){
         gradient_weights[i] += _inputs[i] * node_const;
     }
 
@@ -148,7 +150,7 @@ apply_gradients(const double& learnrate, const int& batch_size){
     gradient_bias = 0;
 
     auto _conn = weights.size();
-    for (int i=0; i<_conn; ++i){
+    for (size_t i=0; i<_conn; ++i){
         weights[i] -= gradient_weights[i] / batch_size * learnrate;
         gradient_weights[i] = 0;
     }
@@ -160,3 +162,5 @@ error(const double& expect){
     double error = _activation - expect;
     return error * error;
 }
+
+END_NAMESPACE

@@ -1,4 +1,6 @@
-#include "Layer.hpp"
+#include "core/Layer.hpp"
+
+START_NAMESPACE_NEURAL_NETWORK
 
 BaseLayer::
 BaseLayer(BaseLayer* other):
@@ -137,4 +139,4 @@ cost(const std::vector<double>& expected){
     return cost;
 }
 
-
+END_NAMESPACE

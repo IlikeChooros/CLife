@@ -7,6 +7,8 @@ project(CLife)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall")
 
+set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
+set(TEST_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
@@ -29,3 +31,6 @@ if(WIN32)
 endif()
 
 install(TARGETS ${PROJECT_NAME})
+
+enable_testing()
+add_subdirectory(tests)

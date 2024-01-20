@@ -4,7 +4,10 @@
 #include <string>
 
 #include "Layer.hpp"
-#include "../data/data.hpp"
+#include "../../../data/data.hpp"
+
+
+START_NAMESPACE_NEURAL_NETWORK
 
 class NetStructure{
 
@@ -118,3 +121,5 @@ public:
     NetStructure*
     structure();
 };
+
+END_NAMESPACE

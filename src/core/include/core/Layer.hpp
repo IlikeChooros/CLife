@@ -3,6 +3,8 @@
 #include "Neuron.hpp"
 #include <vector>
 
+START_NAMESPACE_NEURAL_NETWORK
+
 class BaseLayer
 {
 
@@ -69,3 +71,5 @@ class OutputLayer: public BaseLayer
     cost(const std::vector<double>& expected);
 
 };
+
+END_NAMESPACE
