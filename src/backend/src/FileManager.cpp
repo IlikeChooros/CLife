@@ -61,8 +61,8 @@ void FileManager::to_file(neural_network::NeuralNetwork& net){
 
             auto Neuron = hiddenLayer->neurons[neuron];
             writer << Neuron->bias << ' ';
-            for (int wieght = 0; wieght < Neuron->weights.size(); wieght++){
-                writer << Neuron->weights[wieght] << ' ';
+            for (int weight = 0; weight < Neuron->weights.size(); weight++){
+                writer << Neuron->weights[weight] << ' ';
             }
             writer << '\n';
         }
@@ -72,8 +72,8 @@ void FileManager::to_file(neural_network::NeuralNetwork& net){
     for(int neuron = 0; neuron < netStruct->out->node_out; neuron++){
         auto Neuron = netStruct->out->neurons[neuron];
         writer << Neuron->bias << ' ';
-        for (int wieght = 0; wieght < Neuron->weights.size(); wieght++){
-            writer << Neuron->weights[wieght] << ' ';
+        for (int weight = 0; weight < Neuron->weights.size(); weight++){
+            writer << Neuron->weights[weight] << ' ';
         }
         writer << '\n';
     }

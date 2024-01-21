@@ -36,6 +36,9 @@ public:
     OutputLayer* out;
     Layer** hidden;
     int size;
+
+    bool operator==(const NetStructure& other);
+    bool operator!=(const NetStructure& other);
 };
 
 class NeuralNetwork
@@ -128,6 +131,12 @@ public:
     raw_structure() {
         return _structure;
     }
+
+    bool operator==(NeuralNetwork& other);
+    bool operator==(const NetStructure& other);
+    
+    bool operator!=(NeuralNetwork& other);
+    bool operator!=(const NetStructure& other);
 };
 
 END_NAMESPACE

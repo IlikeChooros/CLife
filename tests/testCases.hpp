@@ -68,9 +68,13 @@ class SaveNeuralNetworkToFile: public TestCase {
         using namespace neural_network;
 
         FileManager fm("net.txt");
-        NeuralNetwork net({2, 3, 4, 2});
+        NeuralNetwork net({2, 20, 25, 10, 2});
         fm.to_file(net);
         std::unique_ptr<NeuralNetwork> fromFile(fm.network());
+        assertEqual(net, *fromFile);
+
+        NeuralNetwork other({2,3,2});
+        assertFalse(net == other);
     }
 };
 

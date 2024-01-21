@@ -188,5 +188,78 @@ classify(){
     return index;
 }
 
+// operators
+
+bool NetStructure::operator==(const NetStructure& other){
+    
+    if (other.size != this->size){
+        return false;
+    }
+    if (other.structure != this->structure){
+        return false;
+    }
+
+    // now deep compare values
+    auto compareDouble = [](double a, double b){
+        return std::abs(a) - std::abs(b) < 0.0001;
+    };
+
+    auto compareLayer = [&](BaseLayer* layer, BaseLayer* other){
+        if (!(layer && other)){
+            return false;
+        }
+        for (int neuronIdx = 0; neuronIdx < layer->node_out; neuronIdx++){
+            auto otherNeuron = other->neurons[neuronIdx];
+            auto neuron = layer->neurons[neuronIdx];
+
+            if (!compareDouble(otherNeuron->bias, neuron->bias)){
+                return false;
+            }
+            auto size_weights = neuron->weights.size();
+            for (int w = 0; w < size_weights; w++){
+                if (!compareDouble(otherNeuron->weights[w], neuron->weights[w])){
+                    return false;
+                }
+            }
+        }
+        return true;
+    };
+
+    for (int layer = 0; layer < this->size; layer++){
+        if (!compareLayer(hidden[layer], other.hidden[layer])){
+            return false;
+        }
+    }
+
+    if (!compareLayer(out, other.out)){
+        return false;
+    }
+
+    return true;
+}
+
+bool NetStructure::operator!=(const NetStructure& other){
+    return !this->operator==(other);
+}
+
+bool NeuralNetwork::operator==(NeuralNetwork& other){
+    std::unique_ptr<NetStructure> str(structure());
+    std::unique_ptr<NetStructure> other_str(other.structure());
+
+    return *str == *other_str;
+}
+
+bool NeuralNetwork::operator!=(NeuralNetwork& other){
+    return !this->operator==(other);
+}
+
+bool NeuralNetwork::operator==(const NetStructure& other){
+    std::unique_ptr<NetStructure> str(structure());
+    return *str == other;
+}
+
+bool NeuralNetwork::operator!=(const NetStructure& other){
+    return !this->operator==(other);
+}
 
 END_NAMESPACE

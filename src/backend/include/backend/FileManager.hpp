@@ -8,7 +8,7 @@
 #include <memory>
 #include <sstream>
 
-#define DEBUG_FILE_MANAGER true
+#define DEBUG_FILE_MANAGER false
 
 #if DEBUG_FILE_MANAGER
 #   include <iostream>

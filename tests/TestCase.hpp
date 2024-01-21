@@ -36,7 +36,7 @@ START_NAMESPACE_TESTS
         void assertThrow(std::function<void(void)> throableFunction);
 
         template <class T>
-        void assertEqual(const T &o1, const T &o2)
+        void assertEqual(T&& o1, T&& o2)
         {
             _assert(o1 == o2, "assertEqual");
         }
