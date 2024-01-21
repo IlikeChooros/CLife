@@ -10,6 +10,7 @@ START_NAMESPACE_TESTS
             testBase(new SimpleLayerTest()),
             testBase(new SimpleNeuralNetworkTest()),
             testBase(new SaveNeuralNetworkToFile()),
+            testBase(new LinearBoundaryTest()),
         };
 
         int failed = 0;

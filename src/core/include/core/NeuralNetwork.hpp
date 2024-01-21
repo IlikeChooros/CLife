@@ -53,6 +53,10 @@ class NeuralNetwork
     double _average_loss;
     
     data::Data input;
+
+    void raw_learn(const data::Data& data);
+    void assert_data_size(const data::Data& data);
+
 public:
 
     NeuralNetwork(const std::vector<int>& structure);
@@ -75,12 +79,12 @@ public:
     void
     learn(data::Data& data_point);
 
-    /// @brief Starts learning process for all of data in given input, but it doesn't apply the learning, call `apply()` to commit 
-    /// changes to the network
+    /// @brief Starts learning process for all of data in given input,
+    /// applies the learning every time iterator reaches `apply_batch`
     /// @throw runtime_error if number of expected values are different from number of output neurons
     /// @param batch
     void
-    learn(const std::vector<data::Data>& batch);
+    learn(std::vector<data::Data>& batch, size_t apply_batch = 32);
 
     /// @brief Applies gradient to neurons
     /// @param learn_rate size of 'step'

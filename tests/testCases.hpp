@@ -74,7 +74,7 @@ class SaveNeuralNetworkToFile: public TestCase {
         assertEqual(net, *fromFile);
 
         NeuralNetwork other({2,3,2});
-        assertFalse(net == other);
+        assertTrue(net != other);
     }
 };
 
@@ -86,10 +86,29 @@ class LinearBoundaryTest: public TestCase {
         using namespace test_creator;
         using namespace neural_network;
 
-        FileManager fm("net.txt");
         NeuralNetwork net({2, 3, 4, 2});
-        fm.to_file(net);
-        std::unique_ptr<NeuralNetwork> fromFile(fm.network());
+
+        TestCreator creator;
+
+        std::unique_ptr<std::vector<data::Data>> data(
+            creator.prepare(
+                [](double x, double y){return y > x;}
+            ).createPointTest(0, 10, 512)
+        );
+
+        net.learn(data->at(0));
+        auto firstCost = net.cost();
+        net.learn(*data, 16);
+        auto secCost = net.loss(16);
+
+        printf(
+            "\nFirst cost: %f\n" \
+            "Second cost: %f\n",
+            firstCost, secCost
+        );
+
+        assertTrue(firstCost > secCost);
+        
     }
 };
 

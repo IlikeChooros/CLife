@@ -8,11 +8,6 @@ NeuralNetwork(const std::vector<int>& structure){
     // Last index is number of output neurons
     // Rest - hidden layers
 
-    // if (structure.size() < 2){
-    //     throw invalid_structure("Invalid network sturcture (total size) : "
-    //     + std::to_string(structure.size()) + " < 2 " );
-    // }
-
     ASSERT(structure.size() >= 2, invalid_structure, "Invalid network sturcture (total size) : " 
         + std::to_string(structure.size()) + " < 2 ")
 
@@ -72,30 +67,8 @@ structure(){
 void
 NeuralNetwork::
 learn(data::Data& data){
-    if (data.expect.size() != _output_layer->node_out){
-        throw std::runtime_error("NeuralNetwork: Expected data size is not equal to number of output neurons (ex, out): " 
-        + std::to_string(data.expect.size()) + " " 
-        + std::to_string(_output_layer->node_out));
-    }
-    
-    input = data;
-
-    output();
-
-    BaseLayer* prev_layer;
-    std::vector<double> output_val;
-
-    prev_layer = _output_layer->calc_gradient(data.expect);
-    output_val = _output_layer->output_val;
-
-    _curr_loss = _output_layer->cost(data.expect);
-    _average_loss += _curr_loss; 
-
-    // Backpropagation
-    for (int reverse = _hidden_size-1; reverse > -1; --reverse){
-        prev_layer = _hidden_layer[reverse]->calc_gradient(prev_layer, output_val);
-        output_val = prev_layer->output_val;
-    }
+    assert_data_size(data);
+    raw_learn(data);
 }
 
 void
@@ -113,9 +86,14 @@ raw_input(const std::vector<double>& inputs){
 
 void
 NeuralNetwork::
-learn(const std::vector<data::Data>& batch){
-    for (auto data : batch){
-        learn(data);
+learn(std::vector<data::Data>& batch, size_t apply_batch){
+    auto size = batch.size();
+    for (size_t i = 0; i < size; i++){
+        raw_learn(batch[i]);
+        if (i % apply_batch == 0){
+            apply(1.1, apply_batch);
+            reset_loss();
+        }
     }
 }
 
@@ -260,6 +238,39 @@ bool NeuralNetwork::operator==(const NetStructure& other){
 
 bool NeuralNetwork::operator!=(const NetStructure& other){
     return !this->operator==(other);
+}
+
+// private
+
+void NeuralNetwork::assert_data_size(const data::Data& data){
+    if (data.expect.size() != _output_layer->node_out){
+        throw std::runtime_error("NeuralNetwork: Expected data size is not equal to number of output neurons (ex, out): " 
+        + std::to_string(data.expect.size()) + " " 
+        + std::to_string(_output_layer->node_out));
+    }
+}
+
+void 
+NeuralNetwork::
+raw_learn(const data::Data& data){
+    input = data;
+
+    output();
+
+    BaseLayer* prev_layer;
+    std::vector<double> output_val;
+
+    prev_layer = _output_layer->calc_gradient(data.expect);
+    output_val = _output_layer->output_val;
+
+    _curr_loss = _output_layer->cost(data.expect);
+    _average_loss += _curr_loss; 
+
+    // Backpropagation
+    for (int reverse = _hidden_size-1; reverse > -1; --reverse){
+        prev_layer = _hidden_layer[reverse]->calc_gradient(prev_layer, output_val);
+        output_val = prev_layer->output_val;
+    }
 }
 
 END_NAMESPACE

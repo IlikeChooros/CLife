@@ -8,20 +8,15 @@ TestCreator& TestCreator::prepare(std::function<bool(double,double)> cmp){
 }
 
 std::vector<data::Data>* 
-TestCreator::createPointTest(double min, double max, double itr){
+TestCreator::createPointTest(double min, double max, size_t size){
     std::uniform_real_distribution generator(min, max);
     std::default_random_engine engine;
 
-    if ((min > max && itr > 0)){
-        std::swap(min, max);
-    } else if(min < max && itr < 0){
-        itr = std::abs(itr);
-    }
 
     auto testData = new std::vector<data::Data>();
-    testData->reserve(std::ceil((max - min) / itr) + 1);
+    testData->reserve(size);
     engine.seed(std::chrono::system_clock::now().time_since_epoch().count());
-    while (min <= max){
+    for(size_t i = 0; i < size; i++){
         std::vector<double> inputs;
         inputs.assign(2, 0);
         inputs[0] = generator(engine);
@@ -29,7 +24,6 @@ TestCreator::createPointTest(double min, double max, double itr){
         bool isCorrect = _compFunct(inputs[0], inputs[1]);
         
         testData->push_back(data::Data(inputs, {(double)isCorrect, (double)!isCorrect}));
-        min += itr;
     }
 
     return testData;
