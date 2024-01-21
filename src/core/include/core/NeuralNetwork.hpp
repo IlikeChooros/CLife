@@ -3,8 +3,9 @@
 #include <stdexcept>
 #include <string>
 
+#include "exceptions.hpp"
 #include "Layer.hpp"
-#include "../../../data/data.hpp"
+#include <data/data.hpp>
 
 
 START_NAMESPACE_NEURAL_NETWORK
@@ -65,12 +66,14 @@ public:
     void
     raw_input(const std::vector<double>& inputs);
 
-    /// @brief Runs learning process for a single data point
+    /// @brief Runs learning process for a single data point, but it doesn't apply the learning, call `apply()` to commit 
+    /// changes to the network
     /// @param data_point 
     void
     learn(data::Data& data_point);
 
-    /// @brief Starts learning process for all of data in given input
+    /// @brief Starts learning process for all of data in given input, but it doesn't apply the learning, call `apply()` to commit 
+    /// changes to the network
     /// @throw runtime_error if number of expected values are different from number of output neurons
     /// @param batch
     void
@@ -120,6 +123,11 @@ public:
     [[nodiscard]]
     NetStructure*
     structure();
+
+    const std::vector<int>&
+    raw_structure() {
+        return _structure;
+    }
 };
 
 END_NAMESPACE

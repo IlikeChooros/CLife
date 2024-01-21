@@ -8,10 +8,14 @@ NeuralNetwork(const std::vector<int>& structure){
     // Last index is number of output neurons
     // Rest - hidden layers
 
-    if (structure.size() < 2){
-        throw std::runtime_error("Invalid network sturcture (total size) : "
-        + std::to_string(structure.size()) + " < 2 " );
-    }
+    // if (structure.size() < 2){
+    //     throw std::runtime_error("Invalid network sturcture (total size) : "
+    //     + std::to_string(structure.size()) + " < 2 " );
+    // }
+
+    ASSERT(structure.size() < 2, invalid_structure, "Invalid network sturcture (total size) : " 
+        + std::to_string(structure.size()) + " < 2 ")
+
 
     _output_layer = new OutputLayer(structure.at(structure.size()-2), structure.at(structure.size()-1));
 
@@ -53,7 +57,7 @@ NeuralNetwork::
 structure(){
     NetStructure* str = new NetStructure;
 
-    str->structure = std::vector<int>(_structure);
+    str->structure = _structure;
     str->size = _hidden_size;
     str->hidden = new Layer* [str->size];
 

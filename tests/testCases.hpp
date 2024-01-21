@@ -40,4 +40,29 @@ class SimpleLayerTest: public TestCase{
     }
 };
 
+class SimpleNeuralNetworkTest: public TestCase {
+    public:
+    SimpleNeuralNetworkTest() : TestCase("SimpleNeuralNetworkTest") {}
+    void test(){
+        using namespace neural_network;
+        NeuralNetwork n({2, 5,5, 2});
+        data::Data d({0, 1}, {0, 1});
+        n.learn(d);
+        auto firstCost = n.cost();
+        n.apply();
+        n.learn(d);
+        auto secCost = n.cost();
+        assertTrue(firstCost >= secCost);
+    }
+};
+
+// normal tests
+class LinearBoundaryTest: public TestCase {
+    public:
+    LinearBoundaryTest() : TestCase("LinearBoundaryTest") {}
+    void test(){
+
+    }
+};
+
 END_NAMESPACE

@@ -8,6 +8,7 @@ START_NAMESPACE_TESTS
         std::vector<testBase> tests = {
             testBase(new SimpleNeuronTest()),
             testBase(new SimpleLayerTest()),
+            testBase(new SimpleNeuralNetworkTest()),
         };
 
         int failed = 0;

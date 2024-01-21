@@ -11,4 +11,4 @@ PRIVATE
     src/Neuron.cpp
 )
 
-
+target_link_libraries(core PUBLIC data)

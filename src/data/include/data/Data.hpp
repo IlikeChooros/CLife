@@ -2,7 +2,10 @@
 
 #include <vector>
 
-namespace data{
+#include "namespaces.hpp"
+
+
+START_NAMESPACE_DATA
     
 
 /// @brief Input class for neural network
@@ -31,4 +34,4 @@ public:
     int y;
 };
 
-}
+END_NAMESPACE
