@@ -9,6 +9,7 @@ START_NAMESPACE_TESTS
             testBase(new SimpleNeuronTest()),
             testBase(new SimpleLayerTest()),
             testBase(new SimpleNeuralNetworkTest()),
+            testBase(new SaveNeuralNetworkToFile()),
         };
 
         int failed = 0;

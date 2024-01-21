@@ -5,6 +5,8 @@
 #include <memory>
 
 #include <core/core.hpp>
+#include <backend/backend.hpp>
+#include <test-creator/TestCreator.hpp>
 
 START_NAMESPACE_TESTS
 
@@ -57,12 +59,35 @@ class SimpleNeuralNetworkTest: public TestCase {
 };
 
 // normal tests
+class SaveNeuralNetworkToFile: public TestCase {
+    public:
+    SaveNeuralNetworkToFile() : TestCase("SaveNeuralNetworkToFile") {}
+    void test(){
+        using namespace db;
+        using namespace test_creator;
+        using namespace neural_network;
+
+        FileManager fm("net.txt");
+        NeuralNetwork net({2, 3, 4, 2});
+        fm.to_file(net);
+        std::unique_ptr<NeuralNetwork> fromFile(fm.network());
+    }
+};
+
 class LinearBoundaryTest: public TestCase {
     public:
     LinearBoundaryTest() : TestCase("LinearBoundaryTest") {}
     void test(){
+        using namespace db;
+        using namespace test_creator;
+        using namespace neural_network;
 
+        FileManager fm("net.txt");
+        NeuralNetwork net({2, 3, 4, 2});
+        fm.to_file(net);
+        std::unique_ptr<NeuralNetwork> fromFile(fm.network());
     }
 };
+
 
 END_NAMESPACE

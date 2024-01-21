@@ -9,11 +9,11 @@ NeuralNetwork(const std::vector<int>& structure){
     // Rest - hidden layers
 
     // if (structure.size() < 2){
-    //     throw std::runtime_error("Invalid network sturcture (total size) : "
+    //     throw invalid_structure("Invalid network sturcture (total size) : "
     //     + std::to_string(structure.size()) + " < 2 " );
     // }
 
-    ASSERT(structure.size() < 2, invalid_structure, "Invalid network sturcture (total size) : " 
+    ASSERT(structure.size() >= 2, invalid_structure, "Invalid network sturcture (total size) : " 
         + std::to_string(structure.size()) + " < 2 ")
 
 

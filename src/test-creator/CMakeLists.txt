@@ -11,3 +11,4 @@ target_include_directories(
     test-creator PUBLIC include
 )
 
+target_link_libraries(test-creator data)
