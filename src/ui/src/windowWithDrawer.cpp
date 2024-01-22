@@ -114,7 +114,7 @@ void neuralNetworkVisualization(
 
 void neuralNetworkPointTestVisalization(
     sf::RenderWindow* window, neural_network::NeuralNetwork* network,
-    std::vector<data::Data>* data, double min, double max
+    std::vector<data::Data>* data, double min, double max, size_t time
 ){
     window->clear();
 
@@ -168,7 +168,12 @@ void neuralNetworkPointTestVisalization(
 
     sf::Font font;
     font.loadFromFile("Ubuntu-L.ttf");
-    sf::Text text("Loss: " + std::to_string(network->cost()) + " " + std::to_string(network->_average_loss), font, 24);
+    sf::Text text(
+        "FPS: " + std::to_string(1000.0f / float(time)) +
+        " Loss: " + std::to_string(network->cost()) +
+        " " + std::to_string(network->_average_loss),
+        font, 24
+    );
     network->reset_loss();
     text.setPosition({0,0});
     text.setFillColor(sf::Color::White);
@@ -188,7 +193,6 @@ void neuralNetworkPointTest(){
 
     neural_network::NeuralNetwork net({2, 5, 2}, new ReLu());
         
-    window.setFramerateLimit(60);
     window.display();
 
     constexpr double MIN = 0, MAX = 100;
@@ -202,6 +206,8 @@ void neuralNetworkPointTest(){
     unsigned long long batchSize = 0;
 
     Clock timer;
+
+    Clock displayTimer;
     while(window.isOpen()){
         Event event; 
         if(window.pollEvent(event)){
@@ -217,14 +223,19 @@ void neuralNetworkPointTest(){
             default:
                 break;
             }
-        }
-        neuralNetworkPointTestVisalization(&window, &net, data.get(), MIN, MAX);
-        batchSize += data->size();
-        if (timer.getElapsedTime().asMilliseconds() >= 200){
-            printf("Apply batch: %llu\n", batchSize);
-            net.apply(batchSize);
-            timer.restart();
-            batchSize = 0;
+        }  
+        auto time = displayTimer.getElapsedTime().asMilliseconds();
+        if(time >= 20){
+            displayTimer.restart();
+            neuralNetworkPointTestVisalization(&window, &net, data.get(), MIN, MAX, time);
+            batchSize += data->size();
+            if (timer.getElapsedTime().asMilliseconds() >= 500){
+                printf("Apply batch: %llu\n", batchSize);
+                net.apply(batchSize);
+                timer.restart();
+                batchSize = 0;
+            }
+
         }
     }
     return;
