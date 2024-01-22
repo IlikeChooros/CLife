@@ -16,7 +16,8 @@ class SimpleNeuronTest: public TestCase{
 
     void test(){
         using namespace neural_network;
-        OutputNeuron o(3);
+        std::unique_ptr<Sigmoid> func(new Sigmoid());
+        OutputNeuron o(3, func.get());
         o.set_inputs({1,-0.7, 0.4});
         auto firstAct = o.activation();
         o.calculate_gradient(1);
@@ -30,7 +31,8 @@ class SimpleLayerTest: public TestCase{
     SimpleLayerTest() : TestCase("SimpleLayerTest") {}
     void test(){
         using namespace neural_network;
-        OutputLayer l(5, 2);
+        std::unique_ptr<Sigmoid> func(new Sigmoid());
+        OutputLayer l(5, 2, func.get());
         l.set_inputs({1,-0.7, 0.4, 0.5, -0.2});
         auto firstAct = l.calc_outputs();
         l.calc_gradient({0,1});

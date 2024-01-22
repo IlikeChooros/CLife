@@ -3,16 +3,24 @@
 START_NAMESPACE_NEURAL_NETWORK
 
 NeuralNetwork::
-NeuralNetwork(const std::vector<int>& structure){
+NeuralNetwork(const std::vector<int>& structure, BaseActivation* activation){
     // First index is number of input neurons
     // Last index is number of output neurons
     // Rest - hidden layers
+
+    if (activation == nullptr){
+        activation = new Sigmoid();
+    }
 
     ASSERT(structure.size() >= 2, invalid_structure, "Invalid network sturcture (total size) : " 
         + std::to_string(structure.size()) + " < 2 ")
 
 
-    _output_layer = new OutputLayer(structure.at(structure.size()-2), structure.at(structure.size()-1));
+    _output_layer = new OutputLayer(
+        structure.at(structure.size()-2),
+        structure.at(structure.size()-1),
+        activation
+    );
 
     _hidden_size = structure.size()-2;
     _hidden_layer = new Layer* [_hidden_size];
@@ -20,9 +28,13 @@ NeuralNetwork(const std::vector<int>& structure){
     for (int idx = 1, inputs, outputs; idx < _hidden_size+1; ++idx){
         inputs  = structure.at(idx-1);
         outputs = structure.at(idx);
-        _hidden_layer[idx-1] = new Layer(inputs, outputs);
+        _hidden_layer[idx-1] = new Layer(inputs, outputs, activation);
     }
     _structure = structure;
+
+    _curr_loss = 0;
+    _average_loss = 0;
+    _activation.reset(activation);
 }
 
 NeuralNetwork::
@@ -120,8 +132,7 @@ get_outputs(){
 double
 NeuralNetwork::
 loss(int batch_size){
-    double ret = _average_loss / batch_size;
-    return ret;
+    return _average_loss / batch_size;
 }
 
 void 
@@ -153,7 +164,7 @@ output(){
 int 
 NeuralNetwork::
 classify(){
-    double max = -1;
+    double max = INT32_MIN;
     int index = 0;
 
     for (int i=0; i<_output_layer->node_out; ++i){
@@ -194,7 +205,7 @@ bool NetStructure::operator==(const NetStructure& other){
                 return false;
             }
             auto size_weights = neuron->weights.size();
-            for (int w = 0; w < size_weights; w++){
+            for (size_t w = 0; w < size_weights; w++){
                 if (!compareDouble(otherNeuron->weights[w], neuron->weights[w])){
                     return false;
                 }

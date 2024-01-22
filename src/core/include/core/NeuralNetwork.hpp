@@ -2,10 +2,12 @@
 
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 
 #include "exceptions.hpp"
 #include "Layer.hpp"
 #include <data/data.hpp>
+
 
 
 START_NAMESPACE_NEURAL_NETWORK
@@ -44,18 +46,16 @@ public:
 class NeuralNetwork
 {
     std::vector<int> _structure;
-
-    double _curr_loss;
-    double _average_loss;
     
     data::Data input;
 
     void raw_learn(const data::Data& data);
     void assert_data_size(const data::Data& data);
+    std::unique_ptr<BaseActivation> _activation;
 
 public:
 
-    NeuralNetwork(const std::vector<int>& structure);
+    NeuralNetwork(const std::vector<int>& structure, BaseActivation* activation = new Sigmoid());
 
     /// @brief Copies data from NetStructure
     /// @param NetStructure* not nullptr
@@ -141,6 +141,8 @@ public:
     OutputLayer* _output_layer;
     Layer** _hidden_layer;
     int _hidden_size;
+    double _curr_loss;
+    double _average_loss;
 };
 
 END_NAMESPACE

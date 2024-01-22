@@ -39,23 +39,7 @@ create(int conn){
     construct(conn);
 }
 
-float fast_sigmoid(float v)
-{
-    constexpr float c1 = 0.03138777F;
-    constexpr float c2 = 0.276281267F;
-    constexpr float c_log2f = 1.442695022F;
-    v *= c_log2f*0.5;
-    int intPart = (int)v;
-    float x = (v - intPart);
-    float xx = x * x;
-    float v1 = c_log2f + c2 * xx;
-    float v2 = x + xx * c1 * x;
-    float v3 = (v2 + v1);
-    *((int*)&v3) += intPart << 24;
-    float v4 = v2 - v1;
-    float res = v3 / (v3 - v4); 
-    return res;
-}
+
 
 void
 BaseNeuron::
@@ -75,6 +59,24 @@ connections(){
     return weights.size();
 }
 
+float fast_sigmoid(float v)
+{
+    constexpr float c1 = 0.03138777F;
+    constexpr float c2 = 0.276281267F;
+    constexpr float c_log2f = 1.442695022F;
+    v *= c_log2f*0.5;
+    int intPart = (int)v;
+    float x = (v - intPart);
+    float xx = x * x;
+    float v1 = c_log2f + c2 * xx;
+    float v2 = x + xx * c1 * x;
+    float v3 = (v2 + v1);
+    *((int*)&v3) += intPart << 24;
+    float v4 = v2 - v1;
+    float res = v3 / (v3 - v4); 
+    return res;
+}
+
 double
 BaseNeuron::
 activation(){
@@ -84,7 +86,8 @@ activation(){
         output += weights[i] * _inputs[i];
     }
 
-    _activation = _activationFunctor->activation((float)output);
+    _activation = _activationFunctor ?
+        _activationFunctor->activation((float)output) : fast_sigmoid(output);
 
     return _activation;
 }
@@ -92,7 +95,7 @@ activation(){
 void 
 BaseNeuron::
 printNeuron() {
-    printf("Neuron: \n \t Biases: %f, %f\n \t Weights: \n \t", bias, gradient_bias);
+    printf("Neuron: \n \t Bias: %f, %f\n \t Weights: \n \t", bias, gradient_bias);
     
     for (size_t i = 0; i < weights.size(); i++){
         printf("%f (%f), ", weights[i], gradient_weights[i]);
@@ -103,7 +106,7 @@ printNeuron() {
 double
 Neuron::
 calculate_gradient(const double& deriv_){
-    double node_const = _activation * (1 - _activation) * deriv_;
+    double node_const = _activationFunctor->derivative(_activation) * deriv_;
 
     gradient_bias += node_const;
 

@@ -23,8 +23,8 @@ BaseLayer::
 }
 
 Layer::
-Layer(int inputs, int outputs) {
-    create(inputs, outputs);
+Layer(int inputs, int outputs, BaseActivation* act) {
+    create(inputs, outputs, act);
 }
 
 Layer::
@@ -46,7 +46,7 @@ BaseLayer(other) {
 
 void
 Layer::
-create(int in, int out){
+create(int in, int out, BaseActivation* act){
     node_in = in;
     node_out = out;
 
@@ -55,18 +55,18 @@ create(int in, int out){
     outputs.assign(out, 0);
 
     for (int i=0; i<out; ++i){
-        neurons[i] = new Neuron(in);
+        neurons[i] = new Neuron(in, act);
     }
 }
 
 OutputLayer::
-OutputLayer(int inputs, int outputs) {
-    create(inputs, outputs);
+OutputLayer(int inputs, int outputs, BaseActivation* act) {
+    create(inputs, outputs, act);
 }
 
 void
 OutputLayer::
-create(int in, int out){
+create(int in, int out, BaseActivation* act){
     node_in = in;
     node_out = out;
 
@@ -76,7 +76,7 @@ create(int in, int out){
 
     for (int i=0; i<out; ++i){
         
-        neurons[i] = new OutputNeuron(in);
+        neurons[i] = new OutputNeuron(in, act);
     }
 }
 
@@ -133,8 +133,8 @@ double
 OutputLayer::
 cost(const std::vector<double>& expected){
     double cost = 0;
-    for (int i=0; i<node_out; ++i){
-        cost += neurons[i]->error(expected.at(i));
+    for (int i=0; i < node_out; ++i){
+        cost += neurons[i]->error(expected[i]);
     }
     return cost;
 }

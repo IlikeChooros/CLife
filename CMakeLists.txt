@@ -18,6 +18,8 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Ubuntu-L.ttf ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
 add_subdirectory(src) 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 

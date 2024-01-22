@@ -26,17 +26,17 @@ protected:
 
     Random gen;
 
-    std::unique_ptr<BaseActivation> _activationFunctor;
+    BaseActivation* _activationFunctor;
 
 public:
-    explicit BaseNeuron(int connections, BaseActivation* act = new Sigmoid());
+    explicit BaseNeuron(int connections, BaseActivation* act = nullptr);
 
     BaseNeuron() = default;
 
 
     BaseNeuron(BaseNeuron*);
 
-    ~BaseNeuron();
+    virtual ~BaseNeuron();
 
     /// @brief Calculates activation value, using sigmoid function
     double 
@@ -76,7 +76,7 @@ public:
 class Neuron: public BaseNeuron
 {
     public:
-    Neuron(int connections, BaseActivation* act = new Sigmoid()):
+    Neuron(int connections, BaseActivation* act = nullptr):
     BaseNeuron(connections, act) {}
 
     Neuron() = default;
@@ -99,7 +99,7 @@ OutputNeuron: public BaseNeuron
 {
 public:
 
-    OutputNeuron(int connections, BaseActivation* act = new Sigmoid()): 
+    OutputNeuron(int connections, BaseActivation* act = nullptr): 
     BaseNeuron(connections, act) {}
 
     OutputNeuron() = default;

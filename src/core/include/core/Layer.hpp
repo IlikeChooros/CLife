@@ -39,12 +39,12 @@ public:
 class Layer: public BaseLayer
 {
     public:
-    Layer(int inputs, int outputs);
+    Layer(int inputs, int outputs, BaseActivation* act = nullptr);
     Layer() = default;
     Layer(Layer* other);
 
     void
-    create(int inputs, int outputs);
+    create(int inputs, int outputs, BaseActivation* act = nullptr);
 
     Layer*
     calc_gradient
@@ -55,12 +55,12 @@ class Layer: public BaseLayer
 class OutputLayer: public BaseLayer
 {
     public:
-    OutputLayer(int inputs, int outputs);
+    OutputLayer(int inputs, int outputs, BaseActivation* act = nullptr);
     OutputLayer() = default;
     OutputLayer(OutputLayer* other);
 
     void
-    create(int inputs, int outputs);
+    create(int inputs, int outputs, BaseActivation* act = nullptr);
 
 
     BaseLayer*

@@ -20,6 +20,12 @@ class Data{
 
     std::vector<double> input;
     std::vector<double> expect;
+
+    const Data& operator=(const Data& other){
+        this->input = other.input;
+        this->expect = other.expect;
+        return *this;
+    }
 };
 
 class Point{
