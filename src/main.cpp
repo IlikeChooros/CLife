@@ -1,4 +1,4 @@
-#include "ui/windowWithDrawer.hpp"
+#include <ui/ui.hpp>
 
 int main()
 {

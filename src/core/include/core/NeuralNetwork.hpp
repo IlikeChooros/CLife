@@ -43,10 +43,6 @@ public:
 
 class NeuralNetwork
 {
-    OutputLayer* _output_layer;
-    Layer** _hidden_layer;
-    int _hidden_size;
-
     std::vector<int> _structure;
 
     double _curr_loss;
@@ -141,6 +137,10 @@ public:
     
     bool operator!=(NeuralNetwork& other);
     bool operator!=(const NetStructure& other);
+
+    OutputLayer* _output_layer;
+    Layer** _hidden_layer;
+    int _hidden_size;
 };
 
 END_NAMESPACE
