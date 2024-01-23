@@ -18,7 +18,6 @@ protected:
 
     std::vector<double> _inputs;
 
-    int _conn;
     double _activation;
 
     void
@@ -55,8 +54,6 @@ public:
 
     void 
     set_inputs(const std::vector<double>& inputs);
-    void 
-    set_inputs(double* inputs);
 
     void
     create(int conn);

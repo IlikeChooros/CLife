@@ -39,19 +39,12 @@ create(int conn){
     construct(conn);
 }
 
-
-
 void
 BaseNeuron::
 set_inputs(const std::vector<double>& inputs){
     _inputs = inputs;
 }
 
-void 
-BaseNeuron::
-set_inputs(double* inputs){
-
-}
 
 int
 BaseNeuron::
@@ -124,14 +117,14 @@ calculate_gradient(const double& expected){
 
     // dc/dw = dc/dA * dA/d(output) * d(output)/dw
 
-    // dc/dA = d (Expected_value - Activation)^2 / d(Activation)
-    //       = - 2 * (Expected_value - Activation)
+    // dc/dA = d (Activation - Expected_value)^2 / d(Activation)
+    //       = - 2 * (Activation - Expected_value)
 
-    // dA/d(output) = d( 1 / e^(-output) + 1)/d(output) = A(1 - A)
+    // dA/d(output) = d( 1 / e^(-output) + 1)/d(output) = A(1 - A) -> for sigmoid function only
 
     // d(output)/dw = d(w*input + bias)/dw = input
 
-    // Final answer dc/dw = - 2 * (Exp - Act) * Act (1 - Act) * input
+    // Final answer dc/dw = - 2 * (Act - Exp) * Act (1 - Act) * input
     // neglecting the '-' because im adding gradient when applying it
 
     double node_const = 2 * (_activation - expected) * _activationFunctor->derivative(_activation);

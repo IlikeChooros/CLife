@@ -120,6 +120,14 @@ apply(double learn_rate, int batch_size){
 double
 NeuralNetwork::
 cost(){
+    _curr_loss = _output_layer->cost(input.expect);
+
+    return _curr_loss;
+}
+
+double 
+NeuralNetwork::
+get_cost(){
     return _curr_loss;
 }
 
@@ -254,7 +262,7 @@ bool NeuralNetwork::operator!=(const NetStructure& other){
 // private
 
 void NeuralNetwork::assert_data_size(const data::Data& data){
-    if (data.expect.size() != _output_layer->node_out){
+    if ((int)data.expect.size() != _output_layer->node_out){
         throw std::runtime_error("NeuralNetwork: Expected data size is not equal to number of output neurons (ex, out): " 
         + std::to_string(data.expect.size()) + " " 
         + std::to_string(_output_layer->node_out));

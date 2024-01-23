@@ -2,16 +2,26 @@
 
 #include <algorithm>
 
-
+enum class ActivationType {
+    sigmoid,
+    relu,
+};
 
 class BaseActivation{
 public:
+    BaseActivation(ActivationType&& type = ActivationType::sigmoid): type(type) {}
     virtual double activation(double arg) = 0;
     virtual double derivative(double activation) = 0;
+    ActivationType type;
 };
 
+/// One of base activation function types, standard activation function
+/// it smooths out activation beetween values 0 and 1
+/// 
+/// f(x) = 1 / (1 + e^(-x))
 class Sigmoid: public BaseActivation{
 public:
+    Sigmoid() : BaseActivation(ActivationType::sigmoid) {}
     double activation(double arg){
         constexpr float c1 = 0.03138777F;
         constexpr float c2 = 0.276281267F;
@@ -33,8 +43,15 @@ public:
     }
 };
 
+/// One of base activation function types, considered the fastest
+/// -> using only addition, multiplication and substraction when backpropagation process
+/// goes on. Causes `dying neurons` effect, because if the activation is below 0, then 
+/// it will never arise again, it dies
+///
+/// f(x) = if x <= 0 then: 0, else: x
 class ReLu: public BaseActivation{
 public:
+    ReLu() : BaseActivation(ActivationType::relu) {}
     double activation(double arg){
         return std::max((double)0, arg);
     }

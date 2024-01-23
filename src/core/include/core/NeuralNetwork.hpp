@@ -93,6 +93,11 @@ public:
     double
     cost();
 
+    /// @brief Get already calculated cost, (for exapmle after calling `learn()`)
+    /// @return current cost of the network
+    double 
+    get_cost();
+
     /// @brief Calculates average loss on given data
     /// @param batch_size 
     /// @return 

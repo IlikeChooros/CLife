@@ -67,6 +67,9 @@ class OutputLayer: public BaseLayer
     calc_gradient(const std::vector<double>& expected);
 
 
+    /// @brief Calculates the cost of the layer
+    /// @param expected 
+    /// @return sum of output neuron errors (using function: (activation - expected_value)^2)
     double
     cost(const std::vector<double>& expected);
 

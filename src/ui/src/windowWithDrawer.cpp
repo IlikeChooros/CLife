@@ -112,13 +112,14 @@ void neuralNetworkVisualization(
     window.display();
 }
 
-void neuralNetworkPointTestVisalization(
+size_t neuralNetworkPointTestVisalization(
     sf::RenderWindow* window, neural_network::NeuralNetwork* network,
-    std::vector<data::Data>* data, double min, double max, size_t time
+    std::vector<data::Data>* data, double min, double max, size_t time,
+    size_t startIdx
 ){
     window->clear();
 
-    constexpr auto PADDING = 30;
+    constexpr auto PADDING = 30, APPLY_BATCH = 32;
 
     const auto diff = float(max - min);
 
@@ -132,8 +133,17 @@ void neuralNetworkPointTestVisalization(
     // constexpr auto BATCH_SIZE = 8;
 
     size_t batch = data->size();
-    for (size_t i = 0; i < batch; i++){
-        auto dataPoint = data->operator[](i);
+    size_t i = startIdx;
+    size_t endIdx = startIdx + APPLY_BATCH < batch ? startIdx + APPLY_BATCH : batch;
+    for (;i < endIdx;i++){
+        network->learn(data->operator[](i));
+        if (i == endIdx - 1){
+            network->apply(1.2, APPLY_BATCH);
+        }
+    }
+
+    for (size_t loop = 0; loop < batch; loop++){
+        auto dataPoint = data->operator[](loop);
         auto coordinates = dataPoint.input;
 
         int correctIndex = dataPoint.expect[0] != 0 ?
@@ -145,11 +155,20 @@ void neuralNetworkPointTestVisalization(
         auto x = (coordinates[0] - min) * nodeSize + PADDING;
         auto y = (coordinates[1] - min) * nodeSize + PADDING;
 
+        // if(loop == startIdx){
+        //     timer.restart();
+        // }
 
-        network->learn(dataPoint);
+        // if(loop >= startIdx && timer.getElapsedTime().asMicroseconds() <= 200){
+        //     startIdx++;
+        //     network->learn(dataPoint);
+        // } else{
+            network->set_input(dataPoint);
+            network->output();
+        // }
         
         auto networkGuessColor = 
-            network->classify() == correctIndex ?
+            network->correct() ?
                 sf::Color(0x85f78dFF) : //  correct
                 sf::Color(0xf78f85FF); // invalid
 
@@ -170,8 +189,8 @@ void neuralNetworkPointTestVisalization(
     font.loadFromFile("Ubuntu-L.ttf");
     sf::Text text(
         "FPS: " + std::to_string(1000.0f / float(time)) +
-        " Loss: " + std::to_string(network->cost()) +
-        " " + std::to_string(network->_average_loss),
+        " Cost: " + std::to_string(network->cost()) +
+        " Loss: " + std::to_string(network->_average_loss),
         font, 24
     );
     network->reset_loss();
@@ -184,6 +203,8 @@ void neuralNetworkPointTestVisalization(
     window->draw(text);
 
     window->display();
+
+    return i;
 }
 
 void neuralNetworkPointTest(){
@@ -191,7 +212,7 @@ void neuralNetworkPointTest(){
 
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
-    neural_network::NeuralNetwork net({2, 5, 2}, new ReLu());
+    neural_network::NeuralNetwork net({2, 16, 16, 2}, new Sigmoid());
         
     window.display();
 
@@ -200,14 +221,15 @@ void neuralNetworkPointTest(){
     test_creator::TestCreator creator;
     std::unique_ptr<std::vector<data::Data>> data(
         creator.prepare([](double x, double y){
-            return x*x + y*y <= MAX*MAX*0.5f;
-    }).createPointTest(MIN, MAX, 512));
+            return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
+    }).createPointTest(MIN, MAX, 1500));
 
     unsigned long long batchSize = 0;
 
     Clock timer;
 
     Clock displayTimer;
+    size_t startIdx = 0;
     while(window.isOpen()){
         Event event; 
         if(window.pollEvent(event)){
@@ -227,14 +249,14 @@ void neuralNetworkPointTest(){
         auto time = displayTimer.getElapsedTime().asMilliseconds();
         if(time >= 20){
             displayTimer.restart();
-            neuralNetworkPointTestVisalization(&window, &net, data.get(), MIN, MAX, time);
+            startIdx = neuralNetworkPointTestVisalization(&window, &net, data.get(), MIN, MAX, time, startIdx);
             batchSize += data->size();
-            if (timer.getElapsedTime().asMilliseconds() >= 500){
-                printf("Apply batch: %llu\n", batchSize);
-                net.apply(batchSize);
-                timer.restart();
-                batchSize = 0;
-            }
+            // if (timer.getElapsedTime().asMilliseconds() >= 500){
+            //     printf("Apply batch: %llu\n", batchSize);
+            //     net.apply(batchSize);
+            //     timer.restart();
+            //     batchSize = 0;
+            // }
 
         }
     }
