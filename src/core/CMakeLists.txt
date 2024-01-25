@@ -9,6 +9,8 @@ PRIVATE
     src/NeuralNetwork.cpp
     src/Layer.cpp
     src/Neuron.cpp
+    src/OLayer.cpp
+    src/ONeural.cpp
 )
 
 target_link_libraries(core PUBLIC data)

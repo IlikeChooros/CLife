@@ -286,7 +286,7 @@ raw_learn(const data::Data& data){
     _average_loss += _curr_loss; 
 
     // Backpropagation
-    for (int reverse = _hidden_size-1; reverse > -1; --reverse){
+    for (int reverse = _hidden_size-1; reverse >= 0; --reverse){
         prev_layer = _hidden_layer[reverse]->calc_gradient(prev_layer, output_val);
         output_val = prev_layer->output_val;
     }

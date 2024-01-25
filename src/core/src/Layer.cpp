@@ -125,8 +125,7 @@ calc_gradient(const std::vector<double>& expected){
     for (int i=0; i<node_out; ++i){
         output_val[i] = neurons[i]->calculate_gradient(expected.at(i));
     }
-
-    return this;
+    return dynamic_cast<BaseLayer*>(this);
 }
 
 double

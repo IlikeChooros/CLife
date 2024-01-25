@@ -2,3 +2,5 @@
 
 #include "NeuralNetwork.hpp"
 
+#include "ONeural.hpp"
+

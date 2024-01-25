@@ -113,7 +113,7 @@ void neuralNetworkVisualization(
 }
 
 size_t neuralNetworkPointTestVisalization(
-    sf::RenderWindow* window, neural_network::NeuralNetwork* network,
+    sf::RenderWindow* window, neural_network::ONeural* network,
     std::vector<data::Data>* data, double min, double max, size_t time,
     size_t startIdx
 ){
@@ -137,9 +137,9 @@ size_t neuralNetworkPointTestVisalization(
     size_t endIdx = startIdx + APPLY_BATCH < batch ? startIdx + APPLY_BATCH : batch;
     for (;i < endIdx;i++){
         network->learn(data->operator[](i));
-        if (i == endIdx - 1){
-            network->apply(1.2, APPLY_BATCH);
-        }
+        // if (i == endIdx - 1){
+        //     network->apply(1.2, APPLY_BATCH);
+        // }
     }
 
     for (size_t loop = 0; loop < batch; loop++){
@@ -163,8 +163,8 @@ size_t neuralNetworkPointTestVisalization(
         //     startIdx++;
         //     network->learn(dataPoint);
         // } else{
-            network->set_input(dataPoint);
-            network->output();
+            network->input(dataPoint);
+            network->outputs();
         // }
         
         auto networkGuessColor = 
@@ -190,10 +190,10 @@ size_t neuralNetworkPointTestVisalization(
     sf::Text text(
         "FPS: " + std::to_string(1000.0f / float(time)) +
         " Cost: " + std::to_string(network->cost()) +
-        " Loss: " + std::to_string(network->_average_loss),
+        " Loss: " + std::to_string(network->loss(1)),
         font, 24
     );
-    network->reset_loss();
+    // network->reset_loss();
     text.setPosition({0,0});
     text.setFillColor(sf::Color::White);
     text.setOutlineColor(sf::Color::White);
@@ -212,7 +212,7 @@ void neuralNetworkPointTest(){
 
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
-    neural_network::NeuralNetwork net({2, 16, 16, 2}, new Sigmoid());
+    neural_network::ONeural net({2, 16, 16, 2});
         
     window.display();
 
@@ -237,8 +237,8 @@ void neuralNetworkPointTest(){
             {
             case Event::Closed:{
                 window.close();
-                db::FileManager fm("networkRL1.txt");
-                fm.to_file(net);
+                // db::FileManager fm("networkRL1.txt");
+                // fm.to_file(net);
             }
                 break;
             

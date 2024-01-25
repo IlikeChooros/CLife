@@ -1,35 +1,35 @@
 2 16 16 2 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan -nan 
--0.0560053 -0.555953 -0.736437 0.664777 0.864602 -0.827841 0.00273999 -0.795871 0.773198 0.342267 -0.827152 -0.364252 -0.795182 0.773887 0.342956 0.175101 0.374926 
--0.959594 -0.023347 0.807234 -0.885209 -0.577651 -0.114751 0.823563 0.915655 -0.776787 0.424602 0.732159 -0.329527 -0.0219697 0.916344 -0.513023 -0.205466 0.732848 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan nan 
+-0.68635 0.341044 -0.320048 0.665876 0.342678 -0.611276 0.43477 -0.519184 -0.579306 0.46674 -0.487214 0.558832 -0.395122 0.0201684 0.435459 -0.886175 0.898359 
+-0.361086 -0.054906 0.99114 -0.59357 -0.809035 -0.130669 0.284621 0.699912 -0.992531 0.792004 -0.792706 -0.377416 0.30095 -0.653004 -0.237713 0.808333 -0.776377 
