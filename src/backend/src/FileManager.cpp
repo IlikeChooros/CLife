@@ -77,6 +77,41 @@ void FileManager::to_file(neural_network::NeuralNetwork& net){
         }
         writer << '\n';
     }
+    writer.close();
+}
+
+void FileManager::to_file(neural_network::ONeural& network){
+    std::ofstream writer(_path);
+    if (!writer){
+        throw storage_not_found("Could not open the file: " + _path);
+    }
+
+    auto strucutre = network.structure();
+    for (auto n : strucutre){
+        writer << n << ' ';
+    }
+    writer << '\n';
+
+    // hidden layer
+    for (size_t l = 0; l < network._hidden_layers.size(); l++){
+        for (size_t n = 0; n < network._hidden_layers[l]._biases.size(); n++){
+            writer << network._hidden_layers[l]._biases[n] << ' ';
+            for (size_t w = 0; w < network._hidden_layers[l]._weights[n].size(); w++){
+                writer << network._hidden_layers[l].weight(w, n) << ' ';
+            }
+            writer << '\n';
+        }
+    }
+
+    // output layer
+    for (size_t n = 0; n < network._output_layer._biases.size(); n++){
+        writer << network._output_layer._biases[n] << ' ';
+        for (size_t w = 0; w < network._output_layer._weights[n].size(); w++){
+            writer << network._output_layer.weight(w, n) << ' ';
+        }
+        writer << '\n';
+    }
+    writer.close();
 }
 
 neural_network::NeuralNetwork* FileManager::network(){

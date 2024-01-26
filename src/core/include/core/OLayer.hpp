@@ -13,24 +13,13 @@ Using only layer (without Neurons as an individual node)
 #include <vector>
 #include <memory>
 #include <random>
+#include <cmath>
 
 START_NAMESPACE_NEURAL_NETWORK
 
 class OLayer{
     
-    friend class ONeural;
-
-    std::vector<std::vector<double>> _weights;
-    std::vector<std::vector<double>> _gradient_weights;
-
-    std::vector<double> _biases;
-    std::vector<double> _gradient_biases;
-    std::vector<double> _activations;
-    std::vector<double> _inputs;
-    std::vector<double> _partial_derivatives;
-
-    std::function<double(double)> _activation_function;
-    std::function<double(double)> _derivative_of_activ;
+    friend class ONeural;    
 
     public:
     OLayer() = default;
@@ -81,7 +70,23 @@ class OLayer{
     std::vector<double>& activations();
     const double& weight(size_t inputIdx, size_t neuronIdx);
     
-    OLayer& operator=(const OLayer& copy);
+    OLayer& operator=(const OLayer& other);
+    bool operator==(const OLayer& other);
+    bool operator!=(const OLayer& other);
+
+    size_t _neurons_size;
+    size_t _inputs_size;
+    std::vector<std::vector<double>> _weights;
+    std::vector<std::vector<double>> _gradient_weights;
+
+    std::vector<double> _biases;
+    std::vector<double> _gradient_biases;
+    std::vector<double> _activations;
+    std::vector<double> _inputs;
+    std::vector<double> _partial_derivatives;
+
+    std::function<double(double)> _activation_function;
+    std::function<double(double)> _derivative_of_activ;
 };
 
 

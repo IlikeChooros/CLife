@@ -23,6 +23,9 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
     _activations.assign(outputs, 0);
     _partial_derivatives.assign(outputs, 0);
 
+    _neurons_size = outputs;
+    _inputs_size = inputs;
+
     return *this;
 }
 
@@ -49,19 +52,17 @@ std::vector<double>& OLayer::calc_activations(std::vector<double>&& inputs){
 
 void OLayer::calc_activations(){
     // assuming that inputs are already set
-    auto outputs = _weights.size();
-    auto inputs_len = _inputs.size();
 
     // :))))
     double neuron_activation;
-    for (size_t i = 0; i < outputs; i++){
+    for (size_t i = 0; i < _neurons_size; i++){
 
         // using equasion:
         // weighted_input = input * weight + bias
         // For mulitple, it is just a sum of all weighted_inputs
 
         neuron_activation = _biases[i];
-        for (size_t j = 0; j < inputs_len; j++){
+        for (size_t j = 0; j < _inputs_size; j++){
             neuron_activation += _weights[i][j] * _inputs[j];
         }
         _activations[i] = _activation_function(neuron_activation);
@@ -105,11 +106,10 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer){
     */
 
     size_t neurons = _weights.size();
-    size_t prev_neurons_size = prev_layer->_weights.size();
 
-    for (size_t n = 0; n < neurons; n++){
+    for (size_t n = 0; n < _neurons_size; n++){
         double new_partial_derviative = 0;
-        for (size_t prev = 0; prev < prev_neurons_size; prev++){
+        for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->weight(n, prev) * prev_layer->_partial_derivatives[prev];
         }
         new_partial_derviative *= _derivative_of_activ(_activations[n]);
@@ -121,11 +121,10 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer){
 
 
 OLayer* OLayer::calc_output_gradient(std::vector<double>&& expected){
-    size_t neurons = _weights.size();
 
     double error_deriv, deriv_with_error_and_activation;
 
-    for (size_t n = 0; n < neurons; n++){
+    for (size_t n = 0; n < _neurons_size; n++){
         error_deriv = 2 * (_activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
@@ -136,14 +135,11 @@ OLayer* OLayer::calc_output_gradient(std::vector<double>&& expected){
 }
 
 void OLayer::update_gradients(){
-    size_t neurons = _weights.size();
-    size_t input_size = _inputs.size();
-
-    for (size_t i = 0; i < neurons; i++){
+    for (size_t i = 0; i < _neurons_size; i++){
 
         // partial derivatives are calculated in `calc_output_gradient` and `calc_hidden_gradient`
         
-        for(size_t j = 0; j < input_size; j++){
+        for(size_t j = 0; j < _inputs_size; j++){
             /* 
             That is complete derviative:
                 For output layer:
@@ -169,13 +165,11 @@ void OLayer::update_gradients(){
 }
 
 void OLayer::apply_gradients(double learn_rate, size_t batch_size){
-    size_t neurons = _weights.size();
-    size_t input_size = _inputs.size();
 
     double weighted_learn_rate = learn_rate / double(batch_size);
 
-    for (size_t n = 0; n < neurons; n++){
-        for(size_t w = 0; w < input_size; w++){
+    for (size_t n = 0; n < _neurons_size; n++){
+        for(size_t w = 0; w < _inputs_size; w++){
             _weights[n][w] -= _gradient_weights[n][w] * weighted_learn_rate;
             _gradient_weights[n][w] = 0;
         }
@@ -186,9 +180,8 @@ void OLayer::apply_gradients(double learn_rate, size_t batch_size){
 
 double OLayer::cost(std::vector<double>&& expected){
     double error, cost = 0;
-    size_t neurons = _weights.size();
 
-    for (size_t i = 0; i < neurons; i++){
+    for (size_t i = 0; i < _neurons_size; i++){
         error = _activations[i] - expected[i];
         cost += error*error;
     }
@@ -215,6 +208,37 @@ OLayer& OLayer::operator=(const OLayer& other){
     _activation_function = other._activation_function;
     _derivative_of_activ = other._derivative_of_activ;
     return *this;
+}
+
+// returns true if the a != b, else (false) a == b.
+inline bool diffrent_double(double a, double b, double approx = 0.001){
+    return a - b > approx;
+}
+
+bool OLayer::operator==(const OLayer& other){
+    if (other._neurons_size != _neurons_size){
+        return false;
+    }
+    
+    if(other._inputs_size != _inputs_size){
+        return false;
+    }
+
+    for (size_t i = 0; i < _neurons_size; i++){
+        if (diffrent_double(_biases[i], other._biases[i])){
+            return false;
+        }
+        for (size_t j = 0;j < _inputs_size; j++){
+            if (diffrent_double(_weights[i][j], other._weights[i][j])){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool OLayer::operator!=(const OLayer& other){
+    return !this->operator==(other);
 }
 
 END_NAMESPACE

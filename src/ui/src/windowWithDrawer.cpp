@@ -112,14 +112,48 @@ void neuralNetworkVisualization(
     window.display();
 }
 
-size_t neuralNetworkPointTestVisalization(
-    sf::RenderWindow* window, neural_network::ONeural* network,
-    std::vector<data::Data>* data, double min, double max, size_t time,
-    size_t startIdx
+void renderNetworkGuess(
+    sf::RenderWindow* window, 
+    neural_network::ONeural* network,
+    double min, 
+    double max
 ){
-    window->clear();
+    constexpr auto PADDING = 30;
+    const auto diff = float(max - min);
+    const auto windowSize = std::min(window->getSize().x, window->getSize().y);
+    const float nodeSize = float(windowSize - PADDING*2) / diff;
 
-    constexpr auto PADDING = 30, APPLY_BATCH = 32;
+    const auto PIXEL_SIZE = nodeSize;
+
+    auto renderingSize = windowSize / nodeSize;
+
+    for (size_t y = 0; y < renderingSize; y++){
+        for (size_t x = 0; x < renderingSize; x++){
+            network->raw_input({double(x), double(y)});
+            network->outputs();
+            auto color = 
+                network->classify() == 0
+                ? sf::Color(0x02d3095F)
+                : sf::Color(0xd313025F);
+            auto pixel = sf::RectangleShape(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
+
+            auto _x = x * PIXEL_SIZE + PADDING;
+            auto _y = y * PIXEL_SIZE + PADDING;
+
+            pixel.setPosition(sf::Vector2f(_x, _y));
+            pixel.setFillColor(color);
+            window->draw(pixel);
+        }
+    }
+}
+
+void renderPoints(
+    sf::RenderWindow* window,
+    std::vector<data::Data>* data,
+    double min, 
+    double max
+){
+    constexpr auto PADDING = 30;
 
     const auto diff = float(max - min);
 
@@ -127,84 +161,17 @@ size_t neuralNetworkPointTestVisalization(
     const float nodeSize = float(windowSize - PADDING*2) / diff;
     const float radius = nodeSize / 2;
 
-    
-    constexpr float OUTLINE = 0.3f;
+    for (size_t i = 0; i < data->size(); i++){
+        auto dataPoint = data->operator[](i);
+        auto color = dataPoint.expect[0] == 1
+            ? sf::Color(0x02d309FF) // green
+            : sf::Color(0xd31302FF); // red
 
-    // constexpr auto BATCH_SIZE = 8;
+        auto x = (dataPoint.input[0] - min) * nodeSize + PADDING;
+        auto y = (dataPoint.input[1] - min) * nodeSize + PADDING;
 
-    size_t batch = data->size();
-    size_t i = startIdx;
-    size_t endIdx = startIdx + APPLY_BATCH < batch ? startIdx + APPLY_BATCH : batch;
-    for (;i < endIdx;i++){
-        network->learn(data->operator[](i));
-        // if (i == endIdx - 1){
-        //     network->apply(1.2, APPLY_BATCH);
-        // }
+        drawNode(window, radius, x, y, color);
     }
-
-    for (size_t loop = 0; loop < batch; loop++){
-        auto dataPoint = data->operator[](loop);
-        auto coordinates = dataPoint.input;
-
-        int correctIndex = dataPoint.expect[0] != 0 ?
-            0 : 1;
-        auto color = correctIndex == 0 ? 
-            sf::Color(0x02d309FF) : // green
-            sf::Color(0xd31302FF); // red
-
-        auto x = (coordinates[0] - min) * nodeSize + PADDING;
-        auto y = (coordinates[1] - min) * nodeSize + PADDING;
-
-        // if(loop == startIdx){
-        //     timer.restart();
-        // }
-
-        // if(loop >= startIdx && timer.getElapsedTime().asMicroseconds() <= 200){
-        //     startIdx++;
-        //     network->learn(dataPoint);
-        // } else{
-            network->input(dataPoint);
-            network->outputs();
-        // }
-        
-        auto networkGuessColor = 
-            network->correct() ?
-                sf::Color(0x85f78dFF) : //  correct
-                sf::Color(0xf78f85FF); // invalid
-
-        drawNode(
-            window, radius*(1.0f + 2*OUTLINE),
-            x - radius*OUTLINE,
-            y - radius*OUTLINE,
-            networkGuessColor
-        );
-
-        drawNode(
-            window, radius, 
-            x, y, color
-        );
-    }
-
-    sf::Font font;
-    font.loadFromFile("Ubuntu-L.ttf");
-    sf::Text text(
-        "FPS: " + std::to_string(1000.0f / float(time)) +
-        " Cost: " + std::to_string(network->cost()) +
-        " Loss: " + std::to_string(network->loss(1)),
-        font, 24
-    );
-    // network->reset_loss();
-    text.setPosition({0,0});
-    text.setFillColor(sf::Color::White);
-    text.setOutlineColor(sf::Color::White);
-
-    // network->apply(batch);
-
-    window->draw(text);
-
-    window->display();
-
-    return i;
 }
 
 void neuralNetworkPointTest(){
@@ -212,8 +179,8 @@ void neuralNetworkPointTest(){
 
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
-    neural_network::ONeural net({2, 16, 16, 2});
-        
+    neural_network::ONeural net({2, 16, 16, 2}, ActivationType::relu);
+    net.initialize();
     window.display();
 
     constexpr double MIN = 0, MAX = 100;
@@ -224,12 +191,9 @@ void neuralNetworkPointTest(){
             return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
     }).createPointTest(MIN, MAX, 1500));
 
-    unsigned long long batchSize = 0;
-
     Clock timer;
 
     Clock displayTimer;
-    size_t startIdx = 0;
     while(window.isOpen()){
         Event event; 
         if(window.pollEvent(event)){
@@ -237,8 +201,8 @@ void neuralNetworkPointTest(){
             {
             case Event::Closed:{
                 window.close();
-                // db::FileManager fm("networkRL1.txt");
-                // fm.to_file(net);
+                db::FileManager fm("netw.txt");
+                fm.to_file(net);
             }
                 break;
             
@@ -249,15 +213,15 @@ void neuralNetworkPointTest(){
         auto time = displayTimer.getElapsedTime().asMilliseconds();
         if(time >= 20){
             displayTimer.restart();
-            startIdx = neuralNetworkPointTestVisalization(&window, &net, data.get(), MIN, MAX, time, startIdx);
-            batchSize += data->size();
-            // if (timer.getElapsedTime().asMilliseconds() >= 500){
-            //     printf("Apply batch: %llu\n", batchSize);
-            //     net.apply(batchSize);
-            //     timer.restart();
-            //     batchSize = 0;
-            // }
-
+            window.clear();
+            // renderPoints(&window, data.get(), MIN, MAX);
+            renderNetworkGuess(&window, &net, MIN, MAX);
+            net.batch_learn(data.get());
+            window.display();
+            if(timer.getElapsedTime().asMilliseconds() >= 1000){
+                timer.restart();
+                printf("Cost: %f Loss: %f\n", net.cost(), net.loss());
+            }
         }
     }
     return;
@@ -265,7 +229,6 @@ void neuralNetworkPointTest(){
 
 void windowWithDrawer(){
     neuralNetworkPointTest();
-    // baseWindowPlayer(neuralNetworkVisualization);
 }
 
 END_NAMESPACE

@@ -19,6 +19,7 @@ START_NAMESPACE_BACKEND
 class FileManager{
 
     std::string _path;
+
     public:
     FileManager(const std::string& filepath);
     FileManager() = default;
@@ -44,12 +45,14 @@ class FileManager{
                 ^-------------------^ 1 + 4
     */
     void to_file(neural_network::NeuralNetwork& network);
+    void to_file(neural_network::ONeural& network);
 
     /// @brief Reads from file NeuralNetwork structure, assumes given file is correctly configured 
     ///- it is actually an neural network structure file
     /// @return allocated via new NeuralNetwork object
     /// @throw `std::runtime_error` or `db::storage_not_found` if an error occurs while parsing the file
     neural_network::NeuralNetwork* network();
+    neural_network::ONeural* oneural();
 };
 
 END_NAMESPACE
