@@ -11,13 +11,9 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
     _activation_function = matchActivation(std::forward<ActivationType>(type));
     _derivative_of_activ = matchDerivative(std::forward<ActivationType>(type));
 
-    _weights.assign(outputs, std::vector<double>());
-    _gradient_weights.assign(outputs, std::vector<double>());
+    _weights.assign(outputs, std::vector<double>(inputs, 0));
+    _gradient_weights.assign(outputs, std::vector<double>(inputs, 0));
 
-    for (size_t i = 0; i < outputs; i++){
-        _weights[i].assign(inputs, 0);
-        _gradient_weights[i].assign(inputs, 0);
-    }
     _biases.assign(outputs, 0);
     _gradient_biases.assign(outputs, 0);
     _activations.assign(outputs, 0);
@@ -30,16 +26,14 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 }
 
 OLayer& OLayer::initialize(){
-    std::default_random_engine _engine;
+    std::default_random_engine _engine(std::chrono::system_clock::now().time_since_epoch().count());
+    std::uniform_real_distribution<double> _dist(-0.8, 1.2);
 
-    std::uniform_real_distribution<double> _dist(-1, 1);
-
-    for (size_t i = 0; i < _weights.size(); i++){
-        for(size_t j = 0; j < _weights[i].size(); j++){
-            _weights[i][j] = _dist(_engine);
-        }
-        _biases[i] = _dist(_engine);
+    for(auto& weight : _weights){
+        // std::generate calls _dist(_engine) for each element in weight
+        std::generate(weight.begin(), weight.end(), [&](){return _dist(_engine);});
     }
+    std::generate(_biases.begin(), _biases.end(), [&](){return _dist(_engine);});
 
     return *this;
 }
@@ -50,22 +44,19 @@ std::vector<double>& OLayer::calc_activations(std::vector<double>&& inputs){
     return _activations;
 }
 
+
 void OLayer::calc_activations(){
     // assuming that inputs are already set
-
-    // :))))
-    double neuron_activation;
     for (size_t i = 0; i < _neurons_size; i++){
 
         // using equasion:
         // weighted_input = input * weight + bias
         // For mulitple, it is just a sum of all weighted_inputs
-
-        neuron_activation = _biases[i];
-        for (size_t j = 0; j < _inputs_size; j++){
-            neuron_activation += _weights[i][j] * _inputs[j];
-        }
-        _activations[i] = _activation_function(neuron_activation);
+        
+        // std::inner_product calculates sum of all weighted_inputs, with starting value of bias
+        // on some hardware it is faster than for loop
+        _activations[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), _inputs.begin(), _biases[i]);
+        _activations[i] = _activation_function(_activations[i]);
     }
 }
 
@@ -105,15 +96,13 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer){
 
     */
 
-    size_t neurons = _weights.size();
-
     for (size_t n = 0; n < _neurons_size; n++){
-        double new_partial_derviative = 0;
+        double new_partial_derviative = 0.0;
+
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
-            new_partial_derviative += prev_layer->weight(n, prev) * prev_layer->_partial_derivatives[prev];
+            new_partial_derviative += prev_layer->_weights[prev][n] * prev_layer->_partial_derivatives[prev];
         }
-        new_partial_derviative *= _derivative_of_activ(_activations[n]);
-        _partial_derivatives[n] = new_partial_derviative;
+        _partial_derivatives[n] = new_partial_derviative * _derivative_of_activ(_activations[n]);
     }
 
     return this;
@@ -138,7 +127,7 @@ void OLayer::update_gradients(){
     for (size_t i = 0; i < _neurons_size; i++){
 
         // partial derivatives are calculated in `calc_output_gradient` and `calc_hidden_gradient`
-        
+        double partial_derivative = _partial_derivatives[i];
         for(size_t j = 0; j < _inputs_size; j++){
             /* 
             That is complete derviative:
@@ -150,7 +139,7 @@ void OLayer::update_gradients(){
 
                 For hidden layers see `calc_hidden_gradient`
             */
-            _gradient_weights[i][j] += _partial_derivatives[i] * _inputs[j];
+            _gradient_weights[i][j] += partial_derivative * _inputs[j];
         }
 
         /* 
@@ -159,32 +148,31 @@ void OLayer::update_gradients(){
                 d(cost)/d(bias) = d(cost)/d(activation) * d(activation)/d(weighted_input) * d(weighted_input)/d(bias)
                                 = 2 * (activation - expected) * (derivative of the activation function) * 1
         */
-        _gradient_biases[i] += _partial_derivatives[i];
+        _gradient_biases[i] += partial_derivative;
     }
-
 }
 
-void OLayer::apply_gradients(double learn_rate, size_t batch_size){
+void OLayer::apply_gradients(double learn_rate, size_t batch_size) {
+    double weighted_learn_rate = learn_rate / static_cast<double>(batch_size);
 
-    double weighted_learn_rate = learn_rate / double(batch_size);
-
-    for (size_t n = 0; n < _neurons_size; n++){
-        for(size_t w = 0; w < _inputs_size; w++){
+    for (size_t n = 0; n < _neurons_size; ++n) {
+        for(size_t w = 0; w < _inputs_size; ++w) {
             _weights[n][w] -= _gradient_weights[n][w] * weighted_learn_rate;
-            _gradient_weights[n][w] = 0;
+            _gradient_weights[n][w] = 0.0;
         }
         _biases[n] -= _gradient_biases[n] * weighted_learn_rate;
-        _gradient_biases[n] = 0;
+        _gradient_biases[n] = 0.0;
     }
 }
 
-double OLayer::cost(std::vector<double>&& expected){
-    double error, cost = 0;
+double OLayer::cost(std::vector<double>&& expected) {
+    double cost = 0.0;
 
-    for (size_t i = 0; i < _neurons_size; i++){
-        error = _activations[i] - expected[i];
-        cost += error*error;
+    for (size_t i = 0; i < _neurons_size; ++i) {
+        double error = _activations[i] - expected[i];
+        cost += error * error;
     }
+
     return cost;
 }
 
@@ -210,26 +198,22 @@ OLayer& OLayer::operator=(const OLayer& other){
     return *this;
 }
 
-// returns true if the a != b, else (false) a == b.
-inline bool diffrent_double(double a, double b, double approx = 0.001){
-    return a - b > approx;
+// returns true if the a ~= b, else (false) a != b.
+inline bool isApproximatelyEqual(double a, double b, double epsilon = 0.001){
+    return std::abs(a - b) <= epsilon;
 }
 
 bool OLayer::operator==(const OLayer& other){
-    if (other._neurons_size != _neurons_size){
-        return false;
-    }
-    
-    if(other._inputs_size != _inputs_size){
+    if (other._neurons_size != _neurons_size || other._inputs_size != _inputs_size){
         return false;
     }
 
     for (size_t i = 0; i < _neurons_size; i++){
-        if (diffrent_double(_biases[i], other._biases[i])){
+        if (!isApproximatelyEqual(_biases[i], other._biases[i])){
             return false;
         }
         for (size_t j = 0;j < _inputs_size; j++){
-            if (diffrent_double(_weights[i][j], other._weights[i][j])){
+            if (!isApproximatelyEqual(_weights[i][j], other._weights[i][j])){
                 return false;
             }
         }
@@ -238,7 +222,7 @@ bool OLayer::operator==(const OLayer& other){
 }
 
 bool OLayer::operator!=(const OLayer& other){
-    return !this->operator==(other);
+    return !(*this == other);
 }
 
 END_NAMESPACE

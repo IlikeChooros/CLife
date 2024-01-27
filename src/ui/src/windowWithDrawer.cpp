@@ -115,62 +115,64 @@ void neuralNetworkVisualization(
 void renderNetworkGuess(
     sf::RenderWindow* window, 
     neural_network::ONeural* network,
+    neural_network::data_batch* data,
     double min, 
     double max
 ){
-    constexpr auto PADDING = 30;
-    const auto diff = float(max - min);
-    const auto windowSize = std::min(window->getSize().x, window->getSize().y);
-    const float nodeSize = float(windowSize - PADDING*2) / diff;
+   constexpr auto radius = 16.0f;
 
-    const auto PIXEL_SIZE = nodeSize;
+    sf::Vector2u windowSize = window->getSize();
 
-    auto renderingSize = windowSize / nodeSize;
+    auto minSize = std::min(windowSize.x, windowSize.y);
 
-    for (size_t y = 0; y < renderingSize; y++){
-        for (size_t x = 0; x < renderingSize; x++){
-            network->raw_input({double(x), double(y)});
-            network->outputs();
-            auto color = 
-                network->classify() == 0
-                ? sf::Color(0x02d3095F)
-                : sf::Color(0xd313025F);
-            auto pixel = sf::RectangleShape(sf::Vector2f(PIXEL_SIZE, PIXEL_SIZE));
+    for (size_t i = 0; i < data->size(); i++){
+        auto dataPoint = (*data)[i];
+        network->input(dataPoint);
+        network->outputs();
+        auto color = network->correct()
+            ? sf::Color(0x02d30940) // green
+            : sf::Color(0xd3130240); // red
 
-            auto _x = x * PIXEL_SIZE + PADDING;
-            auto _y = y * PIXEL_SIZE + PADDING;
+        auto x = ((dataPoint.input[0] - min) / (max - min)) * minSize - radius/2;
+        auto y = ((dataPoint.input[1] - min) / (max - min)) * minSize - radius/2;
 
-            pixel.setPosition(sf::Vector2f(_x, _y));
-            pixel.setFillColor(color);
-            window->draw(pixel);
-        }
+        drawNode(window, radius, x, y, color);
     }
 }
 
 void renderPoints(
     sf::RenderWindow* window,
     std::vector<data::Data>* data,
+    neural_network::ONeural* network,
     double min, 
     double max
 ){
-    constexpr auto PADDING = 30;
+    constexpr auto PADDING = 20;
+    constexpr auto radius = 5.0f;
 
-    const auto diff = float(max - min);
+    sf::Vector2u windowSize = window->getSize();
 
-    const auto windowSize = std::min(window->getSize().x, window->getSize().y);
-    const float nodeSize = float(windowSize - PADDING*2) / diff;
-    const float radius = nodeSize / 2;
+    auto minSize = std::min(windowSize.x, windowSize.y);
+    minSize -= 2*PADDING;
 
     for (size_t i = 0; i < data->size(); i++){
-        auto dataPoint = data->operator[](i);
+        auto dataPoint = (*data)[i];
         auto color = dataPoint.expect[0] == 1
             ? sf::Color(0x02d309FF) // green
             : sf::Color(0xd31302FF); // red
 
-        auto x = (dataPoint.input[0] - min) * nodeSize + PADDING;
-        auto y = (dataPoint.input[1] - min) * nodeSize + PADDING;
+        auto x = dataPoint.input[0] * minSize + PADDING;
+        auto y = dataPoint.input[1] * minSize + PADDING;
 
         drawNode(window, radius, x, y, color);
+
+        network->input(dataPoint);
+        network->outputs();
+        auto netColor = network->classify() == 0
+            ? sf::Color(0x02d30940) // green
+            : sf::Color(0xd3130240); // red
+        
+        drawNode(window, 2.5f*radius, x - radius*0.5f, y - radius*0.5f, netColor);
     }
 }
 
@@ -179,17 +181,17 @@ void neuralNetworkPointTest(){
 
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
-    neural_network::ONeural net({2, 16, 16, 2}, ActivationType::relu);
-    net.initialize();
+    neural_network::ONeural net = neural_network::ONeural({2,16,8,4,2}, ActivationType::sigmoid, ActivationType::relu).initialize();
     window.display();
 
-    constexpr double MIN = 0, MAX = 100;
+    constexpr double MIN = 0, MAX = 400;
 
     test_creator::TestCreator creator;
     std::unique_ptr<std::vector<data::Data>> data(
         creator.prepare([](double x, double y){
+            // return x < y;
             return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
-    }).createPointTest(MIN, MAX, 1500));
+    }).createPointTest(MIN, MAX, 1024));
 
     Clock timer;
 
@@ -214,13 +216,21 @@ void neuralNetworkPointTest(){
         if(time >= 20){
             displayTimer.restart();
             window.clear();
-            // renderPoints(&window, data.get(), MIN, MAX);
-            renderNetworkGuess(&window, &net, MIN, MAX);
-            net.batch_learn(data.get());
+            renderPoints(&window, data.get(), &net, MIN, MAX);
+            // renderNetworkGuess(&window, &net, data.get(), MIN, MAX);
+            net.batch_learn(data.get(), 0.2, 32);
+            // net.raw_input({double(Mouse::getPosition(window).x), double(Mouse::getPosition(window).y)});
             window.display();
             if(timer.getElapsedTime().asMilliseconds() >= 1000){
                 timer.restart();
-                printf("Cost: %f Loss: %f\n", net.cost(), net.loss());
+                auto dataPoint = (*data)[rand() % data->size()];
+                net.input(dataPoint);
+                auto outputs = net.outputs();
+                printf(
+                    "Cost: %f Loss: %f Output0: %f Output1: %f classify: %lu x: %f y: %f\n",
+                     net.cost(), net.loss(), outputs[0], outputs[1], net.classify(),
+                    dataPoint.input[0] * (MAX- MIN), dataPoint.input[1] * (MAX - MIN)
+                );
             }
         }
     }
@@ -228,6 +238,7 @@ void neuralNetworkPointTest(){
 }
 
 void windowWithDrawer(){
+    srand(time(NULL));
     neuralNetworkPointTest();
 }
 

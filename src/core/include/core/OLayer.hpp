@@ -7,13 +7,16 @@ Using only layer (without Neurons as an individual node)
 */
 #pragma once
 
-#include "namespaces.hpp"
-#include "Activation/activation.hpp"
-
 #include <vector>
 #include <memory>
 #include <random>
 #include <cmath>
+#include <chrono>
+
+#include "namespaces.hpp"
+#include "Activation/activation.hpp"
+
+
 
 START_NAMESPACE_NEURAL_NETWORK
 
@@ -27,7 +30,7 @@ class OLayer{
     /// @brief Calls `build(...)` internally
     OLayer(size_t inputs, size_t outputs, ActivationType&& type = ActivationType::sigmoid);
 
-    /// @brief Builds the structure, sets reserves memory for this layer: allocates weights and biases
+    /// @brief Builds the structure, reserves memory for this layer: allocates weights and biases
     /// @param inputs number of inputs for the layer
     /// @param outputs number of outputs 
     /// @param type type of activation function
@@ -66,10 +69,32 @@ class OLayer{
     /// @param batch_size 
     void apply_gradients(double learn_rate, size_t batch_size);
 
+    /**
+     * @brief Calculates the cost of the output layer given the expected output.
+     * @param expected A vector of expected output values.
+     * @return The calculated cost.
+     */
     double cost(std::vector<double>&& expected);
+
+    /**
+     * @brief Returns the activations of the neurons in the layer.
+     * @return A reference to the vector of neuron activations.
+     */
     std::vector<double>& activations();
+
+    /**
+     * @brief Returns the weight of a connection from a specific input to a specific neuron.
+     * @param inputIdx The index of the input.
+     * @param neuronIdx The index of the neuron.
+     * @return A constant reference to the weight.
+     */
     const double& weight(size_t inputIdx, size_t neuronIdx);
     
+    /**
+     * @brief Overloads the assignment operator for the OLayer class.
+     * @param other The OLayer object to be copied.
+     * @return A reference to the current object.
+     */
     OLayer& operator=(const OLayer& other);
     bool operator==(const OLayer& other);
     bool operator!=(const OLayer& other);

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+
 #include <data/data.hpp>
 
 #include "OLayer.hpp"
@@ -32,13 +33,21 @@ class ONeural{
     /// @throw invalid_structure if the user gives invalid structure (.size() < 2)
     /// @param structure structures of the neural network, ex. {2,5,2,4} ->
     /// 2 inputs, 4 outputs, (5,2) -> number of neurons in hidden layers (2 hidden layers)
-    ONeural(const std::vector<double>& structure, ActivationType type = ActivationType::sigmoid);
+    ONeural(
+        const std::vector<double>& structure, 
+        ActivationType output_activation = ActivationType::sigmoid,
+        ActivationType hidden_activation = ActivationType::relu
+    );
 
     /// @brief builds the neural network with given structure
     /// @param structure structures of the neural network, ex. {2,5,2,4} ->
     /// 2 inputs, 4 outputs, (5,2) -> number of neurons in hidden layers (2 hidden layers)
     /// @return *this
-    ONeural& build(const std::vector<double>& structure, ActivationType type = ActivationType::sigmoid);
+    ONeural& build(
+        const std::vector<double>& structure, 
+        ActivationType output_activation = ActivationType::sigmoid,
+        ActivationType hidden_activation = ActivationType::relu
+    );
 
     /// @brief Initializes the weights and biases with random values,
     /// may be called only after `build()`
@@ -81,14 +90,14 @@ class ONeural{
     /// @param batch_size 
     double loss(size_t batch_size = 32UL);
 
-    /// @brief current cost of the network
+    /// @brief current cost of the network, outputs must be already calculated
     double cost();
 
-    /// @brief Tell wheter the network's guess was correct
-    bool correct();
+    /// @brief Tell wheter the network's guess was correct, outputs must be already calculated
+    bool correct() const;
 
-    /// @brief return the index of the most activated neuron
-    size_t classify();
+    /// @brief return the index of the most activated neuron, outputs must be already calculated
+    size_t classify() const;
 
     /// @brief return the structure of the network
     const std::vector<double>& structure();

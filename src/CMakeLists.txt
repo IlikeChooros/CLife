@@ -18,5 +18,6 @@ target_link_libraries(
             test-creator
 )
 
+
 configure_file(${CMAKE_SOURCE_DIR}/Ubuntu-L.ttf ${CMAKE_BINARY_DIR} COPYONLY)
 target_link_libraries(${PROJECT_NAME} PUBLIC sfml-graphics sfml-window sfml-system) 

@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <algorithm>
+#include <ctime>
 
 #include <core/core.hpp>
 #include <test-creator/TestCreator.hpp>

@@ -6,6 +6,7 @@
 #include <functional>
 #include <chrono>
 #include <random>
+#include <memory>
 
 START_NAMESPACE_TEST_CREATOR
 
