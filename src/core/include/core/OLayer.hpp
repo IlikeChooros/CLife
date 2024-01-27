@@ -22,7 +22,7 @@ START_NAMESPACE_NEURAL_NETWORK
 
 class OLayer{
     
-    friend class ONeural;    
+    friend class ONeural;
 
     public:
     OLayer() = default;

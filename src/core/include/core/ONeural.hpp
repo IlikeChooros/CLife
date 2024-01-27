@@ -71,9 +71,9 @@ class ONeural{
     /// @param whole_data whole training_data
     /// @param learn_rate learning rate
     /// @param batch_size mini batch size
-    void batch_learn(data_batch* whole_data, double learn_rate = 0.8, size_t batch_size = 32UL);
+    void batch_learn(data_batch* whole_data, double learn_rate = 0.4, size_t batch_size = 32UL);
 
-    /// @brief set input for then network
+    /// @brief set input for then network, inputs must be normalized, data.input values should range in <-1, 1>
     /// @param data 
     void input(data::Data& data);
 

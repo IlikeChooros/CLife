@@ -162,7 +162,7 @@ void renderPoints(
             : sf::Color(0xd31302FF); // red
 
         auto x = dataPoint.input[0] * minSize + PADDING;
-        auto y = dataPoint.input[1] * minSize + PADDING;
+        auto y = (1 - dataPoint.input[1]) * minSize + PADDING;
 
         drawNode(window, radius, x, y, color);
 
@@ -181,7 +181,8 @@ void neuralNetworkPointTest(){
 
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
-    neural_network::ONeural net = neural_network::ONeural({2,16,8,4,2}, ActivationType::sigmoid, ActivationType::relu).initialize();
+    neural_network::ONeural net = neural_network::ONeural(
+        {2,16,8,4,2}, ActivationType::sigmoid, ActivationType::relu).initialize();
     window.display();
 
     constexpr double MIN = 0, MAX = 400;
@@ -189,8 +190,11 @@ void neuralNetworkPointTest(){
     test_creator::TestCreator creator;
     std::unique_ptr<std::vector<data::Data>> data(
         creator.prepare([](double x, double y){
-            // return x < y;
+            // return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
+            // return y < 100 || y > 300;
             return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
+            // return 0.0018*x*x - 6*x + MAX*1.2 > y;
+            // return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
     }).createPointTest(MIN, MAX, 1024));
 
     Clock timer;
@@ -218,7 +222,7 @@ void neuralNetworkPointTest(){
             window.clear();
             renderPoints(&window, data.get(), &net, MIN, MAX);
             // renderNetworkGuess(&window, &net, data.get(), MIN, MAX);
-            net.batch_learn(data.get(), 0.2, 32);
+            
             // net.raw_input({double(Mouse::getPosition(window).x), double(Mouse::getPosition(window).y)});
             window.display();
             if(timer.getElapsedTime().asMilliseconds() >= 1000){
@@ -233,6 +237,7 @@ void neuralNetworkPointTest(){
                 );
             }
         }
+        net.batch_learn(data.get(), 0.6, 64);
     }
     return;
 }

@@ -56,6 +56,7 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "any": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "optional": "cpp"
     }
 }
