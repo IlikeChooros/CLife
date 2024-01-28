@@ -11,7 +11,7 @@ Loader& Loader::load(const std::string& path){
     return *this;
 }
 
-std::vector<std::vector<float>> Loader::get_images(){
+std::vector<std::vector<double>>* Loader::get_images(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
         throw std::runtime_error("Could not open file");
@@ -38,21 +38,24 @@ std::vector<std::vector<float>> Loader::get_images(){
     }
 
     int image_size = n_rows * n_cols;
-    std::vector<std::vector<float>> images(number_of_images, std::vector<float>(image_size));
+    std::unique_ptr<std::vector<std::vector<double>>> images(
+        new std::vector<std::vector<double>>(number_of_images, std::vector<double>(image_size))
+    );
+    
     for(int i = 0; i < number_of_images; i++){
-        file.read(reinterpret_cast<char*>(images[i].data()), image_size);
-        std::transform(images[i].begin(), images[i].end(), images[i].begin(), [](float pixel){
+        file.read(reinterpret_cast<char*>((*images)[i].data()), image_size);
+        std::transform((*images)[i].begin(), (*images)[i].end(), (*images)[i].begin(), [](float pixel){
             return pixel / 255.0f; // Normalize to [0, 1]
         });
     }
 
-    return images;
+    return images.release();
 }
 
 /**
  * @brief Get the labels object
 */
-std::vector<std::vector<float>> Loader::get_labels(){
+std::vector<std::vector<double>>* Loader::get_labels(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
         throw std::runtime_error("Could not open file");
@@ -74,12 +77,31 @@ std::vector<std::vector<float>> Loader::get_labels(){
     std::vector<uint8_t> labels(num_labels);
     file.read(reinterpret_cast<char*>(labels.data()), num_labels);
 
-    std::vector<std::vector<float>> labels_float(num_labels, std::vector<float>(10, 0));
+    std::unique_ptr<std::vector<std::vector<double>>> labels_double(
+        new std::vector<std::vector<double>>(num_labels, std::vector<double>(10, 0))
+    );
     for(int i = 0; i < num_labels; i++){
-        labels_float[i][labels[i]] = 1;
+        (*labels_double)[i][labels[i]] = 1;
     }
 
-    return labels_float;
+    return labels_double.release();
+}
+
+data::data_batch* Loader::merge_data(
+    std::vector<std::vector<double>>* images,
+    std::vector<std::vector<double>>* labels
+){
+    if(images->size() != labels->size()){
+        throw std::runtime_error("Number of images and labels does not match!");
+    }
+
+    std::unique_ptr<data::data_batch> data(new data::data_batch(images->size()));
+    for(int i = 0; i < images->size(); i++){
+        (*data)[i].input = (*images)[i];
+        (*data)[i].expect = (*labels)[i];
+    }
+
+    return data.release();
 }
 
 END_NAMESPACE_MNIST

@@ -6,7 +6,8 @@
 
 
 START_NAMESPACE_DATA
-    
+
+
 
 /// @brief Input class for neural network
 class Data{
@@ -39,5 +40,7 @@ public:
     int x;
     int y;
 };
+
+typedef std::vector<Data> data_batch;
 
 END_NAMESPACE

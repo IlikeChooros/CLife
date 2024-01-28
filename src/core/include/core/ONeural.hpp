@@ -54,6 +54,10 @@ class ONeural{
     /// @return *this
     ONeural& initialize();
 
+    /// @brief Trains the network on given `data`, doesn't apply gradients
+    /// @param data single data point
+    void train(data::Data& data);
+
     /// @brief Learns signle point -> calculates gradients and applies them
     /// @param data signle data point
     /// @param learn_rate learning rate
@@ -67,11 +71,16 @@ class ONeural{
 
     /// @brief Learns by mini batches given `whole_data`, divides the `whole_data` into smaller chunks
     /// with the size of `batch_size`, and calls `learn(data_batch* training_data, double learn_rate)`
-    /// internally. Call this method repeatedly to let the network iterate over whole data
-    /// @param whole_data whole training_data
+    /// internally. Call this method repeatedly to let the network iterate over whole data (whole_data.size() / batch_size times)
+    /// @param whole_data whole training data
     /// @param learn_rate learning rate
     /// @param batch_size mini batch size
     void batch_learn(data_batch* whole_data, double learn_rate = 0.4, size_t batch_size = 32UL);
+
+    /// @brief Applies the gradients calculated by `train(...)` method
+    /// @param learn_rate learning rate 
+    /// @param batch_size batch size of the training data
+    void apply(double learn_rate = 0.4, size_t batch_size = 32UL);
 
     /// @brief set input for then network, inputs must be normalized, data.input values should range in <-1, 1>
     /// @param data 
@@ -114,6 +123,8 @@ class ONeural{
     /// @param other 
     /// @return *this
     ONeural& operator=(const ONeural& other);
+
+    double accuracy(data_batch* test);
 
     OLayer _output_layer;
     std::vector<OLayer> _hidden_layers;

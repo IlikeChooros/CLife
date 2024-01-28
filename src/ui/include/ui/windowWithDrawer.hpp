@@ -9,6 +9,7 @@
 #include <core/core.hpp>
 #include <test-creator/TestCreator.hpp>
 #include <backend/backend.hpp>
+#include <mnist/mnist.hpp>
 
 START_NAMESPACE_UI
 

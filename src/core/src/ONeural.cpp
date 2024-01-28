@@ -76,24 +76,21 @@ void ONeural::_update_gradients(data::Data&& data){
     }
 }
 
+void ONeural::train(data::Data& data){
+    _update_gradients(std::forward<data::Data>(data));
+}
+
 void ONeural::learn(data::Data& data, double learn_rate){
     _update_gradients(std::forward<data::Data>(data));
 
-    for(auto& layer : _hidden_layers){
-        layer.apply_gradients(learn_rate, 1);
-    }
-    _output_layer.apply_gradients(learn_rate, 1);
+    apply(learn_rate, 1);
 }
 
 void ONeural::learn(data_batch* training_data, double learn_rate){
     for (auto& data : *training_data){
         _update_gradients(std::forward<data::Data>(data));
     }
-    
-    for(auto& layer : _hidden_layers){
-        layer.apply_gradients(learn_rate, training_data->size());
-    }
-    _output_layer.apply_gradients(learn_rate, training_data->size());
+    apply(learn_rate, training_data->size());
 }
 
 void ONeural::batch_learn(data_batch* whole_data, double learn_rate, size_t batch_size){
@@ -106,6 +103,13 @@ void ONeural::batch_learn(data_batch* whole_data, double learn_rate, size_t batc
     learn(&batch, learn_rate);
     
     _iterator = (end_itr != whole_data->size()) ? _iterator + 1 : 0;
+}
+
+void ONeural::apply(double learn_rate, size_t batch_size){
+    for(auto& layer : _hidden_layers){
+        layer.apply_gradients(learn_rate, batch_size);
+    }
+    _output_layer.apply_gradients(learn_rate, batch_size);
 }
 
 const std::vector<double>& ONeural::outputs(){
@@ -152,6 +156,18 @@ bool ONeural::correct() const{
 
 const std::vector<double>& ONeural::structure(){
     return _structure;
+}
+
+double ONeural::accuracy(data_batch* test){
+    size_t correct_count = 0;
+    for (auto& data : *test){
+        input(data);
+        outputs();
+        if (correct()){
+            correct_count++;
+        }
+    }
+    return static_cast<double>(correct_count) / static_cast<double>(test->size());
 }
 
 // operators
