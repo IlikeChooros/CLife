@@ -15,10 +15,10 @@ START_NAMESPACE_MNIST
 constexpr int32_t MNIST_MAGIC_NUMBER = 2051;
 constexpr int32_t MNIST_LABEL_MAGIC_NUMBER = 2049;
 
-constexpr char MNIST_TRAINING_SET_IMAGE_FILE_NAME[] = "train-images-idx3-ubyte";
-constexpr char MNIST_TRAINING_SET_LABEL_FILE_NAME[] = "train-labels-idx1-ubyte";
-constexpr char MNIST_TEST_SET_IMAGE_FILE_NAME[] = "t10k-images-idx3-ubyte";
-constexpr char MNIST_TEST_SET_LABEL_FILE_NAME[] = "t10k-labels-idx1-ubyte";
+constexpr char MNIST_TRAINING_SET_IMAGE_FILE_NAME[] = "train-images.idx3-ubyte";
+constexpr char MNIST_TRAINING_SET_LABEL_FILE_NAME[] = "train-labels.idx1-ubyte";
+constexpr char MNIST_TEST_SET_IMAGE_FILE_NAME[] = "t10k-images.idx3-ubyte";
+constexpr char MNIST_TEST_SET_LABEL_FILE_NAME[] = "t10k-labels.idx1-ubyte";
 
 class Loader{
 

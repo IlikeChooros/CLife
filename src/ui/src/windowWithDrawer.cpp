@@ -182,7 +182,8 @@ void neuralNetworkPointTest(){
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
     neural_network::ONeural net = neural_network::ONeural(
-        {2,16,8,4,2}, ActivationType::sigmoid, ActivationType::relu).initialize();
+        {2,16,8,4,2}, ActivationType::sigmoid, ActivationType::relu);
+    net.initialize();
     window.display();
 
     constexpr double MIN = 0, MAX = 400;
@@ -190,9 +191,9 @@ void neuralNetworkPointTest(){
     test_creator::TestCreator creator;
     std::unique_ptr<std::vector<data::Data>> data(
         creator.prepare([](double x, double y){
-            // return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
+            return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
             // return y < 100 || y > 300;
-            return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
+            // return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
             // return 0.0018*x*x - 6*x + MAX*1.2 > y;
             // return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
     }).createPointTest(MIN, MAX, 1024));
@@ -238,6 +239,7 @@ void neuralNetworkPointTest(){
             }
         }
         net.batch_learn(data.get(), 0.6, 64);
+        
     }
     return;
 }

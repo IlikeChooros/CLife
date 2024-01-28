@@ -29,9 +29,9 @@ OLayer& OLayer::initialize(){
     std::default_random_engine _engine(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_real_distribution<double> _dist(-0.8, 1.2);
 
-    for(auto& weight : _weights){
-        // std::generate calls _dist(_engine) for each element in weight
-        std::generate(weight.begin(), weight.end(), [&](){return _dist(_engine);});
+    for(auto& weights : _weights){
+        // std::generate calls _dist(_engine) for each element in weights
+        std::generate(weights.begin(), weights.end(), [&](){return _dist(_engine);});
     }
     std::generate(_biases.begin(), _biases.end(), [&](){return _dist(_engine);});
 

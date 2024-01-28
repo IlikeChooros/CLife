@@ -48,12 +48,11 @@ ONeural& ONeural::build(
     return *this;
 }
 
-ONeural& ONeural::initialize(){
+void ONeural::initialize(){
     for(auto& layer : _hidden_layers){
         layer.initialize();
     }
     _output_layer.initialize();
-    return *this;
 }
 
 void ONeural::_update_gradients(data::Data&& data){

@@ -9,4 +9,4 @@ target_include_directories(ui
   PUBLIC include
   )
 
-target_link_libraries(ui sfml-graphics sfml-window sfml-system core test-creator backend mnist)
+target_link_libraries(ui sfml-graphics sfml-window sfml-system core test-creator backend mnist optimizer)

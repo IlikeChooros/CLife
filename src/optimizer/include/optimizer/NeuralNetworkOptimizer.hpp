@@ -2,6 +2,9 @@
 
 #include "namespaces.hpp"
 
+#include <iostream>
+#include <chrono>
+
 #include <core/core.hpp>
 #include <mnist/mnist.hpp>
 
@@ -9,8 +12,10 @@ START_NAMESPACE_OPTIMIZER
 
 struct NeuralNetworkOptimizerParameters
 {
-    NeuralNetworkOptimizerParameters() = default;
-    virtual ~NeuralNetworkOptimizerParameters() = default;
+    NeuralNetworkOptimizerParameters(): 
+        batchSize(0), epochs(0), learningRate(0.4),
+        trainingData(nullptr), testData(nullptr), network(nullptr) {};
+    virtual ~NeuralNetworkOptimizerParameters() {};
 
     NeuralNetworkOptimizerParameters& setNeuralNetwork(
         neural_network::ONeural* network

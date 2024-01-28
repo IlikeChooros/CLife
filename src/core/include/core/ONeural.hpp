@@ -51,8 +51,7 @@ class ONeural{
 
     /// @brief Initializes the weights and biases with random values,
     /// may be called only after `build()`
-    /// @return *this
-    ONeural& initialize();
+    void initialize();
 
     /// @brief Trains the network on given `data`, doesn't apply gradients
     /// @param data single data point
