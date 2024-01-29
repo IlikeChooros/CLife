@@ -3,6 +3,7 @@ add_library(ui "")
 target_sources(ui
   PRIVATE
     src/windowWithDrawer.cpp
+    src/Drawer.cpp
   )
 
 target_include_directories(ui

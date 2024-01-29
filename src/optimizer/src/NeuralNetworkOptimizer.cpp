@@ -18,7 +18,11 @@ NeuralNetworkOptimizer& NeuralNetworkOptimizer::setParameters(
 
 double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
 {
-    
+    std::shuffle(
+        params.trainingData->begin(), 
+        params.trainingData->end(), 
+        std::mt19937(std::random_device()())
+    );
     double average_loss = 0.0;
     double current_loss = 0.0;
     for (size_t i = 0; i < total_batches; ++i)
@@ -59,7 +63,7 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         auto startTime = std::chrono::high_resolution_clock::now();
 
         auto average_loss = train_epoch(total_batches);
-        result.setTrainingAccuracy(average_loss);
+        result.setTrainingAccuracy(1 - average_loss);
 
         std::cout << "**** Epoch " << i << " average loss: " << average_loss << " time: " 
             << std::chrono::duration_cast<std::chrono::milliseconds>(
