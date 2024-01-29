@@ -8,8 +8,7 @@ OLayer::OLayer(size_t inputs, size_t outputs, ActivationType&& type){
 
 OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
-    _activation_function = matchActivation(std::forward<ActivationType>(type));
-    _derivative_of_activ = matchDerivative(std::forward<ActivationType>(type));
+    _match_activations(type);
 
     _weights.assign(outputs, std::vector<double>(inputs, 0));
     _gradient_weights.assign(outputs, std::vector<double>(inputs, 0));
@@ -38,6 +37,26 @@ OLayer& OLayer::initialize(){
     return *this;
 }
 
+void OLayer::_match_activations(const ActivationType& activation){
+    switch (activation)
+    {
+    case ActivationType::sigmoid:
+        _activation_function = sigmoid::activation;
+        _derivative_of_activ = sigmoid::derivative;
+        break;
+    case ActivationType::relu:
+        _activation_function = relu::activation;
+        _derivative_of_activ = relu::derivative;
+        break;
+    case ActivationType::softmax:
+        _activation_function = softmax::activation;
+        _derivative_of_activ = softmax::derivative;
+        break;
+    default:
+        break;
+    }
+}
+
 std::vector<double>& OLayer::calc_activations(std::vector<double>&& inputs){
     _inputs = inputs;
     calc_activations();
@@ -56,7 +75,7 @@ void OLayer::calc_activations(){
         // std::inner_product calculates sum of all weighted_inputs, with starting value of bias
         // on some hardware it is faster than for loop
         _activations[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), _inputs.begin(), _biases[i]);
-        _activations[i] = _activation_function(_activations[i]);
+        _activations[i] = _activation_function(_activations, i);
     }
 }
 
@@ -102,7 +121,7 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer){
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->_weights[prev][n] * prev_layer->_partial_derivatives[prev];
         }
-        _partial_derivatives[n] = new_partial_derviative * _derivative_of_activ(_activations[n]);
+        _partial_derivatives[n] = new_partial_derviative * _derivative_of_activ(_activations, n);
     }
 
     return this;
@@ -117,7 +136,7 @@ OLayer* OLayer::calc_output_gradient(std::vector<double>&& expected){
         error_deriv = 2 * (_activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
-        deriv_with_error_and_activation = error_deriv * _derivative_of_activ(_activations[n]);
+        deriv_with_error_and_activation = error_deriv * _derivative_of_activ(_activations, n);
         _partial_derivatives[n] = deriv_with_error_and_activation;
     }
     return this;

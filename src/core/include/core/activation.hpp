@@ -3,9 +3,12 @@
 #include <algorithm>
 #include <cmath>
 
+#include "namespaces.hpp"
+
 enum class ActivationType {
     sigmoid,
     relu,
+    softmax
 };
 
 class BaseActivation{
@@ -50,49 +53,28 @@ public:
 
 /// New - namespace approach
 namespace neural_network{
+    using vecdouble = std::vector<double>;
     namespace sigmoid{
-        inline double activation(double arg){
-            // auto ret = 1 / (1 + exp(-arg));
-            // if (std::isnan(ret)){
-            //     while(1){
-
-            //     }
-            // }
-            return 1 / (1 + exp(-arg));
+        inline double activation(vecdouble& activations, size_t index){
+            return 1 / (1 + exp(-activations[index]));
         }
-        inline double derivative(double activation){
-            return activation * (1 - activation);
+        inline double derivative(vecdouble& activations, size_t index){
+            return activations[index] * (1 - activations[index]);
         }
     }
     namespace relu
     {
-        inline double activation(double arg){
-            return std::max(double(0), arg);
+        inline double activation(vecdouble& activations, size_t index){
+            return std::max(double(0), activations[index]);
         }
-        inline double derivative(double activation){
-            return activation > 0;
+        inline double derivative(vecdouble& activations, size_t index){
+            return activations[index] > 0;
         }
     } // namespace relu
-    
-    typedef double(*function_pointer)(double);
 
-    inline function_pointer matchType(ActivationType&& type, function_pointer on_sigmoid, function_pointer on_relu){
-        switch (type)
-        {
-        case ActivationType::sigmoid:
-            return on_sigmoid;
-        case ActivationType::relu:
-            return on_relu;
-        default:
-            return nullptr;
-        }
-    }
-
-    inline function_pointer matchActivation(ActivationType&& type){
-        return matchType(std::forward<ActivationType>(type), sigmoid::activation, relu::activation);
-    }
-
-    inline function_pointer matchDerivative(ActivationType&& type){
-        return matchType(std::forward<ActivationType>(type), sigmoid::derivative, relu::derivative);
+    namespace softmax
+    {
+        double activation(vecdouble& args, size_t index);
+        double derivative(vecdouble& activations, size_t index);
     }
 }

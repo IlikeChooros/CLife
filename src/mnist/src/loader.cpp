@@ -14,7 +14,7 @@ Loader& Loader::load(const std::string& path){
 std::vector<std::vector<double>>* Loader::get_images(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
-        throw std::runtime_error("Could not open file");
+        throw std::runtime_error("Could not open file: " + path);
     }
 
     int magic_number = 0;
@@ -42,11 +42,15 @@ std::vector<std::vector<double>>* Loader::get_images(){
         new std::vector<std::vector<double>>(number_of_images, std::vector<double>(image_size))
     );
     
+
     for(int i = 0; i < number_of_images; i++){
-        file.read(reinterpret_cast<char*>((*images)[i].data()), image_size);
-        std::transform((*images)[i].begin(), (*images)[i].end(), (*images)[i].begin(), [](float pixel){
-            return pixel / 255.0f; // Normalize to [0, 1]
+        std::vector<uint8_t> image(image_size);
+        file.read(reinterpret_cast<char*>(image.data()), image_size);
+
+        std::transform(image.begin(), image.end(), (*images)[i].begin(), [](uint8_t pixel){
+            return static_cast<double>(pixel) / 255.0f; // Normalize to [0, 1]
         });
+        std::cout << std::endl;
     }
 
     return images.release();
@@ -58,7 +62,7 @@ std::vector<std::vector<double>>* Loader::get_images(){
 std::vector<std::vector<double>>* Loader::get_labels(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
-        throw std::runtime_error("Could not open file");
+        throw std::runtime_error("Could not open file: " + path);
     }
 
     int32_t magic_number = 0;
@@ -96,7 +100,7 @@ data::data_batch* Loader::merge_data(
     }
 
     std::unique_ptr<data::data_batch> data(new data::data_batch(images->size()));
-    for(int i = 0; i < images->size(); i++){
+    for(size_t i = 0; i < images->size(); i++){
         (*data)[i].input = (*images)[i];
         (*data)[i].expect = (*labels)[i];
     }

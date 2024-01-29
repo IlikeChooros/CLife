@@ -14,7 +14,7 @@ Using only layer (without Neurons as an individual node)
 #include <chrono>
 
 #include "namespaces.hpp"
-#include "Activation/activation.hpp"
+#include "activation.hpp"
 
 
 
@@ -23,6 +23,8 @@ START_NAMESPACE_NEURAL_NETWORK
 class OLayer{
     
     friend class ONeural;
+
+    void _match_activations(const ActivationType& activation);
 
     public:
     OLayer() = default;
@@ -109,9 +111,9 @@ class OLayer{
     std::vector<double> _activations;
     std::vector<double> _inputs;
     std::vector<double> _partial_derivatives;
-
-    std::function<double(double)> _activation_function;
-    std::function<double(double)> _derivative_of_activ;
+    
+    std::function<double(std::vector<double>&, size_t i)> _activation_function;
+    std::function<double(std::vector<double>&, size_t i)> _derivative_of_activ;
 };
 
 

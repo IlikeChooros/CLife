@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm> 
@@ -25,6 +26,7 @@ class Loader{
     std::string path;
 
 public:
+    Loader() = default;
     Loader(const std::string& path);
 
     Loader& load(const std::string& path);

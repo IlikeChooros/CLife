@@ -11,6 +11,7 @@ PRIVATE
     src/Neuron.cpp
     src/OLayer.cpp
     src/ONeural.cpp
+    src/activation.cpp
 )
 
 target_link_libraries(core PUBLIC data)

@@ -2,7 +2,7 @@
 
 #include "namespaces.hpp"
 #include "../../../random-gen/Random.hpp"
-#include "./Activation/activation.hpp"
+#include "activation.hpp"
 
 #include <vector>
 #include <memory>
