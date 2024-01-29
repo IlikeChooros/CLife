@@ -26,7 +26,7 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
 OLayer& OLayer::initialize(){
     std::default_random_engine _engine(std::chrono::system_clock::now().time_since_epoch().count());
-    std::uniform_real_distribution<double> _dist(-0.8, 1.2);
+    std::uniform_real_distribution<double> _dist(-0.04, 0.04);
 
     for(auto& weights : _weights){
         // std::generate calls _dist(_engine) for each element in weights

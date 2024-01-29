@@ -4,7 +4,7 @@
 
 int main()
 {
-    const std::string PATH = "src/mnist/digits/";
+    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
     auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
     auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
@@ -43,16 +43,18 @@ int main()
     );  
     network->initialize();
 
-    params.setNeuralNetwork(network.get()).setTrainingData(trainingData.get())
-          .setTestData(testData.get()).setBatchSize(128).setEpochs(2).setLearningRate(0.15);
+    params.setNeuralNetwork(network.get())
+          .setTrainingData(trainingData.get())
+          .setTestData(testData.get())
+          .setBatchSize(128)
+          .setEpochs(1)
+          .setLearningRate(0.15);
 
     optimizer::NeuralNetworkOptimizer optimizer(params);
-    optimizer.train_epoch(5);
+    optimizer.optimize();
     
     db::FileManager fm("mnist_network.txt");
     fm.to_file(*network);
-
-
 
 
     // optimizer::NeuralNetworkOptimizer optimizer;
