@@ -54,8 +54,8 @@ int main()
           .setTrainingData(trainingData.get())
           .setTestData(testData.get())
           .setBatchSize(64)
-          .setEpochs(3)
-          .setLearningRate(0.7);
+          .setEpochs(4)
+          .setLearningRate(0.72);
 
     optimizer::NeuralNetworkOptimizer optimizer(params);
     optimizer.optimize();
@@ -70,13 +70,13 @@ int main()
         network->raw_input(pixels);
         auto outputs = network->outputs();
         auto guess = network->classify();
-        if (guess != prevGuess) {
+        // if (guess != prevGuess) {
             std::cout << "Network guess: " << guess << std::endl;
             for (size_t i = 0; i < outputs.size(); i++) {
                 std::cout << '\t' << i << ": " << outputs[i] << std::endl;
             }
             prevGuess = guess;
-        }
+        // }
     }).open();
 
     return 0;

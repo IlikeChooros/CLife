@@ -129,6 +129,7 @@ neural_network::ONeural* FileManager::from_file(){
 
     // read hidden layers
     int hidden_size = structure.size() - 2;
+    float f;
     if (hidden_size > 0){
         int size = hidden_size + 1;
         for(int prevLayer = 0, layer = 1; layer < size; ++layer, ++prevLayer ){
@@ -136,14 +137,17 @@ neural_network::ONeural* FileManager::from_file(){
             auto neuronsOut = structure[layer];
 
             for (size_t neuron = 0; neuron < neuronsOut; neuron++){
-                reader >> net->_hidden_layers[prevLayer]._biases[neuron];
+                
+                reader >> f;
+                net->_hidden_layers[prevLayer]._biases[neuron] = static_cast<double>(f);
                 for (size_t weight = 0; weight < neuronsIn; weight++){
                     if (reader.eof() || reader.bad()){
                         throw neural_network::invalid_structure(
                             "something went wrong while reading hidden layer, at: row = " +
                             std::to_string(neuron) + " col = " + std::to_string(weight));
                     }
-                    reader >> net->_hidden_layers[prevLayer]._weights[neuron][weight];
+                    reader >> f;
+                    net->_hidden_layers[prevLayer]._biases[neuron] = static_cast<double>(f);
                 }
             }
         }
@@ -153,14 +157,16 @@ neural_network::ONeural* FileManager::from_file(){
     auto neuronsOut = structure[structure.size() - 1];
 
     for (size_t neuron = 0; neuron < neuronsOut; neuron++){
-        reader >> net->_output_layer._biases[neuron];
+        reader >> f;
+        net->_output_layer._biases[neuron] = static_cast<double>(f);
         for (size_t weight = 0; weight < neuronsIn; weight++){
             if (reader.eof() || reader.bad()){
                 throw neural_network::invalid_structure(
                     "something went wrong while reading output layer, at: row = " +
                     std::to_string(neuron) + " col = " + std::to_string(weight));
             }
-            reader >> net->_output_layer._weights[neuron][weight];
+            reader >> f;
+            net->_output_layer._weights[neuron][weight] = static_cast<double>(f);
         }
     }
     return net.release();
