@@ -5,6 +5,7 @@ add_subdirectory(digits)
 target_sources(mnist
     PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/src/loader.cpp
+        ${CMAKE_CURRENT_LIST_DIR}/src/transformator.cpp
     )
 
 target_include_directories(mnist

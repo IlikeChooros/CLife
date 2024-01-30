@@ -18,19 +18,30 @@ class Drawer{
 
     size_t width;
     size_t height;
-    size_t pixelWidth;
-    size_t pixelHeight;
+    size_t pixelRows;
+    size_t pixelCols;
 
-    void _draw(sf::Event::MouseButtonEvent& event);
+    void _draw(sf::Event::MouseButtonEvent& event, bool erase);
+
+    std::vector<std::vector<uint8_t>> _pixels;
+
+    void _drawPixels();
+
+    std::function<void(std::vector<double>)> _callback;
 
     public:
     Drawer(
-        size_t width = 1024, size_t height = 1024,
-        size_t pixelsWidth = 28, size_t pixelsHeight = 28
+        size_t width = 512, size_t height = 512,
+        size_t pixelRows = 28, size_t pixelCols = 28
     );
 
-    void open();
+    /**
+     * @brief Set the callback function, the argument is a 2D vector of doubles - normalized pixels
+    */
+    Drawer& setCallback(std::function<void(std::vector<double>)> callback);
 
+    void open();
+    std::vector<double> getPixels();
 };
 
 END_NAMESPACE

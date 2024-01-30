@@ -42,5 +42,6 @@ public:
 };
 
 typedef std::vector<Data> data_batch;
+typedef std::vector<std::vector<double>> matrix_t;
 
 END_NAMESPACE

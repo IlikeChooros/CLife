@@ -1,0 +1,1 @@
+#include <mnist/transformator.hpp>
