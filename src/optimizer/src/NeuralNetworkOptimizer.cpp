@@ -23,6 +23,10 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
         params.trainingData->end(), 
         std::mt19937(std::random_device()())
     );
+    mnist::transformator t;
+    std::unique_ptr<data::data_batch> noisy(
+        t.add_noise(params.trainingData, 5)
+    );
     double average_loss = 0.0;
     double current_loss = 0.0;
     for (size_t i = 0; i < total_batches; ++i)
@@ -30,7 +34,7 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
         auto startTime = std::chrono::high_resolution_clock::now();
 
         params.network->batch_learn(
-            params.trainingData, 
+            noisy.get(), 
             params.learningRate,
             params.batchSize
         );

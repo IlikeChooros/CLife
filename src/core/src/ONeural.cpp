@@ -3,7 +3,7 @@
 START_NAMESPACE_NEURAL_NETWORK
 
 ONeural::ONeural(
-    const std::vector<double>& structure, 
+    const std::vector<size_t>& structure, 
     ActivationType output_activation,
     ActivationType hidden_activation
 ){
@@ -11,7 +11,7 @@ ONeural::ONeural(
 }
 
 ONeural& ONeural::build(
-    const std::vector<double>& structure,
+    const std::vector<size_t>& structure,
     ActivationType output_activation,
     ActivationType hidden_activation
 ){
@@ -153,7 +153,7 @@ bool ONeural::correct() const{
     return _input.expect[classify()] == 1;
 }
 
-const std::vector<double>& ONeural::structure(){
+const std::vector<size_t>& ONeural::structure(){
     return _structure;
 }
 

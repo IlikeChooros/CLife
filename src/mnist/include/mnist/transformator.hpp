@@ -10,21 +10,19 @@ class transformator{
     transformator() = default;
 
     /**
-     * @brief Transform the data into a vector of Data objects
-    */
-    data::data_batch* transform(
-        std::vector<std::vector<double>>* images,
-        std::vector<std::vector<double>>* labels
-    );
-
-    /**
      * @brief Add noise to the data, the noise is a random vector, applied for each pixel.
      * Also changes some pixel values at random.
+     * 
+     * @param data The data to add noise to
+     * @param max_vector maximum noise vector lenght (shouldn't be bigger than 1/4 of the image width/height)
+     * @return new `noisy` data
     */
     data::data_batch* add_noise(
         data::data_batch* data, 
-        std::uniform_real_distribution<double>& dist,
-        std::mt19937& gen
+        int max_vector = 6,
+        size_t cols = 28,
+        size_t rows = 28,
+        size_t noisiness = 80
     );
 };
 

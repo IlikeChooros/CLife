@@ -40,6 +40,11 @@ class Drawer{
     */
     Drawer& setCallback(std::function<void(std::vector<double>)> callback);
 
+    /**
+     * @brief Load image from normalized input `pixels`
+    */
+    Drawer& loadPixels(const std::vector<double>& pixels);
+
     void open();
     std::vector<double> getPixels();
 };

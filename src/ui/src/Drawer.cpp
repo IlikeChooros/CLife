@@ -2,10 +2,12 @@
 
 START_NAMESPACE_UI
 
+void do_nothing(std::vector<double>){return;}
+
 Drawer::Drawer(
     size_t width, size_t height,
     size_t pixelRows, size_t pixelCols
-): width(width), height(height),pixelRows(pixelRows),pixelCols(pixelCols)
+): width(width), height(height),pixelRows(pixelRows),pixelCols(pixelCols), _callback(do_nothing)
 {
     _pixels.assign(pixelRows, std::vector<uint8_t>(pixelCols, 0));
     window.create(
@@ -55,6 +57,18 @@ void Drawer::open(){
         _callback(getPixels());
         window.display();
     }
+}
+
+Drawer& Drawer::loadPixels(const std::vector<double>& pixels){
+    if (pixels.size() != pixelCols*pixelRows){
+        return *this;
+    }
+
+    for(size_t i = 0; i < pixels.size(); i++){
+        _pixels[i/pixelCols][i%pixelCols] = static_cast<uint8_t>(pixels[i] * 255.0);
+    }
+
+    return *this;
 }
 
 std::vector<double> Drawer::getPixels(){

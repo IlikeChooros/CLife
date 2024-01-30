@@ -34,28 +34,34 @@ int main()
     std::cout << trainingData->at(0).input.size() << std::endl;
     std::cout << trainingData->at(0).expect.size() << std::endl;
 
+    // // testing noisy data
+    // mnist::transformator t;
+    // std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get()));
+    // ui::Drawer drawer;
+    // drawer.loadPixels(noisy->at(0).input).open();
+    
 
-    optimizer::NeuralNetworkOptimizerParameters params;
-    test_creator::TestCreator creator;
+    db::FileManager fm("mnist_network6-saved.txt");
 
     std::unique_ptr<neural_network::ONeural> network(
-        new neural_network::ONeural({784, 128, 64, 10})
+        fm.from_file()
+        // new neural_network::ONeural({784, 128, 64, 10})
     );  
     network->initialize();
 
+    optimizer::NeuralNetworkOptimizerParameters params;
     params.setNeuralNetwork(network.get())
           .setTrainingData(trainingData.get())
           .setTestData(testData.get())
-          .setBatchSize(128)
-          .setEpochs(1)
-          .setLearningRate(0.27);
+          .setBatchSize(64)
+          .setEpochs(3)
+          .setLearningRate(0.7);
 
     optimizer::NeuralNetworkOptimizer optimizer(params);
     optimizer.optimize();
     
-    db::FileManager fm("mnist_network3-shuffle.txt");
-    fm.to_file(*network);
-
+    fm.prepare("mnist_network6-saved.txt")
+      .to_file(*network);
 
     ui::Drawer drawer;
 
@@ -73,34 +79,5 @@ int main()
         }
     }).open();
 
-
-    // optimizer::NeuralNetworkOptimizer optimizer;
-
-    // auto testCmp = [](double x, double y) -> bool {
-    //     return x > y;
-    // };
-
-    // optimizer::NeuralNetworkOptimizerParameters params;
-    // test_creator::TestCreator creator;
-    // std::unique_ptr<data::data_batch> trainingData(
-    //     creator.prepare(testCmp).createPointTest(0, 200, 10000)
-    // );
-    // std::unique_ptr<data::data_batch> testData(
-    //     creator.createPointTest(0, 200, 2048)
-    // );
-
-    // std::unique_ptr<neural_network::ONeural> network(
-    //     new neural_network::ONeural({2, 16, 16, 2})
-    // );
-    // network->initialize();
-
-    // params.setNeuralNetwork(network.get()).setTrainingData(trainingData.get())
-    //       .setTestData(testData.get()).setBatchSize(32).setEpochs(2).setLearningRate(0.15);
-        
-    // optimizer.setParameters(params);
-    // optimizer.optimize();
-
-
-    // ui::windowWithDrawer();
     return 0;
 }

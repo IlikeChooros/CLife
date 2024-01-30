@@ -86,7 +86,6 @@ public:
 
 private:
     NeuralNetworkOptimizerParameters params;
-
 };
 
 END_NAMESPACE_OPTIMIZER

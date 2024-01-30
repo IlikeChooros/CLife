@@ -114,6 +114,58 @@ void FileManager::to_file(neural_network::ONeural& network){
     writer.close();
 }
 
+neural_network::ONeural* FileManager::from_file(){
+    std::ifstream reader(_path);
+
+    if (!reader){
+        throw storage_not_found("Could not open the file: " + _path);
+    }
+
+    auto structure = _read_structure(reader);
+
+    std::unique_ptr<neural_network::ONeural> net(
+        new neural_network::ONeural(structure)
+    );
+
+    // read hidden layers
+    int hidden_size = structure.size() - 2;
+    if (hidden_size > 0){
+        int size = hidden_size + 1;
+        for(int prevLayer = 0, layer = 1; layer < size; ++layer, ++prevLayer ){
+            auto neuronsIn = structure[prevLayer];
+            auto neuronsOut = structure[layer];
+
+            for (size_t neuron = 0; neuron < neuronsOut; neuron++){
+                reader >> net->_hidden_layers[prevLayer]._biases[neuron];
+                for (size_t weight = 0; weight < neuronsIn; weight++){
+                    if (reader.eof() || reader.bad()){
+                        throw neural_network::invalid_structure(
+                            "something went wrong while reading hidden layer, at: row = " +
+                            std::to_string(neuron) + " col = " + std::to_string(weight));
+                    }
+                    reader >> net->_hidden_layers[prevLayer]._weights[neuron][weight];
+                }
+            }
+        }
+    }
+    // read output layers
+    auto neuronsIn = structure[structure.size() - 2];
+    auto neuronsOut = structure[structure.size() - 1];
+
+    for (size_t neuron = 0; neuron < neuronsOut; neuron++){
+        reader >> net->_output_layer._biases[neuron];
+        for (size_t weight = 0; weight < neuronsIn; weight++){
+            if (reader.eof() || reader.bad()){
+                throw neural_network::invalid_structure(
+                    "something went wrong while reading output layer, at: row = " +
+                    std::to_string(neuron) + " col = " + std::to_string(weight));
+            }
+            reader >> net->_output_layer._weights[neuron][weight];
+        }
+    }
+    return net.release();
+}
+
 neural_network::NeuralNetwork* FileManager::network(){
     std::ifstream reader(_path);
 
@@ -122,33 +174,11 @@ neural_network::NeuralNetwork* FileManager::network(){
     }
 
     try{
-        std::string line;
-        std::getline(reader, line);
-
-        std::vector<int> structure;
-
-        // Read strucutre
-        std::stringstream ss(line);
-        while (true){
-            int n;
-            ss >> n;
-    
-            if(!(ss.eof() || ss.fail())){
-        #if DEBUG_FILE_MANAGER
-                std::cout << n << ' ';
-        #endif
-                structure.push_back(n);
-            } else {
-                break;
-            }
-        }
-
-        if(!ss.eof() && ss.bad()){
-            throw neural_network::invalid_structure(
-                "given file: " + _path + " has incorrect " \
-                    "neural network structure"
-            );
-        }
+        auto structure_ = _read_structure(reader);
+        std::vector<int> structure(structure_.size());
+        std::transform(structure_.begin(), structure_.end(), structure.begin(), [](int a){
+            return a;
+        });
 
         std::unique_ptr<neural_network::NetStructure> netStruct(
             new neural_network::NetStructure()
@@ -253,6 +283,35 @@ neural_network::NeuralNetwork* FileManager::network(){
         throw std::runtime_error(
             "FileManager::network(): something went wrong while reading file");
     }
+}
+
+
+std::vector<size_t> FileManager::_read_structure(std::ifstream& reader){
+
+    std::string line;
+    std::getline(reader, line);
+    std::vector<size_t> structure;
+    std::stringstream ss(line);
+
+    while (true){
+        int n;
+        ss >> n;
+        if(!(ss.eof() || ss.fail())){
+    #if DEBUG_FILE_MANAGER
+            std::cout << n << ' ';
+    #endif
+            structure.push_back(n);
+        } else {
+            break;
+        }
+    }
+    if(structure.size() < 2 || (!ss.eof() && ss.fail())){
+        throw neural_network::invalid_structure(
+            "given file: " + _path + " has incorrect " \
+                "neural network structure"
+        );
+    }
+    return structure;
 }
 
 END_NAMESPACE

@@ -20,6 +20,8 @@ class FileManager{
 
     std::string _path;
 
+    std::vector<size_t> _read_structure(std::ifstream& reader);
+
     public:
     FileManager(const std::string& filepath);
     FileManager() = default;
@@ -46,6 +48,12 @@ class FileManager{
     */
     void to_file(neural_network::NeuralNetwork& network);
     void to_file(neural_network::ONeural& network);
+
+    /**
+     * @brief Load from file neural network, and save it to the `network`
+     * @tparam activation arguments for the ONeural constructor
+    */
+    neural_network::ONeural* from_file();
 
     /// @brief Reads from file NeuralNetwork structure, assumes given file is correctly configured 
     ///- it is actually an neural network structure file
