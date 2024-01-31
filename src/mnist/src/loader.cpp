@@ -11,7 +11,7 @@ Loader& Loader::load(const std::string& path){
     return *this;
 }
 
-std::vector<std::vector<double>>* Loader::get_images(){
+data::matrix_t* Loader::get_images(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
         throw std::runtime_error("Could not open file: " + path);
@@ -59,7 +59,7 @@ std::vector<std::vector<double>>* Loader::get_images(){
 /**
  * @brief Get the labels object
 */
-std::vector<std::vector<double>>* Loader::get_labels(){
+data::matrix_t* Loader::get_labels(){
     std::ifstream file(path, std::ios::binary);
     if(!file.is_open()){
         throw std::runtime_error("Could not open file: " + path);
@@ -92,8 +92,8 @@ std::vector<std::vector<double>>* Loader::get_labels(){
 }
 
 data::data_batch* Loader::merge_data(
-    std::vector<std::vector<double>>* images,
-    std::vector<std::vector<double>>* labels
+    data::matrix_t* images,
+    data::matrix_t* labels
 ){
     if(images->size() != labels->size()){
         throw std::runtime_error("Number of images and labels does not match!");

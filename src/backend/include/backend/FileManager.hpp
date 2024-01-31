@@ -1,12 +1,14 @@
 #pragma once
 
+#include <fstream>
+#include <memory>
+#include <sstream>
+#include <nlohmann/json.hpp>
+
 #include "namespaces.hpp"
 #include "exceptions.hpp"
 #include <core/core.hpp>
 
-#include <fstream>
-#include <memory>
-#include <sstream>
 
 #define DEBUG_FILE_MANAGER false
 
@@ -16,17 +18,36 @@
 
 START_NAMESPACE_BACKEND
 
+enum class Format{
+    binary,
+    json
+};
+
 class FileManager{
 
     std::string _path;
+    Format _format;
+    std::string _fileFormat;
 
     std::vector<size_t> _read_structure(std::ifstream& reader);
 
+    void _write_binary(
+        std::ofstream& writer, 
+        neural_network::ONeural& network
+    );
+
+    neural_network::ONeural* _read_binary(
+        std::ifstream& reader
+    );
+
     public:
-    FileManager(const std::string& filepath);
+    FileManager(const std::string& filepath, Format format = Format::binary);
     FileManager() = default;
 
-    FileManager& prepare(const std::string& path);
+    FileManager& prepare(
+        const std::string& path, 
+        Format format = Format::binary
+    );
 
     
     /*

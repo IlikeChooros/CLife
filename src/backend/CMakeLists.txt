@@ -10,4 +10,4 @@ PRIVATE
     src/FileManager.cpp
 )
 
-target_link_libraries(backend PUBLIC core)
+target_link_libraries(backend PUBLIC core nlohmann_json::nlohmann_json)

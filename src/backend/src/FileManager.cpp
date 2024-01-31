@@ -5,15 +5,69 @@
 START_NAMESPACE_BACKEND
 
 FileManager::FileManager(
-    const std::string& filePath
-): _path(filePath) {}
+    const std::string& filePath,
+    Format format
+) {
+    prepare(filePath, format);
+}
 
-FileManager& FileManager::prepare(const std::string& path){
+FileManager& FileManager::prepare(
+    const std::string& path, 
+    Format format
+){
     _path = path;
+    _format = format;
+    switch (_format)
+    {
+    case Format::binary:
+        _fileFormat = ".bin";
+        break;
+    case Format::json:
+        _fileFormat = ".json";
+        break;
+    default:
+        break;
+    }
     return *this;
 }
 
+void FileManager::_write_binary(
+    std::ofstream& writer, 
+    neural_network::ONeural& network
+){
+    auto strucutre = network.structure();
+
+    auto size = strucutre.size();
+    writer.write(reinterpret_cast<char*>(&size), sizeof(size));
+    for (auto n : strucutre){
+        writer.write(reinterpret_cast<char*>(&n), sizeof(int));
+    }
+
+    // hidden layer
+    for (size_t l = 0; l < network._hidden_layers.size(); l++){
+        for (size_t n = 0; n < network._hidden_layers[l]._biases.size(); n++){
+            float bias = static_cast<float>(network._hidden_layers[l]._biases[n]);
+            writer.write(reinterpret_cast<char*>(&bias), sizeof(bias));
+            for (size_t w = 0; w < network._hidden_layers[l]._weights[n].size(); w++){
+                float weight = static_cast<float>(network._hidden_layers[l]._weights[n][w]);
+                writer.write(reinterpret_cast<char*>(&weight), sizeof(weight));
+            }
+        }
+    }
+    // output layer
+    for (size_t n = 0; n < network._output_layer._biases.size(); n++){
+        float bias = static_cast<float>(network._output_layer._biases[n]);
+        writer.write(reinterpret_cast<char*>(&bias), sizeof(bias));
+        for (size_t w = 0; w < network._output_layer._weights[n].size(); w++){
+            float weight = static_cast<float>(network._output_layer._weights[n][w]);
+            writer.write(reinterpret_cast<char*>(&weight), sizeof(weight));
+        }
+    }
+    writer.close();
+}
+
 void FileManager::to_file(neural_network::NeuralNetwork& net){
+    
     std::ofstream writer(_path);
 
     if (!writer){
@@ -81,52 +135,27 @@ void FileManager::to_file(neural_network::NeuralNetwork& net){
 }
 
 void FileManager::to_file(neural_network::ONeural& network){
-    std::ofstream writer(_path);
+    std::string fullpath = _path + _fileFormat;
+    std::ofstream writer(fullpath);
     if (!writer){
-        throw storage_not_found("Could not open the file: " + _path);
+        throw storage_not_found("Could not open the file: " + fullpath);
     }
-
-    auto strucutre = network.structure();
-    for (auto n : strucutre){
-        writer << n << ' ';
+    switch (_format)
+    {
+    case Format::binary:
+        _write_binary(writer, network);
+        break;
+    
+    default:
+        break;
     }
-    writer << '\n';
-
-    // hidden layer
-    for (size_t l = 0; l < network._hidden_layers.size(); l++){
-        for (size_t n = 0; n < network._hidden_layers[l]._biases.size(); n++){
-            writer << network._hidden_layers[l]._biases[n] << ' ';
-            for (size_t w = 0; w < network._hidden_layers[l]._weights[n].size(); w++){
-                writer << network._hidden_layers[l].weight(w, n) << ' ';
-            }
-            writer << '\n';
-        }
-    }
-
-    // output layer
-    for (size_t n = 0; n < network._output_layer._biases.size(); n++){
-        writer << network._output_layer._biases[n] << ' ';
-        for (size_t w = 0; w < network._output_layer._weights[n].size(); w++){
-            writer << network._output_layer.weight(w, n) << ' ';
-        }
-        writer << '\n';
-    }
-    writer.close();
 }
 
-neural_network::ONeural* FileManager::from_file(){
-    std::ifstream reader(_path);
-
-    if (!reader){
-        throw storage_not_found("Could not open the file: " + _path);
-    }
-
-    auto structure = _read_structure(reader);
-
+neural_network::ONeural* FileManager::_read_binary(std::ifstream& file){
+    auto structure = _read_structure(file);
     std::unique_ptr<neural_network::ONeural> net(
         new neural_network::ONeural(structure)
     );
-
     // read hidden layers
     int hidden_size = structure.size() - 2;
     float f;
@@ -138,16 +167,16 @@ neural_network::ONeural* FileManager::from_file(){
 
             for (size_t neuron = 0; neuron < neuronsOut; neuron++){
                 
-                reader >> f;
+                file.read(reinterpret_cast<char*>(&f), sizeof(float));
                 net->_hidden_layers[prevLayer]._biases[neuron] = static_cast<double>(f);
                 for (size_t weight = 0; weight < neuronsIn; weight++){
-                    if (reader.eof() || reader.bad()){
+                    if (file.eof() || file.bad()){
                         throw neural_network::invalid_structure(
                             "something went wrong while reading hidden layer, at: row = " +
                             std::to_string(neuron) + " col = " + std::to_string(weight));
                     }
-                    reader >> f;
-                    net->_hidden_layers[prevLayer]._biases[neuron] = static_cast<double>(f);
+                    file.read(reinterpret_cast<char*>(&f), sizeof(float));
+                    net->_hidden_layers[prevLayer]._weights[neuron][weight] = static_cast<double>(f);
                 }
             }
         }
@@ -157,19 +186,35 @@ neural_network::ONeural* FileManager::from_file(){
     auto neuronsOut = structure[structure.size() - 1];
 
     for (size_t neuron = 0; neuron < neuronsOut; neuron++){
-        reader >> f;
+        file.read(reinterpret_cast<char*>(&f), sizeof(float));
         net->_output_layer._biases[neuron] = static_cast<double>(f);
         for (size_t weight = 0; weight < neuronsIn; weight++){
-            if (reader.eof() || reader.bad()){
+            if (file.eof() || file.bad()){
                 throw neural_network::invalid_structure(
                     "something went wrong while reading output layer, at: row = " +
                     std::to_string(neuron) + " col = " + std::to_string(weight));
             }
-            reader >> f;
+            file.read(reinterpret_cast<char*>(&f), sizeof(float));
             net->_output_layer._weights[neuron][weight] = static_cast<double>(f);
         }
     }
     return net.release();
+}
+
+neural_network::ONeural* FileManager::from_file(){
+    std::string fullpath = _path + _fileFormat;
+    std::ifstream reader(fullpath, std::ios::binary);
+    if (!reader.is_open()){
+        throw storage_not_found("Could not open the file: " + fullpath);
+    }
+    switch (_format)
+    {
+    case Format::binary:
+        return _read_binary(reader);
+    default:
+        break;
+    }
+    return nullptr;
 }
 
 neural_network::NeuralNetwork* FileManager::network(){
@@ -291,27 +336,21 @@ neural_network::NeuralNetwork* FileManager::network(){
     }
 }
 
-
 std::vector<size_t> FileManager::_read_structure(std::ifstream& reader){
 
-    std::string line;
-    std::getline(reader, line);
     std::vector<size_t> structure;
-    std::stringstream ss(line);
+    size_t size;
 
-    while (true){
+    reader.read(reinterpret_cast<char*>(&size), sizeof(size));
+    structure.assign(size, 0);
+
+    for (size_t i = 0; i < size; i++){
         int n;
-        ss >> n;
-        if(!(ss.eof() || ss.fail())){
-    #if DEBUG_FILE_MANAGER
-            std::cout << n << ' ';
-    #endif
-            structure.push_back(n);
-        } else {
-            break;
-        }
+        reader.read(reinterpret_cast<char*>(&n), sizeof(n));
+        structure[i] = n;
     }
-    if(structure.size() < 2 || (!ss.eof() && ss.fail())){
+
+    if(structure.size() < 2 || (!reader.eof() && reader.fail())){
         throw neural_network::invalid_structure(
             "given file: " + _path + " has incorrect " \
                 "neural network structure"

@@ -35,19 +35,19 @@ public:
      * @brief Merge the images and labels into a vector of Data objects
     */
     data::data_batch* merge_data(
-        std::vector<std::vector<double>>* images,
-        std::vector<std::vector<double>>* labels
+        data::matrix_t* images,
+        data::matrix_t* labels
     );
     /**
      * @brief Get the images object, normalized to [0, 1]
     */
-    std::vector<std::vector<double>>* get_images();
+    data::matrix_t* get_images();
 
     /**
      * @brief Get the labels object, each vector contains 10 elements,
      *       where the index of the element with the highest value (==1) is the label
     */
-    std::vector<std::vector<double>>* get_labels();
+    data::matrix_t* get_labels();
 };
 
 END_NAMESPACE_MNIST

@@ -18,6 +18,13 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.10.1
+)
+
+FetchContent_MakeAvailable(nlohmann_json)
 
 add_subdirectory(src) 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

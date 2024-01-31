@@ -169,6 +169,16 @@ double ONeural::accuracy(data_batch* test){
     return static_cast<double>(correct_count) / static_cast<double>(test->size());
 }
 
+void ONeural::activations(
+    ActivationType output_activation,
+    ActivationType hidden_activation
+){
+    _output_layer._match_activations(output_activation);
+    for (auto& layer : _hidden_layers){
+        layer._match_activations(hidden_activation);
+    }
+}
+
 // operators
 bool ONeural::operator==(const ONeural& other){
     if (_structure != other._structure){

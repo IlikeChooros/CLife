@@ -35,7 +35,7 @@ class ONeural{
     /// 2 inputs, 4 outputs, (5,2) -> number of neurons in hidden layers (2 hidden layers)
     ONeural(
         const std::vector<size_t>& structure, 
-        ActivationType output_activation = ActivationType::sigmoid,
+        ActivationType output_activation = ActivationType::softmax,
         ActivationType hidden_activation = ActivationType::relu
     );
 
@@ -45,7 +45,7 @@ class ONeural{
     /// @return *this
     ONeural& build(
         const std::vector<size_t>& structure, 
-        ActivationType output_activation = ActivationType::sigmoid,
+        ActivationType output_activation = ActivationType::softmax,
         ActivationType hidden_activation = ActivationType::relu
     );
 
@@ -109,6 +109,14 @@ class ONeural{
 
     /// @brief return the structure of the network
     const std::vector<size_t>& structure();
+
+    /// @brief Set the activation functions for the network
+    /// @param output_activation 
+    /// @param hidden_activation 
+    void activations(
+        ActivationType output_activation,
+        ActivationType hidden_activation
+    );
 
     /// @brief deep compare neural network with `other`
     /// @return true if the networks are equal, otherwise false

@@ -58,5 +58,6 @@
         "any": "cpp",
         "variant": "cpp",
         "optional": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": true
 }
