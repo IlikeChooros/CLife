@@ -8,7 +8,10 @@
 enum class ActivationType {
     sigmoid,
     relu,
-    softmax
+    softmax,
+    silu,
+    selu,
+    prelu
 };
 
 class BaseActivation{
@@ -73,6 +76,23 @@ namespace neural_network{
     } // namespace relu
 
     namespace softmax
+    {
+        double activation(vecdouble& args, size_t index);
+        double derivative(vecdouble& activations, size_t index);
+    }
+
+    namespace silu
+    {
+        double activation(vecdouble& args, size_t index);
+        double derivative(vecdouble& activations, size_t index);
+    }
+
+    namespace selu
+    {
+        double activation(vecdouble& args, size_t index);
+        double derivative(vecdouble& activations, size_t index);
+    }
+    namespace prelu
     {
         double activation(vecdouble& args, size_t index);
         double derivative(vecdouble& activations, size_t index);

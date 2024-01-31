@@ -5,13 +5,17 @@
 
 START_NAMESPACE_MNIST
 
+/// @brief Class for adding noise to the data
 class transformator{
     public:
     transformator() = default;
 
     /**
-     * @brief Add noise to the data, the noise is a random vector, applied for each pixel.
-     * Also changes some pixel values at random.
+     * @brief
+     * Add noise to the data:
+     *  * Moves the pixels at random.
+     *  * Rotates the pixels at random.
+     *  * Adds random noise to the pixels.
      * 
      * @param data The data to add noise to
      * @param max_vector maximum noise vector lenght (shouldn't be bigger than 1/4 of the image width/height)
@@ -23,6 +27,31 @@ class transformator{
         size_t cols = 28,
         size_t rows = 28,
         size_t noisiness = 80
+    );
+
+    /**
+     * @brief Rotate the pixels by angle and given center point
+     * @returns new vector of pixels
+    */
+    std::vector<double> rotate(
+        std::vector<double>& pixels,
+        size_t cols = 28,
+        size_t rows = 28,
+        float angle = 30.0f,
+        int center_x = 14,
+        int center_y = 14
+    );
+
+    /**
+     * @brief Move the pixels by x and y
+     * @returns new vector of pixels
+    */
+    std::vector<double> move(
+        std::vector<double>& pixels,
+        size_t cols = 28,
+        size_t rows = 28,
+        int x = 0,
+        int y = 0
     );
 };
 

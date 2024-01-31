@@ -20,11 +20,14 @@ Using only layer (without Neurons as an individual node)
 
 START_NAMESPACE_NEURAL_NETWORK
 
+typedef std::vector<std::vector<double>> matrix_t;
+
 class OLayer{
     
     friend class ONeural;
 
     void _match_activations(const ActivationType& activation);
+    inline double _derivative(size_t index);
 
     public:
     OLayer() = default;
@@ -103,17 +106,23 @@ class OLayer{
 
     size_t _neurons_size;
     size_t _inputs_size;
-    std::vector<std::vector<double>> _weights;
-    std::vector<std::vector<double>> _gradient_weights;
+    matrix_t _weights;
+    matrix_t _gradient_weights;
 
     std::vector<double> _biases;
     std::vector<double> _gradient_biases;
     std::vector<double> _activations;
     std::vector<double> _inputs;
+    std::vector<double> _weighted_inputs;
     std::vector<double> _partial_derivatives;
+    // momentum gradient
+    matrix_t _m_gradient;
+    // velocity gradient
+    matrix_t _v_gradient;
     
     std::function<double(std::vector<double>&, size_t i)> _activation_function;
     std::function<double(std::vector<double>&, size_t i)> _derivative_of_activ;
+    ActivationType _activ_type;
 };
 
 

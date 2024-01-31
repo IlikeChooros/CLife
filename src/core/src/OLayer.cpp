@@ -12,11 +12,15 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
     _weights.assign(outputs, std::vector<double>(inputs, 0));
     _gradient_weights.assign(outputs, std::vector<double>(inputs, 0));
+    _m_gradient.assign(outputs, std::vector<double>(inputs, 0));
+    _v_gradient.assign(outputs, std::vector<double>(inputs, 0));
 
     _biases.assign(outputs, 0);
     _gradient_biases.assign(outputs, 0);
     _activations.assign(outputs, 0);
     _partial_derivatives.assign(outputs, 0);
+    _weighted_inputs.assign(outputs, 0);
+    
 
     _neurons_size = outputs;
     _inputs_size = inputs;
@@ -26,7 +30,8 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
 OLayer& OLayer::initialize(){
     std::default_random_engine _engine(std::chrono::system_clock::now().time_since_epoch().count());
-    std::uniform_real_distribution<double> _dist(-0.04, 0.04);
+    double limit = sqrt(2.0 / _inputs_size);
+    std::uniform_real_distribution<double> _dist(-limit, limit);
 
     for(auto& weights : _weights){
         // std::generate calls _dist(_engine) for each element in weights
@@ -38,7 +43,8 @@ OLayer& OLayer::initialize(){
 }
 
 void OLayer::_match_activations(const ActivationType& activation){
-    switch (activation)
+    _activ_type = activation;
+    switch (_activ_type)
     {
     case ActivationType::sigmoid:
         _activation_function = sigmoid::activation;
@@ -52,8 +58,31 @@ void OLayer::_match_activations(const ActivationType& activation){
         _activation_function = softmax::activation;
         _derivative_of_activ = softmax::derivative;
         break;
+    case ActivationType::silu:
+        _activation_function = silu::activation;
+        _derivative_of_activ = silu::derivative;
+        break;
+    case ActivationType::selu:
+        _activation_function = selu::activation;
+        _derivative_of_activ = selu::derivative;
+        break;
+    case ActivationType::prelu:
+        _activation_function = prelu::activation;
+        _derivative_of_activ = prelu::derivative;
+        break;
     default:
         break;
+    }
+}
+
+inline double OLayer::_derivative(size_t index){
+    switch (_activ_type)
+    {
+    case ActivationType::silu:
+    case ActivationType::selu:
+        return _derivative_of_activ(_weighted_inputs, index);
+    default:
+        return _derivative_of_activ(_activations, index);
     }
 }
 
@@ -74,8 +103,14 @@ void OLayer::calc_activations(){
         
         // std::inner_product calculates sum of all weighted_inputs, with starting value of bias
         // on some hardware it is faster than for loop
-        _activations[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), _inputs.begin(), _biases[i]);
-        _activations[i] = _activation_function(_activations, i);
+        _weighted_inputs[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), _inputs.begin(), _biases[i]);
+        
+        
+        _activations[i] = _activation_function(_weighted_inputs, i);
+        //         if (std::isnan(_activations[i])){
+        //     _activation_function(_weighted_inputs, i);
+        //     while(1){}
+        // }
     }
 }
 
@@ -121,7 +156,7 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer){
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->_weights[prev][n] * prev_layer->_partial_derivatives[prev];
         }
-        _partial_derivatives[n] = new_partial_derviative * _derivative_of_activ(_activations, n);
+        _partial_derivatives[n] = new_partial_derviative * _derivative(n);
     }
 
     return this;
@@ -136,8 +171,11 @@ OLayer* OLayer::calc_output_gradient(std::vector<double>&& expected){
         error_deriv = 2 * (_activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
-        deriv_with_error_and_activation = error_deriv * _derivative_of_activ(_activations, n);
+        deriv_with_error_and_activation = error_deriv * _derivative(n);
         _partial_derivatives[n] = deriv_with_error_and_activation;
+        // if (std::isnan(deriv_with_error_and_activation)){
+        //     while(1){}
+        // }
     }
     return this;
 }
@@ -174,9 +212,23 @@ void OLayer::update_gradients(){
 void OLayer::apply_gradients(double learn_rate, size_t batch_size) {
     double weighted_learn_rate = learn_rate / static_cast<double>(batch_size);
 
+    constexpr double beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8;
+
+    double gradient;
     for (size_t n = 0; n < _neurons_size; ++n) {
         for(size_t w = 0; w < _inputs_size; ++w) {
-            _weights[n][w] -= _gradient_weights[n][w] * weighted_learn_rate;
+            gradient = _gradient_weights[n][w];
+
+            // if (std::isnan(gradient)){
+            //     while(1){}
+            // }
+            _m_gradient[n][w] = beta1 * _m_gradient[n][w] + (1 - beta1) * gradient;
+            _v_gradient[n][w] = beta2 * _v_gradient[n][w] + (1 - beta2) * gradient * gradient;
+            
+            double m_hat = _m_gradient[n][w] / (1.0 - beta1);
+            double v_hat = _v_gradient[n][w] / (1.0 - beta2);
+
+            _weights[n][w] -= weighted_learn_rate * m_hat / (sqrt(v_hat) + epsilon);
             _gradient_weights[n][w] = 0.0;
         }
         _biases[n] -= _gradient_biases[n] * weighted_learn_rate;

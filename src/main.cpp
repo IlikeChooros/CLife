@@ -38,14 +38,17 @@ int main()
     // mnist::transformator t;
     // std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get()));
     // ui::Drawer drawer;
-    // drawer.loadPixels(noisy->at(0).input).open();
+    // drawer.loadPixels(noisy->at(4).input).open();
     
 
     db::FileManager fm("mnist_network6-saved.txt");
 
     std::unique_ptr<neural_network::ONeural> network(
-        fm.from_file()
-        // new neural_network::ONeural({784, 128, 64, 10})
+        // fm.from_file()
+        new neural_network::ONeural({784, 128, 64, 10}
+            , ActivationType::softmax, ActivationType::relu
+        // , ActivationType::softmax, ActivationType::sigmoid
+        )
     );  
     network->initialize();
 
@@ -53,14 +56,14 @@ int main()
     params.setNeuralNetwork(network.get())
           .setTrainingData(trainingData.get())
           .setTestData(testData.get())
-          .setBatchSize(64)
-          .setEpochs(4)
-          .setLearningRate(0.72);
+          .setBatchSize(128)
+          .setEpochs(5)
+          .setLearningRate(0.3);
 
     optimizer::NeuralNetworkOptimizer optimizer(params);
     optimizer.optimize();
     
-    fm.prepare("mnist_network6-saved.txt")
+    fm.prepare("mnist_network7.txt")
       .to_file(*network);
 
     ui::Drawer drawer;

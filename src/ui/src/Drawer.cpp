@@ -52,9 +52,9 @@ void Drawer::open(){
             event.x = position.x;
             event.y = position.y;
             _draw(event, erase);
+            _callback(getPixels());
         }
         _drawPixels();
-        _callback(getPixels());
         window.display();
     }
 }
