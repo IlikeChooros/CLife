@@ -1,8 +1,6 @@
 #pragma once
 
-#include <vector>
-
-#include "namespaces.hpp"
+#include "types.hpp"
 
 
 START_NAMESPACE_DATA
@@ -14,13 +12,13 @@ class Data{
     public:
     Data() = default;
     
-    Data(const std::vector<double>& inputs, const std::vector<double>& exp){
+    Data(const vector_t& inputs, const vector_t& exp){
         input = inputs;
         expect = exp;
     }
 
-    std::vector<double> input;
-    std::vector<double> expect;
+    vector_t input;
+    vector_t expect;
 
     const Data& operator=(const Data& other){
         this->input = other.input;
@@ -42,6 +40,5 @@ public:
 };
 
 typedef std::vector<Data> data_batch;
-typedef std::vector<std::vector<double>> matrix_t;
 
 END_NAMESPACE

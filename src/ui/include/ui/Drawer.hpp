@@ -27,7 +27,7 @@ class Drawer{
 
     void _drawPixels();
 
-    std::function<void(std::vector<double>)> _callback;
+    std::function<void(neural_network::vector_t)> _callback;
 
     public:
     Drawer(
@@ -38,15 +38,15 @@ class Drawer{
     /**
      * @brief Set the callback function, the argument is a 2D vector of doubles - normalized pixels
     */
-    Drawer& setCallback(std::function<void(std::vector<double>)> callback);
+    Drawer& setCallback(std::function<void(neural_network::vector_t)> callback);
 
     /**
      * @brief Load image from normalized input `pixels`
     */
-    Drawer& loadPixels(const std::vector<double>& pixels);
+    Drawer& loadPixels(const neural_network::vector_t& pixels);
 
     void open();
-    std::vector<double> getPixels();
+    neural_network::vector_t getPixels();
 };
 
 END_NAMESPACE

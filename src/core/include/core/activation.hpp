@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "namespaces.hpp"
+#include "types.hpp"
 
 enum class ActivationType {
     sigmoid,
@@ -56,45 +57,44 @@ public:
 
 /// New - namespace approach
 namespace neural_network{
-    using vecdouble = std::vector<double>;
     namespace sigmoid{
-        inline double activation(vecdouble& activations, size_t index){
+        inline real_number_t activation(vector_t& activations, size_t index){
             return 1 / (1 + exp(-activations[index]));
         }
-        inline double derivative(vecdouble& activations, size_t index){
+        inline real_number_t derivative(vector_t& activations, size_t index){
             return activations[index] * (1 - activations[index]);
         }
     }
     namespace relu
     {
-        inline double activation(vecdouble& activations, size_t index){
-            return std::max(double(0), activations[index]);
+        inline real_number_t activation(vector_t& activations, size_t index){
+            return std::max(real_number_t(0), activations[index]);
         }
-        inline double derivative(vecdouble& activations, size_t index){
+        inline real_number_t derivative(vector_t& activations, size_t index){
             return activations[index] > 0;
         }
     } // namespace relu
 
     namespace softmax
     {
-        double activation(vecdouble& args, size_t index);
-        double derivative(vecdouble& activations, size_t index);
+        real_number_t activation(vector_t& args, size_t index);
+        real_number_t derivative(vector_t& activations, size_t index);
     }
 
     namespace silu
     {
-        double activation(vecdouble& args, size_t index);
-        double derivative(vecdouble& activations, size_t index);
+        real_number_t activation(vector_t& args, size_t index);
+        real_number_t derivative(vector_t& activations, size_t index);
     }
 
     namespace selu
     {
-        double activation(vecdouble& args, size_t index);
-        double derivative(vecdouble& activations, size_t index);
+        real_number_t activation(vector_t& args, size_t index);
+        real_number_t derivative(vector_t& activations, size_t index);
     }
     namespace prelu
     {
-        double activation(vecdouble& args, size_t index);
-        double derivative(vecdouble& activations, size_t index);
+        real_number_t activation(vector_t& args, size_t index);
+        real_number_t derivative(vector_t& activations, size_t index);
     }
 }

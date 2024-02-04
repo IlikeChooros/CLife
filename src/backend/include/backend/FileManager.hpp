@@ -67,7 +67,6 @@ class FileManager{
             1. (0.7 0.5 0.37 0.54 -0.1)
                 ^-------------------^ 1 + 4
     */
-    void to_file(neural_network::NeuralNetwork& network);
     void to_file(neural_network::ONeural& network);
 
     /**
@@ -75,13 +74,6 @@ class FileManager{
      * @tparam activation arguments for the ONeural constructor
     */
     neural_network::ONeural* from_file();
-
-    /// @brief Reads from file NeuralNetwork structure, assumes given file is correctly configured 
-    ///- it is actually an neural network structure file
-    /// @return allocated via new NeuralNetwork object
-    /// @throw `std::runtime_error` or `db::storage_not_found` if an error occurs while parsing the file
-    neural_network::NeuralNetwork* network();
-    neural_network::ONeural* oneural();
 };
 
 END_NAMESPACE

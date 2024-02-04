@@ -7,20 +7,20 @@ Using only layer (without Neurons as an individual node)
 */
 #pragma once
 
-#include <vector>
 #include <memory>
 #include <random>
 #include <cmath>
 #include <chrono>
 
+#include <data/data.hpp>
 #include "namespaces.hpp"
 #include "activation.hpp"
-
-
+#include "exceptions.hpp"
+#include "types.hpp"
 
 START_NAMESPACE_NEURAL_NETWORK
 
-typedef std::vector<std::vector<double>> matrix_t;
+
 
 class OLayer{
     
@@ -49,7 +49,7 @@ class OLayer{
     /// @brief This does excacly what you think it does. Call this before calculating gradients
     /// @param inputs 
     /// @return activation values
-    std::vector<double>& calc_activations(std::vector<double>&& inputs);
+    vector_t& calc_activations(vector_t&& inputs);
     void calc_activations();
 
 
@@ -63,7 +63,7 @@ class OLayer{
     /// @param expected expected activation values
     /// @warning first call `calc_activations`
     /// @return this pointer
-    OLayer* calc_output_gradient(std::vector<double>&& expected);
+    OLayer* calc_output_gradient(vector_t&& expected);
 
     /// @warning first call `calc_hidden_gradient` or `calc_output_gradient`
     /// @brief Updates the graidents: weight, bias values. Call this before applying them
@@ -79,13 +79,13 @@ class OLayer{
      * @param expected A vector of expected output values.
      * @return The calculated cost.
      */
-    double cost(std::vector<double>&& expected);
+    real_number_t cost(vector_t&& expected);
 
     /**
      * @brief Returns the activations of the neurons in the layer.
      * @return A reference to the vector of neuron activations.
      */
-    std::vector<double>& activations();
+    vector_t& activations();
 
     /**
      * @brief Returns the weight of a connection from a specific input to a specific neuron.
@@ -93,7 +93,7 @@ class OLayer{
      * @param neuronIdx The index of the neuron.
      * @return A constant reference to the weight.
      */
-    const double& weight(size_t inputIdx, size_t neuronIdx);
+    const real_number_t& weight(size_t inputIdx, size_t neuronIdx);
     
     /**
      * @brief Overloads the assignment operator for the OLayer class.
@@ -109,19 +109,21 @@ class OLayer{
     matrix_t _weights;
     matrix_t _gradient_weights;
 
-    std::vector<double> _biases;
-    std::vector<double> _gradient_biases;
-    std::vector<double> _activations;
-    std::vector<double> _inputs;
-    std::vector<double> _weighted_inputs;
-    std::vector<double> _partial_derivatives;
+    vector_t _biases;
+    vector_t _gradient_biases;
+    vector_t _activations;
+    vector_t _inputs;
+    vector_t _weighted_inputs;
+    vector_t _partial_derivatives;
     // momentum gradient
     matrix_t _m_gradient;
+    vector_t _m_gradient_bias;
     // velocity gradient
     matrix_t _v_gradient;
+    vector_t _v_gradient_bias;
     
-    std::function<double(std::vector<double>&, size_t i)> _activation_function;
-    std::function<double(std::vector<double>&, size_t i)> _derivative_of_activ;
+    std::function<real_number_t(vector_t&, size_t i)> _activation_function;
+    std::function<real_number_t(vector_t&, size_t i)> _derivative_of_activ;
     ActivationType _activ_type;
 };
 

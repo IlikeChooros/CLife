@@ -42,10 +42,10 @@ int main()
         loader.merge_data(testImages, testLabels)
     );
 
-    delete trainingImages;
-    delete trainingLabels;
-    delete testImages;
-    delete testLabels;
+    // delete trainingImages;
+    // delete trainingLabels;
+    // delete testImages;
+    // delete testLabels;
 
     std::cout << trainingData->size() << std::endl;
     std::cout << testData->size() << std::endl;
@@ -55,20 +55,24 @@ int main()
 
     // // testing noisy data
     // mnist::transformator t;
-    // std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get()));
+    // std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get())); // 
     // ui::Drawer drawer;
-    // drawer.loadPixels(noisy->at(4).input).open();
+    // drawer.loadPixels(noisy->at(0).input).open();
     
-
-    db::FileManager fm("mnistNetwork");
+    // max trainingAccuracy: 0.876 "mnistNetwork" {784, 128, 64, 10} softmax relu
+    // max trainingAccuracy: ~0.89 (max: 89.9) "mnistNetwork2" {784, 255, 128, 10} softmax relu
+    db::FileManager fm("mnistNetworkFl");
 
     std::unique_ptr<neural_network::ONeural> network(
+
         fm.from_file()
-        // new neural_network::ONeural({784, 128, 64, 10}
-        //     , ActivationType::softmax, ActivationType::relu
-        // // , ActivationType::softmax, ActivationType::sigmoid
-        // )
-    );  
+    );
+
+    //     new neural_network::ONeural({784, 32, 16, 10}
+    //         , ActivationType::softmax, ActivationType::relu
+    //     // , ActivationType::softmax, ActivationType::sigmoid
+    //     )
+    // );  
     // network->initialize();
 
     optimizer::NeuralNetworkOptimizerParameters params;
@@ -76,18 +80,18 @@ int main()
           .setTrainingData(trainingData.get())
           .setTestData(testData.get())
           .setBatchSize(128)
-          .setEpochs(5)
-          .setLearningRate(0.3);
+          .setEpochs(2)
+          .setLearningRate(0.25);
 
     optimizer::NeuralNetworkOptimizer optimizer(params);
-    optimizer.optimize();
+    // optimizer.optimize();
     
-    fm.prepare("mnistNetwork")
-      .to_file(*network);
+    // fm.prepare("mnistNetworkFl")
+    //   .to_file(*network);
 
     ui::Drawer drawer;
 
-    drawer.setCallback([&](std::vector<double> pixels){
+    drawer.setCallback([&](neural_network::vector_t pixels){
         network->raw_input(pixels);
         auto outputs = network->outputs();
         auto guess = network->classify();

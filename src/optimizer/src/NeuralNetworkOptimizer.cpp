@@ -79,10 +79,17 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         params.testData
     ));
 
+    mnist::transformator t;
+    std::unique_ptr<data::data_batch> noisy(
+        t.add_noise(params.testData, 5)
+    );
+    auto noisy_acc = params.network->accuracy(noisy.get());
+
     std::cout << "Training complete. Learning time: " << std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::high_resolution_clock::now() - startTime).count() 
-        << "ms " << "trainingAccuracy: " << result.trainingAccuracy 
-        << " testAccuracy: " << result.testAccuracy << std::endl;
+        << "ms " << "trainingAccuracy: " << result.trainingAccuracy << std::endl
+        << "\tNoisy Test Accuracy: " << noisy_acc << std::endl
+        << "\tTest Acc: "<< result.testAccuracy << std::endl;
 
     return result;
 }

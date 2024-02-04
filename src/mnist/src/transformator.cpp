@@ -32,7 +32,7 @@ data::data_batch* transformator::add_noise(
         // copy the pixels
         auto pixels = (*noisy)[i].input;
         // move the pixels
-        std::vector<double> new_pixels = move(pixels, cols, rows, x, y);
+        data::vector_t new_pixels = move(pixels, cols, rows, x, y);
 
         // add random rotation
         // std::uniform_int_distribution center_dist(cols / 2 - 2, cols / 2 + 2);
@@ -54,14 +54,14 @@ data::data_batch* transformator::add_noise(
     return noisy.release();
 }
 
-std::vector<double> transformator::move(
-    std::vector<double>& pixels,
+data::vector_t transformator::move(
+    data::vector_t& pixels,
     size_t cols,
     size_t rows,
     int x,
     int y
 ){
-    std::vector<double> moved(pixels.size(), 0);
+    data::vector_t moved(pixels.size(), 0);
     int new_y, new_x;
 
     for (int r = 0; r < static_cast<int>(rows); ++r){
@@ -81,15 +81,15 @@ std::vector<double> transformator::move(
 }
 
 
-std::vector<double> transformator::rotate(
-    std::vector<double>& pixels,
+data::vector_t transformator::rotate(
+    data::vector_t& pixels,
     size_t cols,
     size_t rows,
     float angle,
     int center_x,
     int center_y
 ){
-    std::vector<double> rotated(pixels.size(), 0);
+    data::vector_t rotated(pixels.size(), 0);
     int x, y;
     double cos_angle = std::cos(angle);
     double sin_angle = std::sin(angle);

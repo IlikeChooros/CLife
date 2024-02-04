@@ -6,9 +6,6 @@ PUBLIC include
 
 target_sources(core 
 PRIVATE
-    src/NeuralNetwork.cpp
-    src/Layer.cpp
-    src/Neuron.cpp
     src/OLayer.cpp
     src/ONeural.cpp
     src/activation.cpp

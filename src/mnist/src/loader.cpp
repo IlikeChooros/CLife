@@ -38,8 +38,8 @@ data::matrix_t* Loader::get_images(){
     }
 
     int image_size = n_rows * n_cols;
-    std::unique_ptr<std::vector<std::vector<double>>> images(
-        new std::vector<std::vector<double>>(number_of_images, std::vector<double>(image_size))
+    std::unique_ptr<data::matrix_t> images(
+        new data::matrix_t(number_of_images, data::vector_t(image_size))
     );
     
 
@@ -81,8 +81,8 @@ data::matrix_t* Loader::get_labels(){
     std::vector<uint8_t> labels(num_labels);
     file.read(reinterpret_cast<char*>(labels.data()), num_labels);
 
-    std::unique_ptr<std::vector<std::vector<double>>> labels_double(
-        new std::vector<std::vector<double>>(num_labels, std::vector<double>(10, 0))
+    std::unique_ptr<data::matrix_t> labels_double(
+        new data::matrix_t(num_labels, data::vector_t(10, 0))
     );
     for(int i = 0; i < num_labels; i++){
         (*labels_double)[i][labels[i]] = 1;

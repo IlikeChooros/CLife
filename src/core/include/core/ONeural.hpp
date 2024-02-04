@@ -6,7 +6,6 @@
 #include <data/data.hpp>
 
 #include "OLayer.hpp"
-#include "exceptions.hpp"
 
 /*
 
@@ -16,7 +15,7 @@ optimized neural network, using only layers
 
 START_NAMESPACE_NEURAL_NETWORK
 
-using data_batch = std::vector<data::Data>;
+using data_batch = data::data_batch;
 
 
 
@@ -88,18 +87,18 @@ class ONeural{
     /// @brief set raw input, you can not call any of the learning, or cost evaulation
     /// methods, since expected output of the network was not set for this input
     /// @param _raw_input 
-    void raw_input(const std::vector<double>& _raw_input);
+    void raw_input(const vector_t& _raw_input);
 
     /// @brief Calculates the outputs of the network
     /// @return activations of the output layer
-    const std::vector<double>& outputs();
+    const vector_t& outputs();
 
     /// @brief average loss of the network on given `batch_size`
     /// @param batch_size 
-    double loss(size_t batch_size = 32UL);
+    real_number_t loss(size_t batch_size = 32UL);
 
     /// @brief current cost of the network, outputs must be already calculated
-    double cost();
+    real_number_t cost();
 
     /// @brief Tell wheter the network's guess was correct, outputs must be already calculated
     bool correct() const;
@@ -131,15 +130,15 @@ class ONeural{
     /// @return *this
     ONeural& operator=(const ONeural& other);
 
-    double accuracy(data_batch* test);
+    real_number_t accuracy(data_batch* test);
 
     OLayer _output_layer;
     std::vector<OLayer> _hidden_layers;
 
-    double _cost;
-    double _loss;
+    real_number_t _cost;
+    real_number_t _loss;
     data::Data _input;
-    std::vector<double> _outputs;
+    vector_t _outputs;
     std::vector<size_t> _structure;
 };
 

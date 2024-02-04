@@ -38,7 +38,7 @@ matrix_t* DoodlesLoader::get_images(){
     printf("n_strokes: %d\n", n_strokes);
 
     uint16_t n_points;
-    std::vector<double> pixels(256*256, 0.0);
+    data::vector_t pixels(256*256, 0.0);
     
     for (uint16_t n = 0; n < n_strokes; n++){
         file.read(reinterpret_cast<char*>(&n_points), sizeof(n_points));

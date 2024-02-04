@@ -33,8 +33,8 @@ class transformator{
      * @brief Rotate the pixels by angle and given center point
      * @returns new vector of pixels
     */
-    std::vector<double> rotate(
-        std::vector<double>& pixels,
+    data::vector_t rotate(
+        data::vector_t& pixels,
         size_t cols = 28,
         size_t rows = 28,
         float angle = 30.0f,
@@ -46,8 +46,8 @@ class transformator{
      * @brief Move the pixels by x and y
      * @returns new vector of pixels
     */
-    std::vector<double> move(
-        std::vector<double>& pixels,
+    data::vector_t move(
+        data::vector_t& pixels,
         size_t cols = 28,
         size_t rows = 28,
         int x = 0,

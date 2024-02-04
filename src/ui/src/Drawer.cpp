@@ -2,7 +2,7 @@
 
 START_NAMESPACE_UI
 
-void do_nothing(std::vector<double>){return;}
+void do_nothing(neural_network::vector_t){return;}
 
 Drawer::Drawer(
     size_t width, size_t height,
@@ -18,7 +18,7 @@ Drawer::Drawer(
     window.setFramerateLimit(60);
 }
 
-Drawer& Drawer::setCallback(std::function<void(std::vector<double>)> callback){
+Drawer& Drawer::setCallback(std::function<void(neural_network::vector_t)> callback){
     _callback = callback;
     return *this;
 }
@@ -59,7 +59,7 @@ void Drawer::open(){
     }
 }
 
-Drawer& Drawer::loadPixels(const std::vector<double>& pixels){
+Drawer& Drawer::loadPixels(const neural_network::vector_t& pixels){
     if (pixels.size() != pixelCols*pixelRows){
         return *this;
     }
@@ -71,11 +71,11 @@ Drawer& Drawer::loadPixels(const std::vector<double>& pixels){
     return *this;
 }
 
-std::vector<double> Drawer::getPixels(){
-    std::vector<double> pixels(pixelRows*pixelCols, 0);
+neural_network::vector_t Drawer::getPixels(){
+    neural_network::vector_t pixels(pixelRows*pixelCols, 0);
     for(size_t i = 0; i < pixelRows; i++){
         for(size_t j = 0; j < pixelCols; j++){
-            pixels[i*pixelCols + j] = static_cast<double>(_pixels[i][j]) / 255.0;
+            pixels[i*pixelCols + j] = static_cast<neural_network::real_number_t>(_pixels[i][j]) / 255.0;
         }
     }
     return pixels;

@@ -19,7 +19,7 @@ class TestCreator{
 
     TestCreator& prepare(std::function<bool(double,double)> pointTestCompareFunction);
 
-    std::vector<data::Data>* 
+    data::data_batch* 
     createPointTest(double min, double max, size_t size);
 };
 

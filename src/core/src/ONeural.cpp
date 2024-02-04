@@ -60,11 +60,11 @@ void ONeural::_update_gradients(data::Data&& data){
 
     outputs();
     OLayer* prev_layer = _output_layer.calc_output_gradient(
-        std::forward<std::vector<double>>(data.expect)
+        std::forward<vector_t>(data.expect)
     );
     _output_layer.update_gradients();
     _cost = _output_layer.cost(
-        std::forward<std::vector<double>>(data.expect)
+        std::forward<vector_t>(data.expect)
     );
     _loss += _cost;
 
@@ -111,15 +111,15 @@ void ONeural::apply(double learn_rate, size_t batch_size){
     _output_layer.apply_gradients(learn_rate, batch_size);
 }
 
-const std::vector<double>& ONeural::outputs(){
+const vector_t& ONeural::outputs(){
     auto inputs = _input.input;
     for(auto& layer : _hidden_layers){
         inputs = layer.calc_activations(
-            std::forward<std::vector<double>>(inputs)
+            std::forward<vector_t>(inputs)
         );
     }
     _outputs = _output_layer.calc_activations(
-        std::forward<std::vector<double>>(inputs)
+        std::forward<vector_t>(inputs)
     );
     return _outputs;
 }
@@ -128,17 +128,17 @@ void ONeural::input(data::Data& data){
     _input = data;
 }
 
-void ONeural::raw_input(const std::vector<double>& _raw_input){
+void ONeural::raw_input(const vector_t& _raw_input){
     _input.input = _raw_input;
 }
 
-double ONeural::loss(size_t batch_size){
-    return _loss / static_cast<double>(batch_size);
+real_number_t ONeural::loss(size_t batch_size){
+    return _loss / static_cast<real_number_t>(batch_size);
 }
 
-double ONeural::cost(){
+real_number_t ONeural::cost(){
     return _output_layer.cost(
-        std::forward<std::vector<double>>(_input.expect)
+        std::forward<vector_t>(_input.expect)
         );
 }
 
@@ -157,7 +157,7 @@ const std::vector<size_t>& ONeural::structure(){
     return _structure;
 }
 
-double ONeural::accuracy(data_batch* test){
+real_number_t ONeural::accuracy(data_batch* test){
     size_t correct_count = 0;
     for (auto& data : *test){
         input(data);
@@ -166,7 +166,7 @@ double ONeural::accuracy(data_batch* test){
             correct_count++;
         }
     }
-    return static_cast<double>(correct_count) / static_cast<double>(test->size());
+    return static_cast<real_number_t>(correct_count) / static_cast<real_number_t>(test->size());
 }
 
 void ONeural::activations(
