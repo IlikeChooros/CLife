@@ -23,6 +23,10 @@ Drawer& Drawer::setCallback(std::function<void(neural_network::vector_t)> callba
     return *this;
 }
 
+bool Drawer::closed(){
+    return !window.isOpen();
+}
+
 void Drawer::open(){
     bool hold = false;
     bool erase = false;

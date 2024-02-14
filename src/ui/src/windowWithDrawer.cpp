@@ -87,7 +87,7 @@ void neuralNetworkPointTest(){
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
     neural_network::ONeural net = neural_network::ONeural(
-        {2,16,8,4,2}, ActivationType::softmax, ActivationType::relu);
+        {2,10,2}, ActivationType::softmax, ActivationType::relu);
     net.initialize();
     window.display();
 
@@ -128,7 +128,7 @@ void neuralNetworkPointTest(){
             window.clear();
             renderPoints(&window, data.get(), &net, MIN, MAX);
             // renderNetworkGuess(&window, &net, data.get(), MIN, MAX);
-            
+            net.batch_learn(data.get(), 0.6, 64);
             // net.raw_input({double(Mouse::getPosition(window).x), double(Mouse::getPosition(window).y)});
             window.display();
             if(timer.getElapsedTime().asMilliseconds() >= 1000){
@@ -143,7 +143,7 @@ void neuralNetworkPointTest(){
                 );
             }
         }
-        net.batch_learn(data.get(), 0.6, 64);
+        
         
     }
     return;

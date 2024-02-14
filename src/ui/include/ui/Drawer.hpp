@@ -45,6 +45,7 @@ class Drawer{
     */
     Drawer& loadPixels(const neural_network::vector_t& pixels);
 
+    bool closed();
     void open();
     neural_network::vector_t getPixels();
 };

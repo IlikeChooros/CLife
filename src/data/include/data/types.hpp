@@ -7,7 +7,7 @@
 
 START_NAMESPACE_DATA
 
-typedef float real_number_t;
+typedef double real_number_t;
 typedef std::vector<real_number_t> vector_t;
 typedef std::vector<vector_t> matrix_t;
 

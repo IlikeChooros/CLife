@@ -13,7 +13,7 @@ data::data_batch* transformator::add_noise(
     std::uniform_int_distribution<int> dist(-max_vector, max_vector);
     std::uniform_int_distribution<size_t> noise_index_gen(0, rows*cols);
     std::uniform_int_distribution<size_t> number_of_noise_gen(noisiness*0.5, noisiness);
-    std::uniform_real_distribution<double> noise(0, 0.6);
+    std::uniform_real_distribution<double> noise(0, 0.9);
     std::default_random_engine engine(std::random_device{}());
     
     constexpr float RADIANS = 0.0174532925f;

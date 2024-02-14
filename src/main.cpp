@@ -2,27 +2,28 @@
 #include <optimizer/optimizer.hpp>
 #include <mnist/mnist.hpp>
 
-int main()
-{
+void pointTest(){
+    ui::windowWithDrawer();
+}
 
-    // data::DoodlesLoader loader;
-    // std::unique_ptr<data::matrix_t> image (loader.load(
-    //     "/home/minis/Desktop/CLife/src/data/doodles/full_binary_airplane.bin").get_images());
+void showTrainingDigits(){
+    // testing noisy data
+    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
+    mnist::Loader loader;
+    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
 
-    // ui::Drawer drawer(512*2, 512*2, 256, 256);
-    // drawer.loadPixels(image->at(0)).open();
+    std::unique_ptr<data::data_batch> trainingData(
+        loader.merge_data(trainingImages, trainingLabels)
+    );
 
+    mnist::transformator t;
+    std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get())); 
+    ui::Drawer drawer;
+    drawer.loadPixels(noisy->at(1).input).open();
+}
 
-
-    // db::FileManager fm("binary-test");
-    // neural_network::ONeural ne({2, 64, 10});
-    // ne.initialize();
-    // fm.prepare("binary-test").to_file(ne);
-
-    // std::unique_ptr<neural_network::ONeural> ne2(fm.from_file());
-
-
-
+void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNetwork2"){
     const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
     auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
@@ -42,52 +43,49 @@ int main()
         loader.merge_data(testImages, testLabels)
     );
 
-    // delete trainingImages;
-    // delete trainingLabels;
-    // delete testImages;
-    // delete testLabels;
+    delete trainingImages;
+    delete trainingLabels;
+    delete testImages;
+    delete testLabels;
 
     std::cout << trainingData->size() << std::endl;
     std::cout << testData->size() << std::endl;
 
     std::cout << trainingData->at(0).input.size() << std::endl;
     std::cout << trainingData->at(0).expect.size() << std::endl;
-
-    // // testing noisy data
-    // mnist::transformator t;
-    // std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get())); // 
-    // ui::Drawer drawer;
-    // drawer.loadPixels(noisy->at(0).input).open();
     
     // max trainingAccuracy: 0.876 "mnistNetwork" {784, 128, 64, 10} softmax relu
     // max trainingAccuracy: ~0.89 (max: 89.9) "mnistNetwork2" {784, 255, 128, 10} softmax relu
-    db::FileManager fm("mnistNetworkFl");
+    db::FileManager fm(network_name);
+
+    neural_network::ONeural* network_ptr;
+
+    if (use_new){
+        network_ptr = new neural_network::ONeural({784, 128, 128, 64, 10}
+            , ActivationType::softmax, ActivationType::relu
+        );
+        network_ptr->initialize();
+
+        optimizer::NeuralNetworkOptimizerParameters params;
+        params.setNeuralNetwork(network_ptr)
+            .setTrainingData(trainingData.get())
+            .setTestData(testData.get())
+            .setBatchSize(128)
+            .setEpochs(5)
+            .setLearningRate(0.25);
+
+        optimizer::NeuralNetworkOptimizer optimizer(params);
+        optimizer.optimize();
+    } else {
+        network_ptr = fm.from_file();
+    }
 
     std::unique_ptr<neural_network::ONeural> network(
-
-        fm.from_file()
+        network_ptr
     );
-
-    //     new neural_network::ONeural({784, 32, 16, 10}
-    //         , ActivationType::softmax, ActivationType::relu
-    //     // , ActivationType::softmax, ActivationType::sigmoid
-    //     )
-    // );  
-    // network->initialize();
-
-    optimizer::NeuralNetworkOptimizerParameters params;
-    params.setNeuralNetwork(network.get())
-          .setTrainingData(trainingData.get())
-          .setTestData(testData.get())
-          .setBatchSize(128)
-          .setEpochs(2)
-          .setLearningRate(0.25);
-
-    optimizer::NeuralNetworkOptimizer optimizer(params);
-    // optimizer.optimize();
     
-    // fm.prepare("mnistNetworkFl")
-    //   .to_file(*network);
+    fm.prepare(network_name)
+      .to_file(*network);
 
     ui::Drawer drawer;
 
@@ -100,6 +98,11 @@ int main()
             std::cout << '\t' << i << ": " << outputs[i] << std::endl;
         }
     }).open();
+}
 
+int main()
+{
+    // showTrainingDigits();
+    digitDrawerMnist(true, "mnistNoisyF");
     return 0;
 }

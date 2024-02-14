@@ -26,7 +26,7 @@ class transformator{
         int max_vector = 6,
         size_t cols = 28,
         size_t rows = 28,
-        size_t noisiness = 80
+        size_t noisiness = 200
     );
 
     /**
