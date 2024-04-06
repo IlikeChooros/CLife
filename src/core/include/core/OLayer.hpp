@@ -11,6 +11,7 @@ Using only layer (without Neurons as an individual node)
 #include <random>
 #include <cmath>
 #include <chrono>
+#include <thread>
 
 #include <data/data.hpp>
 #include "namespaces.hpp"
@@ -20,7 +21,18 @@ Using only layer (without Neurons as an individual node)
 
 START_NAMESPACE_NEURAL_NETWORK
 
+class OLayer;
 
+/// @brief Data structure for backpropagation algorithm, holds
+/// all necessary data for calculating gradients, used for multithreading
+struct _FeedData{
+    _FeedData(OLayer& layer);
+
+    vector_t _activations;
+    vector_t _inputs;
+    vector_t _weighted_inputs;
+    vector_t _partial_derivatives; 
+};
 
 class OLayer{
     

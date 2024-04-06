@@ -55,6 +55,10 @@ void ONeural::initialize(){
     _output_layer.initialize();
 }
 
+void ONeural::_update_gradients_multithread(data::Data&& data, _FeedData& feed_data){
+
+}
+
 void ONeural::_update_gradients(data::Data&& data){
     _input = std::move(data);
 
@@ -85,7 +89,21 @@ void ONeural::learn(data::Data& data, double learn_rate){
     apply(learn_rate, 1);
 }
 
+void ONeural::_learn_multithread(data_batch* training_data, double learn_rate){
+    auto size = training_data->size();
+
+    std::thread threads[size];
+    
+    for (int i = 0; i < size; i++){
+        threads[i] = std::thread(
+            &ONeural::_update_gradients, this, std::move(training_data->at(i))
+        );
+    }
+    apply(learn_rate, size);
+}
+
 void ONeural::learn(data_batch* training_data, double learn_rate){
+    // traning_data should be a copy of the original data, thread safe
     for (auto& data : *training_data){
         _update_gradients(std::forward<data::Data>(data));
     }
@@ -123,6 +141,8 @@ const vector_t& ONeural::outputs(){
     );
     return _outputs;
 }
+
+
 
 void ONeural::input(data::Data& data){
     _input = data;

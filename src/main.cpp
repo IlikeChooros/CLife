@@ -1,6 +1,7 @@
 #include <ui/ui.hpp>
 #include <optimizer/optimizer.hpp>
 #include <mnist/mnist.hpp>
+#include <games/games.hpp>
 
 void pointTest(){
     ui::windowWithDrawer();
@@ -18,9 +19,14 @@ void showTrainingDigits(){
     );
 
     mnist::transformator t;
-    std::unique_ptr<data::data_batch> noisy(t.add_noise(trainingData.get())); 
+    std::unique_ptr<data::data_batch> noisy(
+        t.add_noise(trainingData.get())
+    ); 
     ui::Drawer drawer;
-    drawer.loadPixels(noisy->at(1).input).open();
+    drawer.loadPixels(
+        noisy->at(2).input
+        // trainingData->at(1).input
+    ).open();
 }
 
 void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNetwork2"){
@@ -102,7 +108,9 @@ void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNet
 
 int main()
 {
+    pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(true, "mnistNoisyF");
+    // digitDrawerMnist(true, "mnistNetwork3");
+    // showTrainingDigits();
     return 0;
 }

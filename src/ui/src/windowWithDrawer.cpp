@@ -87,7 +87,7 @@ void neuralNetworkPointTest(){
     auto window = RenderWindow(VideoMode(1000, 800), "CLife");
 
     neural_network::ONeural net = neural_network::ONeural(
-        {2,10,2}, ActivationType::softmax, ActivationType::relu);
+        {2,10,2}, ActivationType::softmax, ActivationType::sigmoid);
     net.initialize();
     window.display();
 

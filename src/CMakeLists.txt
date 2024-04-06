@@ -8,7 +8,9 @@ add_subdirectory(backend)
 add_subdirectory(test-creator)
 
 add_subdirectory(optimizer)
+add_subdirectory(games)
 add_subdirectory(ui)
+
 
 
 target_link_libraries(
@@ -21,6 +23,7 @@ target_link_libraries(
             core
             optimizer
             test-creator
+            games
 )
 
 

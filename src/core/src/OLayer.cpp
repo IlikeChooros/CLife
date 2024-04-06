@@ -2,6 +2,13 @@
 
 START_NAMESPACE_NEURAL_NETWORK
 
+_FeedData::_FeedData(OLayer& layer){
+    _activations = layer._activations;
+    _inputs = layer._inputs;
+    _weighted_inputs = layer._weighted_inputs;
+    _partial_derivatives = layer._partial_derivatives;
+}
+
 /**
  * For multithreading:
  *  - activations:
@@ -10,6 +17,7 @@ START_NAMESPACE_NEURAL_NETWORK
  *          - calc_activations()
  *          - calc_output_gradient()
  *          - calc_hidden_gradient()
+ *  - _inputs
  *  - _weighted_inputs:
  *      - derviative():
  *          - calc_hidden_gradient()

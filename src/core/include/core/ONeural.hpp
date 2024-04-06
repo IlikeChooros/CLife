@@ -23,6 +23,11 @@ using data_batch = data::data_batch;
 class ONeural{
 
     void _update_gradients(data::Data&& data);
+
+    const vector_t& _outputs_multithread(_FeedData& feed_data);
+    void _update_gradients_multithread(data::Data&& data, _FeedData& feed_data);
+    void _learn_multithread(data_batch* training_data, double learn_rate);
+
     size_t _iterator;
 
     public:
