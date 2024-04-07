@@ -23,8 +23,9 @@ enum class Player {
 
 class engine {
 public:
-    engine() : x_bitboard(0), o_bitboard(0), board(9, 0),
-     game_over(false), current_player(Player::X), winner(Player::NONE) {};
+    engine() : current_player(Player::X), x_bitboard(0), o_bitboard(0),
+     current_bitboard(nullptr), board(9, 0),
+     game_over(false), winner(Player::NONE) {};
     ~engine() = default;
 
     float evaluate() const;

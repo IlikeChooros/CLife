@@ -33,7 +33,7 @@ void renderNetworkGuess(
     for (size_t i = 0; i < data->size(); i++){
         auto dataPoint = (*data)[i];
         network->input(dataPoint);
-        network->outputs();
+        (void)network->outputs();
         auto color = network->correct()
             ? sf::Color(0x02d30940) // green
             : sf::Color(0xd3130240); // red

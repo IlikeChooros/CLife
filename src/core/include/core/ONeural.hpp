@@ -17,15 +17,44 @@ START_NAMESPACE_NEURAL_NETWORK
 
 using data_batch = data::data_batch;
 
-
+struct _NetworkFeedData{
+    _NetworkFeedData() = default;
+    _NetworkFeedData(OLayer& output, std::vector<OLayer>& hidden) {
+        _layer_feed_data.reserve(hidden.size() + 1);
+        for (auto& layer : hidden){
+            _layer_feed_data.emplace_back(layer._inputs_size, layer._neurons_size);
+        }
+        _layer_feed_data.emplace_back(output._inputs_size, output._neurons_size);
+    }
+    _NetworkFeedData& setInputs(vector_t& inputs){
+        _layer_feed_data[0]._inputs = inputs;
+        return *this;
+    }
+    std::vector<_FeedData> _layer_feed_data;
+};
 
 /// @brief optimized neural network
 class ONeural{
 
-    void _update_gradients(data::Data&& data);
+    // Mutex used for locking `_loss` and `_cost` when updating them
+    std::mutex _mutex;
 
-    const vector_t& _outputs_multithread(_FeedData& feed_data);
-    void _update_gradients_multithread(data::Data&& data, _FeedData& feed_data);
+    /*
+    Feeds forward the network with `data` and calculates `gradient_weights` and
+    `gradient_baises` for the layers. The network may be updated with `apply(...)` call
+    
+    @param data single data point
+    @param context Neural network pointer
+    */
+    static void _update_gradients(data::Data&& data, ONeural* context);
+
+    /*
+    Creates for every `Data` instance in the `tranining_data` new thread,
+    and calls `_update_gradients(...)`
+
+    @param training_data mini-batch data, shouldn't be too big (go for 16)
+    @param learn_rate learning rate, make it small, since the batch size is also small
+    */
     void _learn_multithread(data_batch* training_data, double learn_rate);
 
     size_t _iterator;
@@ -62,7 +91,7 @@ class ONeural{
     void train(data::Data& data);
 
     /// @brief Learns signle point -> calculates gradients and applies them
-    /// @param data signle data point
+    /// @param data single data point
     /// @param learn_rate learning rate
     void learn(data::Data& data, double learn_rate = 0.4);
 
@@ -94,9 +123,12 @@ class ONeural{
     /// @param _raw_input 
     void raw_input(const vector_t& _raw_input);
 
+    /// @brief feed forward the network, calculate activations on the layers
+    void feed_forward(_NetworkFeedData& feed_data, vector_t& inputs);
+
     /// @brief Calculates the outputs of the network
     /// @return activations of the output layer
-    const vector_t& outputs();
+    vector_t outputs();
 
     /// @brief average loss of the network on given `batch_size`
     /// @param batch_size 

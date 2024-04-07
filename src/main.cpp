@@ -29,7 +29,7 @@ void showTrainingDigits(){
     ).open();
 }
 
-void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNetwork2"){
+void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2"){
     const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
     auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
@@ -67,23 +67,25 @@ void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNet
     neural_network::ONeural* network_ptr;
 
     if (use_new){
-        network_ptr = new neural_network::ONeural({784, 128, 128, 64, 10}
+        network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}
             , ActivationType::softmax, ActivationType::relu
         );
         network_ptr->initialize();
+    } else {
+        network_ptr = fm.from_file();
+    }
 
+    if (train){
         optimizer::NeuralNetworkOptimizerParameters params;
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
-            .setBatchSize(128)
+            .setBatchSize(64)
             .setEpochs(5)
-            .setLearningRate(0.25);
+            .setLearningRate(0.2);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
-    } else {
-        network_ptr = fm.from_file();
     }
 
     std::unique_ptr<neural_network::ONeural> network(
@@ -108,9 +110,8 @@ void digitDrawerMnist(bool use_new = false, std::string network_name = "mnistNet
 
 int main()
 {
-    pointTest();
+    // pointTest();
     // showTrainingDigits();
-    // digitDrawerMnist(true, "mnistNetwork3");
-    // showTrainingDigits();
+    digitDrawerMnist(true, true, "mnistMTv2");
     return 0;
 }

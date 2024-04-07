@@ -12,6 +12,7 @@ Using only layer (without Neurons as an individual node)
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include <data/data.hpp>
 #include "namespaces.hpp"
@@ -21,12 +22,13 @@ Using only layer (without Neurons as an individual node)
 
 START_NAMESPACE_NEURAL_NETWORK
 
-class OLayer;
-
 /// @brief Data structure for backpropagation algorithm, holds
 /// all necessary data for calculating gradients, used for multithreading
 struct _FeedData{
-    _FeedData(OLayer& layer);
+    public:
+    _FeedData() = default;
+    _FeedData(size_t inputs, size_t outputs);
+    _FeedData& build(size_t inputs, size_t outputs);
 
     vector_t _activations;
     vector_t _inputs;
@@ -39,10 +41,14 @@ class OLayer{
     friend class ONeural;
 
     void _match_activations(const ActivationType& activation);
-    inline double _derivative(size_t index);
+    inline double _derivative(size_t index, _FeedData& feed_data);
+
+    // Mutex used for multithreading when accessing the `_gradient_weights` and `_gradient_biases`
+    std::mutex _mutex;
 
     public:
     OLayer() = default;
+    OLayer(const OLayer& other);
 
     /// @brief Calls `build(...)` internally
     OLayer(size_t inputs, size_t outputs, ActivationType&& type = ActivationType::sigmoid);
@@ -61,25 +67,25 @@ class OLayer{
     /// @brief This does excacly what you think it does. Call this before calculating gradients
     /// @param inputs 
     /// @return activation values
-    vector_t& calc_activations(vector_t&& inputs);
-    void calc_activations();
+    vector_t& calc_activations(_FeedData& feed_data);
+    // void calc_activations();
 
 
     /// @brief Calculates hidden layer gradient values, based on backpropagation algorithm
     /// @param prev_layer previously evaulated layer
     /// @warning first call `calc_activations`
     /// @return this pointer
-    OLayer* calc_hidden_gradient(OLayer* prev_layer);
+    OLayer* calc_hidden_gradient(OLayer* prev_layer, _FeedData& feed_data, vector_t& _prev_partial_derivatives);
 
     /// @brief Calculates output layer gradient values
     /// @param expected expected activation values
     /// @warning first call `calc_activations`
     /// @return this pointer
-    OLayer* calc_output_gradient(vector_t&& expected);
+    OLayer* calc_output_gradient(vector_t&& expected, _FeedData& feed_data);
 
     /// @warning first call `calc_hidden_gradient` or `calc_output_gradient`
     /// @brief Updates the graidents: weight, bias values. Call this before applying them
-    void update_gradients();
+    void update_gradients(_FeedData& feed_data);
 
     /// @brief This does excacly what you think it does.
     /// @param learn_rate 
@@ -91,13 +97,8 @@ class OLayer{
      * @param expected A vector of expected output values.
      * @return The calculated cost.
      */
-    real_number_t cost(vector_t&& expected);
+    real_number_t cost(vector_t&& expected, _FeedData& feed_data);
 
-    /**
-     * @brief Returns the activations of the neurons in the layer.
-     * @return A reference to the vector of neuron activations.
-     */
-    vector_t& activations();
 
     /**
      * @brief Returns the weight of a connection from a specific input to a specific neuron.
@@ -123,10 +124,7 @@ class OLayer{
 
     vector_t _biases;
     vector_t _gradient_biases;
-    vector_t _activations;
-    vector_t _inputs;
-    vector_t _weighted_inputs;
-    vector_t _partial_derivatives;
+    
     // momentum gradient
     matrix_t _m_gradient;
     vector_t _m_gradient_bias;

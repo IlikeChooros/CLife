@@ -57,7 +57,18 @@
         "typeinfo": "cpp",
         "any": "cpp",
         "variant": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "condition_variable": "cpp",
+        "csignal": "cpp",
+        "forward_list": "cpp",
+        "list": "cpp",
+        "unordered_set": "cpp",
+        "mutex": "cpp",
+        "semaphore": "cpp",
+        "span": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp",
+        "valarray": "cpp"
     },
     "cmake.configureOnOpen": true
 }

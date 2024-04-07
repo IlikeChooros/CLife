@@ -55,59 +55,80 @@ void ONeural::initialize(){
     _output_layer.initialize();
 }
 
-void ONeural::_update_gradients_multithread(data::Data&& data, _FeedData& feed_data){
+void ONeural::_update_gradients(data::Data&& data, ONeural* context){
+    // This function is made to be thread-safe, it's a static method, because
+    // I'm using it in `std::thread` to achieve parallelism
 
-}
+    _NetworkFeedData feed_data(context->_output_layer, context->_hidden_layers);
+    context->feed_forward(feed_data, data.input);
 
-void ONeural::_update_gradients(data::Data&& data){
-    _input = std::move(data);
+    _FeedData *prev_layer_feed = &feed_data._layer_feed_data.back();
 
-    outputs();
-    OLayer* prev_layer = _output_layer.calc_output_gradient(
-        std::forward<vector_t>(data.expect)
+    OLayer* prev_layer = context->_output_layer.calc_output_gradient(
+        std::forward<vector_t>(data.expect),
+        *prev_layer_feed
     );
-    _output_layer.update_gradients();
-    _cost = _output_layer.cost(
-        std::forward<vector_t>(data.expect)
-    );
-    _loss += _cost;
+
+    context->_output_layer.update_gradients(*prev_layer_feed);
+    
+    {
+        // Lock the `_cost` and `_loss` when modifying them
+        std::lock_guard<std::mutex> lock(context->_mutex);
+        context->_cost = context->_output_layer.cost(
+            std::forward<vector_t>(data.expect),
+            *prev_layer_feed
+        );
+        context->_loss += context->_cost;
+    }
+
+
+    _FeedData* _hidden_feed;
+    OLayer* _hidden_layer;
 
     // backpropagation
-    for (auto layer = _hidden_layers.rbegin(); layer != _hidden_layers.rend(); layer++){
-        prev_layer = layer->calc_hidden_gradient(prev_layer);
-        layer->update_gradients();
+    for (int i = (int)context->_hidden_layers.size() - 1; i >= 0; i--){
+        _hidden_feed = &feed_data._layer_feed_data[i];
+        _hidden_layer = &context->_hidden_layers[i];
+
+        prev_layer = _hidden_layer->calc_hidden_gradient(prev_layer, *_hidden_feed, prev_layer_feed->_partial_derivatives);
+        _hidden_layer->update_gradients(*_hidden_feed);
+        prev_layer_feed = _hidden_feed;
     }
 }
 
 void ONeural::train(data::Data& data){
-    _update_gradients(std::forward<data::Data>(data));
+    _update_gradients(std::forward<data::Data>(data), this);
 }
 
 void ONeural::learn(data::Data& data, double learn_rate){
-    _update_gradients(std::forward<data::Data>(data));
+    _update_gradients(std::forward<data::Data>(data), this);
 
     apply(learn_rate, 1);
 }
 
-void ONeural::_learn_multithread(data_batch* training_data, double learn_rate){
-    auto size = training_data->size();
+void ONeural::_learn_multithread(data_batch* mini_batch, double learn_rate){
+    std::vector<std::thread> threads;
+    threads.reserve(mini_batch->size());
 
-    std::thread threads[size];
-    
-    for (int i = 0; i < size; i++){
-        threads[i] = std::thread(
-            &ONeural::_update_gradients, this, std::move(training_data->at(i))
-        );
+    for (size_t i = 0; i < mini_batch->size(); i++){
+        threads.emplace_back(_update_gradients, (*mini_batch)[i], this);
     }
-    apply(learn_rate, size);
+
+    // Now wait for them to finnish
+    for (size_t i = 0; i < mini_batch->size(); i++){
+        threads[i].join();
+    }
+    apply(learn_rate, mini_batch->size());
 }
 
 void ONeural::learn(data_batch* training_data, double learn_rate){
-    // traning_data should be a copy of the original data, thread safe
-    for (auto& data : *training_data){
-        _update_gradients(std::forward<data::Data>(data));
-    }
-    apply(learn_rate, training_data->size());
+    // // traning_data should be a copy of the original data, thread safe
+    // for (auto& data : *training_data){
+    //     _update_gradients(std::forward<data::Data>(data), this);
+    // }
+    // apply(learn_rate, training_data->size());
+
+    _learn_multithread(training_data, learn_rate);
 }
 
 void ONeural::batch_learn(data_batch* whole_data, double learn_rate, size_t batch_size){
@@ -129,20 +150,21 @@ void ONeural::apply(double learn_rate, size_t batch_size){
     _output_layer.apply_gradients(learn_rate, batch_size);
 }
 
-const vector_t& ONeural::outputs(){
-    auto inputs = _input.input;
-    for(auto& layer : _hidden_layers){
-        inputs = layer.calc_activations(
-            std::forward<vector_t>(inputs)
-        );
+void ONeural::feed_forward(_NetworkFeedData& feed_data, vector_t& inputs){
+    (void)feed_data.setInputs(inputs);
+
+    for (size_t i = 0; i < _hidden_layers.size(); i++){
+        feed_data._layer_feed_data[i+1]._inputs = _hidden_layers[i].calc_activations(feed_data._layer_feed_data[i]);
     }
-    _outputs = _output_layer.calc_activations(
-        std::forward<vector_t>(inputs)
-    );
-    return _outputs;
+    _output_layer.calc_activations(feed_data._layer_feed_data.back());
 }
 
-
+vector_t ONeural::outputs(){
+    _NetworkFeedData feed_data(_output_layer, _hidden_layers);
+    feed_forward(feed_data, _input.input);
+    _outputs = feed_data._layer_feed_data.back()._activations;
+    return _outputs;
+}
 
 void ONeural::input(data::Data& data){
     _input = data;
@@ -157,9 +179,7 @@ real_number_t ONeural::loss(size_t batch_size){
 }
 
 real_number_t ONeural::cost(){
-    return _output_layer.cost(
-        std::forward<vector_t>(_input.expect)
-        );
+    return _cost;
 }
 
 size_t ONeural::classify() const{
