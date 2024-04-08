@@ -58,43 +58,63 @@ public:
 /// New - namespace approach
 namespace neural_network{
     namespace sigmoid{
-        inline real_number_t activation(vector_t& activations, size_t index){
-            return 1 / (1 + exp(-activations[index]));
+        inline vector_t activation(vector_t& activations){
+            vector_t result(activations.size());
+            const size_t size = activations.size();
+            for (size_t i = 0; i < size; i++){
+                result[i] = 1 / (1 + exp(-activations[i]));
+            }
+            return result;
         }
-        inline real_number_t derivative(vector_t& activations, size_t index){
-            return activations[index] * (1 - activations[index]);
+        inline vector_t derivative(vector_t& activations){
+            vector_t result(activations.size());
+            const size_t size = activations.size();
+            for (size_t i = 0; i < size; i++){
+                result[i] = activations[i] * (1 - activations[i]);
+            }
+            return result;
         }
     }
     namespace relu
     {
-        inline real_number_t activation(vector_t& activations, size_t index){
-            return std::max(real_number_t(0), activations[index]);
+        inline vector_t activation(vector_t& activations){
+            vector_t result(activations.size());
+            const size_t size = activations.size();
+            for (size_t i = 0; i < size; i++){
+                result[i] = std::max((real_number_t)0, activations[i]);
+            }
+            return result;
         }
-        inline real_number_t derivative(vector_t& activations, size_t index){
-            return activations[index] > 0;
+        inline vector_t derivative(vector_t& activations){
+            vector_t result(activations.size());
+            const size_t size = activations.size();
+            for (size_t i = 0; i < size; i++){
+                result[i] = activations[i] > 0 ? 1 : 0;
+            }
+            return result;
         }
     } // namespace relu
 
     namespace softmax
     {
-        real_number_t activation(vector_t& args, size_t index);
-        real_number_t derivative(vector_t& activations, size_t index);
+        vector_t activation(vector_t& args);
+        vector_t derivative(vector_t& activations);
     }
 
     namespace silu
     {
-        real_number_t activation(vector_t& args, size_t index);
-        real_number_t derivative(vector_t& activations, size_t index);
+        vector_t activation(vector_t& args);
+        vector_t derivative(vector_t& activations);
     }
 
     namespace selu
     {
-        real_number_t activation(vector_t& args, size_t index);
-        real_number_t derivative(vector_t& activations, size_t index);
+        vector_t activation(vector_t& args);
+        vector_t derivative(vector_t& activations);
     }
     namespace prelu
     {
-        real_number_t activation(vector_t& args, size_t index);
-        real_number_t derivative(vector_t& activations, size_t index);
+        vector_t activation(vector_t& args);
+        vector_t derivative(vector_t& activations);
     }
 }

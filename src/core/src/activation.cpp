@@ -5,30 +5,49 @@ START_NAMESPACE_NEURAL_NETWORK
 
 
 namespace softmax{
-    real_number_t activation(vector_t& activations, size_t index){
+    vector_t activation(vector_t& activations){
         vector_t softmax(activations.size());
         real_number_t sum = 10e-6;
         for (size_t i = 0; i < activations.size(); i++){
             softmax[i] = exp(activations[i]);
             sum += softmax[i];
         }
-        return softmax[index] / sum;
+        for (size_t i = 0; i < activations.size(); i++){
+            softmax[i] /= sum;
+        }
+        return softmax;
     }
 
-    real_number_t derivative(vector_t& activations, size_t index){
-        return activations[index] * (1 - activations[index]);
+    vector_t derivative(vector_t& activations){
+        vector_t result(activations.size());
+        const size_t size = activations.size();
+        for (size_t i = 0; i < size; i++){
+            result[i] = activations[i] * (1 - activations[i]);
+        }
+        return result;
     }
 }
 
 
 namespace silu{
-    real_number_t activation(vector_t& args, size_t index){
-        return args[index] * sigmoid::activation(args, index);
+    vector_t activation(vector_t& args){
+        vector_t result(args.size());
+        const size_t size = args.size();
+        auto sigmoid = sigmoid::activation(args);
+        for (size_t i = 0; i < size; i++){
+            result[i] = args[i] * sigmoid[i];
+        }
+        return result;
     }
     /// @brief SiLU (Sigmoid Linear Unit), as `derviative` argument - arg, inputs not activations should be passed.
-    real_number_t derivative(vector_t& args, size_t index){
-        auto sigmoid = sigmoid::activation(args, index);
-        return sigmoid * (1 + args[index] * (1 - sigmoid));
+    vector_t derivative(vector_t& args){
+        vector_t result(args.size());
+        const size_t size = args.size();
+        auto sigmoid = sigmoid::activation(args);
+        for (size_t i = 0; i < size; i++){
+            result[i] = sigmoid[i] * (1 + args[i] * (1 - sigmoid[i]));
+        }
+        return result;
     }
 }
 
@@ -38,21 +57,31 @@ namespace selu{
         gamma = 1.0507,
         reverse_gamma = 1 / gamma;
 
-    real_number_t activation(vector_t& args, size_t index){
-        auto x = args[index];
-        if (x > 0){
-            return x * gamma;
+    vector_t activation(vector_t& args){
+        vector_t result(args.size());
+        const size_t size = args.size();
+        for (size_t i = 0; i < size; i++){
+            auto x = args[i];
+            if (x > 0){
+                result[i] = gamma * x;
+            }
+            result[i] = gamma * alpha * (exp(x) - 1);
         }
-        return gamma * alpha * (exp(x) - 1);
+        return result;
     }
     // returns act = G * A * Exp(input) - G * A
     // deriv: A * Exp(input) = act / G + A
-    real_number_t derivative(vector_t& args, size_t index){
-        real_number_t x = args[index];
-        if (x > 0){
-            return gamma;
+    vector_t derivative(vector_t& args){
+        vector_t result(args.size());
+        const size_t size = args.size();
+        for (size_t i = 0; i < size; i++){
+            auto x = args[i];
+            if (x > 0){
+                result[i] = gamma;
+            }
+            result[i] = gamma * alpha * exp(x);
         }
-        return gamma * alpha * exp(x);
+        return result;
     }
 }
 
@@ -60,19 +89,29 @@ namespace selu{
 namespace prelu
 {
     constexpr double aplha = 10e-2;
-    real_number_t activation(vector_t& args, size_t index){
-        auto x = args[index];
-        if (x < 0){
-            return aplha*x;
+    vector_t activation(vector_t& args){
+        vector_t result(args.size());
+        const size_t size = args.size();
+        for (size_t i = 0; i < size; i++){
+            auto x = args[i];
+            if (x < 0){
+                result[i] = aplha*x;
+            }
+            result[i] = x;
         }
-        return x;
+        return result;
     }
-    real_number_t derivative(vector_t& activations, size_t index){
-        auto x = activations[index];
-        if (x < 0){
-            return aplha;
+    vector_t derivative(vector_t& activations){
+        vector_t result(activations.size());
+        const size_t size = activations.size();
+        for (size_t i = 0; i < size; i++){
+            auto x = activations[i];
+            if (x < 0){
+                result[i] = aplha;
+            }
+            result[i] = 1;
         }
-        return 1;
+        return result;
     }
 }
 

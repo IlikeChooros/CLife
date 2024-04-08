@@ -41,7 +41,7 @@ class OLayer{
     friend class ONeural;
 
     void _match_activations(const ActivationType& activation);
-    inline double _derivative(size_t index, _FeedData& feed_data);
+    inline vector_t _derivative(_FeedData& feed_data);
 
     // Mutex used for multithreading when accessing the `_gradient_weights` and `_gradient_biases`
     std::mutex _mutex;
@@ -132,8 +132,8 @@ class OLayer{
     matrix_t _v_gradient;
     vector_t _v_gradient_bias;
     
-    std::function<real_number_t(vector_t&, size_t i)> _activation_function;
-    std::function<real_number_t(vector_t&, size_t i)> _derivative_of_activ;
+    std::function<vector_t(vector_t&)> _activation_function;
+    std::function<vector_t(vector_t&)> _derivative_of_activ;
     ActivationType _activ_type;
 };
 

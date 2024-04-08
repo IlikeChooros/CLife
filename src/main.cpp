@@ -81,7 +81,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
             .setBatchSize(64)
-            .setEpochs(5)
+            .setEpochs(1)
             .setLearningRate(0.2);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
@@ -112,6 +112,6 @@ int main()
 {
     // pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(true, true, "mnistMTv2");
+    digitDrawerMnist(false, true, "mnistMT");
     return 0;
 }

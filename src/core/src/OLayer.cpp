@@ -116,14 +116,14 @@ void OLayer::_match_activations(const ActivationType& activation){
     }
 }
 
-inline double OLayer::_derivative(size_t index, _FeedData& feed_data){
+inline vector_t OLayer::_derivative(_FeedData& feed_data){
     switch (_activ_type)
     {
     case ActivationType::silu:
     case ActivationType::selu:
-        return _derivative_of_activ(feed_data._weighted_inputs, index);
+        return _derivative_of_activ(feed_data._weighted_inputs);
     default:
-        return _derivative_of_activ(feed_data._activations, index);
+        return _derivative_of_activ(feed_data._activations);
     }
 }
 
@@ -138,8 +138,9 @@ vector_t& OLayer::calc_activations(_FeedData& feed_data){
         // std::inner_product calculates sum of all weighted_inputs, with starting value of bias
         // on some hardware it is faster than for loop
         feed_data._weighted_inputs[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), feed_data._inputs.begin(), _biases[i]);
-        feed_data._activations[i] = _activation_function(feed_data._weighted_inputs, i);
     }
+
+    feed_data._activations = _activation_function(feed_data._weighted_inputs);
     return feed_data._activations;
 }
 
@@ -268,6 +269,7 @@ Without transposed matrix:
     // }
 
     vector_t partial_derivs(_neurons_size);
+    vector_t derviatives(_derivative(feed_data));
 
     for (size_t n = 0; n < _neurons_size; n++){
 
@@ -283,7 +285,7 @@ Without transposed matrix:
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->_weights[prev][n] * _prev_partial_derivatives[prev];
         }
-        partial_derivs[n] = new_partial_derviative * _derivative(n, feed_data);
+        partial_derivs[n] = new_partial_derviative * derviatives[n];
     }
 
     feed_data._partial_derivatives = std::move(partial_derivs);
@@ -297,12 +299,13 @@ OLayer* OLayer::calc_output_gradient(vector_t&& expected, _FeedData& feed_data){
 
     double error_deriv;
     vector_t partial_derivs(_neurons_size);
+    vector_t derviatives(_derivative(feed_data));
 
     for (size_t n = 0; n < _neurons_size; n++){
         error_deriv = 2 * (feed_data._activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
-        partial_derivs[n] = error_deriv * _derivative(n, feed_data);
+        partial_derivs[n] = error_deriv * derviatives[n];
 
         // if (std::isnan(deriv_with_error_and_activation)){
         //     while(1){}
