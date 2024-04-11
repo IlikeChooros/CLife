@@ -3,6 +3,8 @@
 #include <mnist/mnist.hpp>
 #include <games/games.hpp>
 
+#include <matplot/matplot.h>
+
 void pointTest(){
     ui::windowWithDrawer();
 }
@@ -112,6 +114,16 @@ int main()
 {
     // pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(false, true, "mnistMT");
+    // digitDrawerMnist(false, true, "mnistMT");
+
+        using namespace matplot;
+
+    std::vector<double> x = linspace(0, 2 * pi);
+    std::vector<double> y1 = transform(x, [](auto x) { return sin(x); });
+    std::vector<double> y2 = transform(x, [](auto x) { return sin(x - 0.25); });
+    std::vector<double> y3 = transform(x, [](auto x) { return sin(x - 0.5); });
+    plot(x, y1, x, y2, "--", x, y3, ":");
+
+    show();
     return 0;
 }

@@ -70,15 +70,11 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 }
 
 OLayer& OLayer::initialize(){
-    std::default_random_engine _engine(std::chrono::system_clock::now().time_since_epoch().count());
-    double limit = sqrt(1.0 / _inputs_size);
-    std::uniform_real_distribution<double> _dist(-limit, limit);
-
     for(auto& weights : _weights){
         // std::generate calls _dist(_engine) for each element in weights
-        std::generate(weights.begin(), weights.end(), [&](){return _dist(_engine);});
+        randomize(&weights, _inputs_size);
     }
-    std::generate(_biases.begin(), _biases.end(), [&](){return _dist(_engine);});
+    randomize(&_biases, _neurons_size);
 
     return *this;
 }

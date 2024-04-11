@@ -12,5 +12,5 @@ target_sources(optimizer
 
 target_link_libraries(
     optimizer
-    PUBLIC core mnist
+    PUBLIC core mnist ui
 )

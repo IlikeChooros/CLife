@@ -9,7 +9,7 @@ Films:
 	1. First step to ML
 	2. Digit recognition
 	3. Optimizing the gradient descent with multithreading and GPU
-	4. How to visualize the network (SFML tutorial)
+	4. How to visualize the network and learning process
 
 
 ## First step to ML
@@ -103,3 +103,17 @@ Films:
       - teaching the network with new data
       - showcase the testing results
       - test the network with writing the digit on the screen
+
+## Optimizing the gradient descent with multithreading and GPU
+
+1. About the optimization:
+	 - why we need it?
+	 - what is the bottleneck of the network?
+	 - how to optimize the network?
+2. Multithreading:
+	 - what is it?
+	 - how to implement it in C++? (std::thread)
+	 - PROGRAMMING:
+  	- neccessary changes in the code: (add mutex, structure _FeedData)
+  	- add multithreading to the learning process
+3. GPU

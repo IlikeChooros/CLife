@@ -9,6 +9,8 @@ PRIVATE
     src/OLayer.cpp
     src/ONeural.cpp
     src/activation.cpp
+    src/LinearModel.cpp
+    src/utils.cpp
 )
 
 target_link_libraries(core PUBLIC data)

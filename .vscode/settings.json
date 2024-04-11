@@ -68,7 +68,12 @@
         "span": "cpp",
         "stop_token": "cpp",
         "thread": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "regex": "cpp",
+        "future": "cpp",
+        "coroutine": "cpp"
     },
     "cmake.configureOnOpen": true
 }

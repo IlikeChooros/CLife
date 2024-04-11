@@ -18,7 +18,7 @@ Using only layer (without Neurons as an individual node)
 #include "namespaces.hpp"
 #include "activation.hpp"
 #include "exceptions.hpp"
-#include "types.hpp"
+#include "utils.hpp"
 
 START_NAMESPACE_NEURAL_NETWORK
 

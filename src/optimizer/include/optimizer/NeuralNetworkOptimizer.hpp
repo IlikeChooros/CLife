@@ -7,6 +7,7 @@
 
 #include <core/core.hpp>
 #include <mnist/mnist.hpp>
+#include <ui/Visualizer.hpp>
 
 START_NAMESPACE_OPTIMIZER
 
