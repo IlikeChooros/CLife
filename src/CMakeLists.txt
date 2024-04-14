@@ -24,7 +24,6 @@ target_link_libraries(
             optimizer
             test-creator
             games
-            matplot
 )
 
 

@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.4)
 project(CLife)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall")
+set(CMAKE_CXX_FLAGS "-Wall -pthread")
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(TEST_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
@@ -17,16 +17,6 @@ FetchContent_Declare(SFML
     GIT_REPOSITORY https://github.com/SFML/SFML.git
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
-
-FetchContent_Declare(matplotplusplus
-        GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus
-        GIT_TAG origin/master)
-        
-FetchContent_GetProperties(matplotplusplus)
-if(NOT matplotplusplus_POPULATED)
-    FetchContent_Populate(matplotplusplus)
-    add_subdirectory(${matplotplusplus_SOURCE_DIR} ${matplotplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
-endif()
         
 
 FetchContent_Declare(

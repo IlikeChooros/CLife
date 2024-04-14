@@ -5,6 +5,7 @@ target_sources(ui
     src/windowWithDrawer.cpp
     src/Drawer.cpp
     src/Visualizer.cpp
+    src/Plotter.cpp
   )
 
 target_include_directories(ui
