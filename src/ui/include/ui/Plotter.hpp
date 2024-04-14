@@ -17,6 +17,7 @@ struct _PlotPoint{
 struct _Plot{
   int x;
   int y;
+  bool valid = true;
 };
 
 enum class DrawingPolicy{
@@ -30,7 +31,7 @@ enum class _DrawMethod{
   Multiple
 };
 
-constexpr int _stateStrictValues = 1;
+constexpr int _stateStrictValues = 1, _stateStrictRanges = 2;
 
 using pltdata = std::vector<_Plot>;
 using data_t = std::vector<_PlotPoint>;
@@ -85,6 +86,7 @@ class Plotter{
 
   void add(const _PlotPoint& point);
   void add(const data_t& data);
+  void set(const data_t& data);
   void update();
 
   void addCallback(_callbackType callback);

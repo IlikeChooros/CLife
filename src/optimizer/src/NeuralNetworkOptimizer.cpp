@@ -16,7 +16,21 @@ NeuralNetworkOptimizer& NeuralNetworkOptimizer::setParameters(
     return *this;
 }
 
-double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
+std::vector<ui::_PlotPoint> losses;
+std::mutex loss_mutex;
+
+
+void plot_loss(ui::Plotter* plotter)
+{
+    plotter->addCallback([&](ui::data_t* data){
+        std::lock_guard<std::mutex> lock(loss_mutex);
+        *data = losses;
+        plotter->update();
+    });
+    plotter->open();
+}
+
+double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Plotter* plotter)
 {
     std::shuffle(
         params.trainingData->begin(), 
@@ -29,6 +43,8 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
     );
     double average_loss = 0.0;
     double current_loss = 0.0;
+    int64_t total_time = 0;
+
     for (size_t i = 0; i < total_batches; ++i)
     {
         auto startTime = std::chrono::high_resolution_clock::now();
@@ -43,10 +59,17 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches)
         );
         average_loss += current_loss;
 
+        auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::high_resolution_clock::now() - startTime
+        ).count();
+        total_time += delta;
+
         std::cout << "Batch " << i << " loss: " << current_loss << " time: " 
-            << std::chrono::duration_cast<std::chrono::microseconds>(
-                std::chrono::high_resolution_clock::now() - startTime).count() 
-            << "us" << std::endl;
+            << delta
+            << "ms" << std::endl;
+        
+        std::lock_guard<std::mutex> lock(loss_mutex);
+        losses.push_back({(float)total_time, (float)current_loss});
     }
     return average_loss / total_batches;
 }
@@ -61,6 +84,14 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
     std::cout << "Training network..." << std::endl;
 
     size_t total_batches = params.trainingData->size() / params.batchSize;
+
+    // ui::Plotter plotter(ui::DrawingPolicy::LineConnected);
+    // plotter.values(0, 1.1);
+
+    losses.clear();
+    losses.reserve(total_batches * params.epochs);
+
+    // std::thread plot_thread(plot_loss, &plotter);
 
     for (size_t i = 0; i < params.epochs; ++i)
     {

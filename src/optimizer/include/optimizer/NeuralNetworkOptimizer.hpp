@@ -4,10 +4,12 @@
 
 #include <iostream>
 #include <chrono>
+#include <vector>
+#include <thread>
 
 #include <core/core.hpp>
 #include <mnist/mnist.hpp>
-#include <ui/Visualizer.hpp>
+#include <ui/Plotter.hpp>
 
 START_NAMESPACE_OPTIMIZER
 
@@ -83,7 +85,7 @@ public:
         size_t epochs = 0UL, size_t batchSize = 32UL
     );
 
-    double train_epoch(size_t total_batches);
+    double train_epoch(size_t total_batches, ui::Plotter* = nullptr);
 
 private:
     NeuralNetworkOptimizerParameters params;

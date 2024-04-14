@@ -43,13 +43,13 @@ void Plotter::prepare(DrawingPolicy policy, std::size_t maxWidth, std::size_t ma
 void Plotter::values(float min, float max){
   _minValue = min;
   _maxValue = max;
-  _state ^= _stateStrictValues;
+  _state |= _state ^ _stateStrictValues;
 }
 
 void Plotter::range(float min, float max){
   _minRange = min;
   _maxRange = max;
-  _state ^= _stateStrictValues;
+  _state |= _state ^ _stateStrictRanges;
 }
 
 void Plotter::add(const _PlotPoint& point){
@@ -58,6 +58,10 @@ void Plotter::add(const _PlotPoint& point){
 
 void Plotter::add(const data_t& data){
   _rawdata.insert(_rawdata.end(), data.begin(), data.end());
+}
+
+void Plotter::set(const data_t& data){
+  _rawdata = data;
 }
 
 void Plotter::update(){
@@ -71,8 +75,11 @@ void Plotter::addCallback(std::function<void(data_t*)> callb){
 void Plotter::open(){
 
   _window.setActive(true);
-  _window.setFramerateLimit(60);
   _window.display();
+
+  sf::Clock timer;
+
+  constexpr int FPS = 60, _FT = 1000 / FPS;
 
   while(_window.isOpen()){
     sf::Event e;
@@ -87,19 +94,25 @@ void Plotter::open(){
       }
     }
 
+    _callb(&_rawdata);
+
+    // 60 FPS
+    if(timer.getElapsedTime().asMilliseconds() < _FT){
+      continue;
+    }
+    timer.restart();
+
     _prepareData();
     _drawBackground();
     _drawAxis();
     _drawData();
     _window.display();
-
-    _callb(&_rawdata);
   }
 }
 
 
 bool Plotter::_isStrict(){
-  return _checkState(_state, _stateStrictValues);
+  return _checkState(_state, _stateStrictValues) && _checkState(_state, _stateStrictRanges);
 }
 
 int Plotter::_getNormalizedY(float y, bool policyEffect){
@@ -115,15 +128,11 @@ int Plotter::_getNormalizedX(float x){
 }
 
 _Plot Plotter::_normalize(const _PlotPoint& point, int xDelta, int yDelta){
-
-  if (_isStrict()){
-    if (point.x < _minValue || point.x > _maxValue || point.y < _minValue || point.y > _maxValue){
-      throw std::runtime_error("Values out of range");
-    }
-  }
+  bool valid = point.x >= _minRange && point.x <= _maxRange && point.y >= _minValue && point.y <= _maxValue;
   return {
     _getNormalizedX(point.x) + xDelta,
-    _getNormalizedY(point.y) + yDelta
+    _getNormalizedY(point.y) + yDelta,
+    valid
   };
 }
 
@@ -204,13 +213,17 @@ void Plotter::_prepareData(){
     return;
   }
 
-  
-  for (size_t i = 0; i < _rawdata.size(); i++){
-    _minValue = std::min(_minValue, _rawdata[i].y);
-    _maxValue = std::max(_maxValue, _rawdata[i].y);
-
-    _minRange = std::min(_minRange, _rawdata[i].x);
-    _maxRange = std::max(_maxRange, _rawdata[i].x);
+  if (!_isStrict()){
+    for (size_t i = 0; i < _rawdata.size(); i++){
+      if (!_checkState(_state, _stateStrictValues)){
+        _maxValue = std::max(_maxValue, _rawdata[i].y);
+        _minValue = std::min(_minValue, _rawdata[i].y);
+      }
+      if (!_checkState(_state, _stateStrictRanges)){
+        _minRange = std::min(_minRange, _rawdata[i].x);
+        _maxRange = std::max(_maxRange, _rawdata[i].x);
+      }
+    }
   }
 
   if (_minValue == _maxValue){

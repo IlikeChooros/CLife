@@ -112,28 +112,22 @@ int main()
 {
     // pointTest();
     // showTrainingDigits();
-    // digitDrawerMnist(false, true, "mnistMT");
+    digitDrawerMnist(false, true, "mnistMT");
 
-    ui::Plotter plt(ui::DrawingPolicy::LineConnected);
+    // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 
-    // plt.values(0, 5);
-    // plt.range(0, 5);
+    // plt.range(-1, 5);
+    // plt.values(-1, 5);
 
-    // plt.add({0, 0});
-    // plt.add({1, 1});
-    // plt.add({2, 4});
-    // plt.add({3, 9});
-    // plt.add({4, 16});
-
-    for (float i = -6.3f; i < 6.3f; i += 0.2f){
-        plt.add({i, cosf32(i)});
-    }
+    // for (float i = -6.3f; i < 6.3f; i += 0.2f){
+    //     plt.add({i, cosf32(i)});
+    // }
     
-    constexpr float T = 1.0f, N0 = 100.0f;
-    float x = -3.0f;
+    // constexpr float T = 1.0f, N0 = 100.0f;
+    // float x = -3.0f;
 
-    std::chrono::milliseconds dura(500);
-    auto start = std::chrono::high_resolution_clock::now().time_since_epoch();
+    // std::chrono::milliseconds dura(500);
+    // auto start = std::chrono::high_resolution_clock::now().time_since_epoch();
     // plt.addCallback([&](ui::data_t* data){
     //     auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
     //     if (start + dura > now){
@@ -152,7 +146,7 @@ int main()
         
     //     plt.update();
     // });
-    plt.open();
+    // plt.open();
 
     return 0;
 }
