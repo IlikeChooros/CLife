@@ -114,13 +114,19 @@ int main()
     // showTrainingDigits();
     // digitDrawerMnist(false, true, "mnistMT");
 
-    ui::Plotter plt;
+    ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 
-    plt.values(0, 5);
-    plt.range(0, 5);
+    // plt.values(0, 5);
+    // plt.range(0, 5);
 
-    for (float i = 0; i < 4.0f; i += 0.05f){
-        plt.add({i - 1.0f, i*i - 5.0f});
+    // plt.add({0, 0});
+    // plt.add({1, 1});
+    // plt.add({2, 4});
+    // plt.add({3, 9});
+    // plt.add({4, 16});
+
+    for (float i = -6.25f; i < -1.0f; i += 0.25f){
+        plt.add({i, (i + 1.14f) * (i + 1.14f)});
     }
 
     plt.open();

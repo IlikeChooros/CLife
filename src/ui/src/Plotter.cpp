@@ -103,7 +103,7 @@ int Plotter::_getNormalizedX(float x){
   return static_cast<int>((x - _minRange) / (_maxRange - _minRange) * _maxWidth);
 }
 
-_Plot Plotter::_normalize(const _PlotPoint& point){
+_Plot Plotter::_normalize(const _PlotPoint& point, int xDelta, int yDelta){
 
   if (_isStrict()){
     if (point.x < _minValue || point.x > _maxValue || point.y < _minValue || point.y > _maxValue){
@@ -111,13 +111,13 @@ _Plot Plotter::_normalize(const _PlotPoint& point){
     }
   }
   return {
-    _getNormalizedX(point.x),
-    _getNormalizedY(point.y)
+    _getNormalizedX(point.x) + xDelta,
+    _getNormalizedY(point.y) + yDelta
   };
 }
 
 void Plotter::_drawBackground(){
-  _window.clear();
+  _window.clear(sf::Color(0, 12, 24));
 }
 
 void Plotter::_drawAxis(){
@@ -125,8 +125,10 @@ void Plotter::_drawAxis(){
   RectangleShape xA(Vector2f(_maxWidth, axisThickness));
   RectangleShape yA(Vector2f(axisThickness, _maxHeight));
 
-  xA.setFillColor(sf::Color::Magenta);
-  yA.setFillColor(sf::Color::Magenta);
+  auto color = sf::Color(49, 58, 77);
+
+  xA.setFillColor(color);
+  yA.setFillColor(color);
 
   xA.setPosition(0, _xAxisPos);
   yA.setPosition(_yAxisPos, 0);
@@ -137,13 +139,24 @@ void Plotter::_drawAxis(){
 
 void Plotter::_drawPoint(_Plot& current, _Plot& prev){
   using namespace sf;
+  auto color = Color(45, 68, 124);
+
   switch (_policy)
   {
   case DrawingPolicy::Point:{
     CircleShape p(pointRadius);
     p.setPosition(current.x, current.y);
-    p.setFillColor(Color::Blue);
+    p.setFillColor(color);
     _window.draw(p);
+  }
+    break;
+  case DrawingPolicy::LineConnected:{
+    VertexArray line(Lines, 2);
+    line[0].position = Vector2f(prev.x, prev.y);
+    line[1].position = Vector2f(current.x, current.y);
+    line[0].color = color;
+    line[1].color = color;
+    _window.draw(line);
   }
     break;
   
@@ -176,8 +189,43 @@ void Plotter::_prepareData(){
     _maxRange += 1;
   }
 
+  int xDelta = 0, yDelta = 0;
+
   _xAxisPos = _getNormalizedY(0, false);
-  _yAxisPos = abs(_getNormalizedX(0));
+  _yAxisPos = _getNormalizedX(0);
+
+  // check if the axis is out of bounds
+  if (_minRange > 0){
+    // axis should be negative, must set it to the left
+    // the graph is to the right of the Y axis
+    xDelta = -_yAxisPos;
+    _yAxisPos = 0;
+    // _maxRange += _getNormalizedX(xDelta); // extend the range
+  }
+
+  if (_maxRange < 0){
+    // axis should be positive, must set it to the right
+    // the graph is to the left of the Y axis
+    xDelta =_yAxisPos - _maxWidth; // must be positive
+    _yAxisPos = static_cast<int>(_maxWidth) - axisThickness;
+    // _minRange -= _getNormalizedX(xDelta); // extend the range
+  }
+
+  if (_minValue > 0){
+    // axis should be negative, must set it to the top 
+    // (the graph is below the X axis)
+    yDelta = _maxHeight - _xAxisPos; // must be negative
+    _xAxisPos = static_cast<int>(_maxHeight) - axisThickness;
+    // _minValue += _getNormalizedY(yDelta); // extend the range
+  }
+
+  if (_maxValue < 0){
+    // axis should be positive, must set it to the bottom
+    // (the graph is above the X axis)
+    yDelta = -_xAxisPos;
+    _xAxisPos = 0;
+    // _maxValue/ += _getNormalizedY(yDelta); // extend the range
+  }
 
   _xAxisPos = std::min(_xAxisPos, static_cast<int>(_maxHeight) - axisThickness);
   _yAxisPos = std::min(_yAxisPos, static_cast<int>(_maxWidth) - axisThickness);
@@ -186,7 +234,7 @@ void Plotter::_prepareData(){
   _plotdata.reserve(_rawdata.size());
 
   for (size_t i = 0; i < _rawdata.size(); i++){
-    _plotdata.push_back(_normalize(_rawdata[i]));
+    _plotdata.push_back(_normalize(_rawdata[i], xDelta, yDelta));
   }
 
   _forceUpdate = false;

@@ -63,7 +63,7 @@ class Plotter{
 
   int _getNormalizedY(float y, bool policy = true);
   int _getNormalizedX(float x);
-  _Plot _normalize(const _PlotPoint&);
+  _Plot _normalize(const _PlotPoint&, int, int);
   void _prepareData();
 
   bool _isStrict();
