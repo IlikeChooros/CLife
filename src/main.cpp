@@ -125,10 +125,33 @@ int main()
     // plt.add({3, 9});
     // plt.add({4, 16});
 
-    for (float i = -6.25f; i < -1.0f; i += 0.25f){
-        plt.add({i, (i + 1.14f) * (i + 1.14f)});
+    for (float i = -6.3f; i < 6.3f; i += 0.2f){
+        plt.add({i, cosf32(i)});
     }
+    
+    constexpr float T = 1.0f, N0 = 100.0f;
+    float x = -3.0f;
 
+    std::chrono::milliseconds dura(500);
+    auto start = std::chrono::high_resolution_clock::now().time_since_epoch();
+    // plt.addCallback([&](ui::data_t* data){
+    //     auto now = std::chrono::high_resolution_clock::now().time_since_epoch();
+    //     if (start + dura > now){
+    //         return;
+    //     }
+    //     start = now;
+    //     printf("Hello\n");
+
+    //     float y = 
+    //         // (expf32(-M_LN2/T * x)) * N0
+    //         x + sinf32(x);
+    //         ;
+
+    //     data->push_back({x, y});
+    //     x += T/4.0f;
+        
+    //     plt.update();
+    // });
     plt.open();
 
     return 0;

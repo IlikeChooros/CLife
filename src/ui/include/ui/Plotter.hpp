@@ -21,17 +21,23 @@ struct _Plot{
 
 enum class DrawingPolicy{
   Point,
-  LineConnected
+  LineConnected,
+  LineDisconnected
+};
+
+enum class _DrawMethod{
+  Single,
+  Multiple
 };
 
 constexpr int _stateStrictValues = 1;
 
 using pltdata = std::vector<_Plot>;
-using _rawdatatype = std::vector<_PlotPoint>;
+using data_t = std::vector<_PlotPoint>;
 
 class Plotter{
 
-  typedef std::function<void(pltdata&)> _callbackType;
+  typedef std::function<void(data_t*)> _callbackType;
 
   std::size_t _maxWidth;
   std::size_t _maxHeight;
@@ -49,8 +55,9 @@ class Plotter{
   bool _forceUpdate;
 
   DrawingPolicy _policy;
+  _DrawMethod _drawMethod;
 
-  _rawdatatype _rawdata;
+  data_t _rawdata;
   pltdata _plotdata;
   sf::RenderWindow _window;
 
@@ -59,7 +66,8 @@ class Plotter{
   void _drawBackground();
   void _drawAxis();
   void _drawData();
-  void _drawPoint(_Plot& current, _Plot& prev);
+  void _drawPoint(_Plot& current);
+  void _drawAllPoints();
 
   int _getNormalizedY(float y, bool policy = true);
   int _getNormalizedX(float x);
@@ -76,7 +84,7 @@ class Plotter{
   void range(float min, float max);
 
   void add(const _PlotPoint& point);
-  void add(const _rawdatatype& data);
+  void add(const data_t& data);
   void update();
 
   void addCallback(_callbackType callback);

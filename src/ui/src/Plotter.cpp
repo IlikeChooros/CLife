@@ -9,7 +9,17 @@ constexpr bool _checkState(int state, int value){
   return (state & value) == value;
 }
 
-void do_nothing(pltdata&) {return;}
+constexpr _DrawMethod getMethod(DrawingPolicy policy){
+  switch (policy)
+  {
+  case DrawingPolicy::Point:
+    return _DrawMethod::Single;
+  default:
+    return _DrawMethod::Multiple;
+  }
+}
+
+void do_nothing(data_t*) {return;}
 
 Plotter::Plotter(
   DrawingPolicy policy, 
@@ -17,7 +27,7 @@ Plotter::Plotter(
   std::size_t maxHeight
 ): _maxWidth(maxWidth), _maxHeight(maxHeight), _xAxisPos(maxHeight - axisThickness), _yAxisPos(0),
 _maxValue(_MIN), _minValue(_MAX), _minRange(_MAX), _maxRange(_MIN), 
-_state(0), _forceUpdate(true), _policy(policy), _plotdata(), 
+_state(0), _forceUpdate(true), _policy(policy), _drawMethod(getMethod(policy)), _plotdata(), 
 _window(sf::VideoMode(maxWidth, maxHeight), "Plotter"), _callb(do_nothing)
 {}
 
@@ -25,6 +35,7 @@ void Plotter::prepare(DrawingPolicy policy, std::size_t maxWidth, std::size_t ma
   _policy = policy;
   _maxWidth  = maxWidth;
   _maxHeight = maxHeight;
+  _drawMethod = getMethod(policy);
 
   _window.create(sf::VideoMode(maxWidth, maxHeight), "Plotter");
 }
@@ -45,22 +56,22 @@ void Plotter::add(const _PlotPoint& point){
   _rawdata.push_back(point);
 }
 
-void Plotter::add(const _rawdatatype& data){
-
+void Plotter::add(const data_t& data){
+  _rawdata.insert(_rawdata.end(), data.begin(), data.end());
 }
 
 void Plotter::update(){
   _forceUpdate = true;
 }
 
-void Plotter::addCallback(std::function<void(pltdata&)> callb){
+void Plotter::addCallback(std::function<void(data_t*)> callb){
   _callb = callb;
 }
 
 void Plotter::open(){
 
   _window.setActive(true);
-  _window.setFramerateLimit(30);
+  _window.setFramerateLimit(60);
   _window.display();
 
   while(_window.isOpen()){
@@ -82,7 +93,7 @@ void Plotter::open(){
     _drawData();
     _window.display();
 
-    _callb(_plotdata);
+    _callb(&_rawdata);
   }
 }
 
@@ -94,7 +105,7 @@ bool Plotter::_isStrict(){
 int Plotter::_getNormalizedY(float y, bool policyEffect){
   int ret = static_cast<int>((1 - (y - _minValue) / (_maxValue - _minValue)) * _maxHeight);
   if (policyEffect && _policy == DrawingPolicy::Point){
-    ret -= pointRadius*2;
+    ret -= pointRadius;
   }
   return ret;
 }
@@ -137,7 +148,7 @@ void Plotter::_drawAxis(){
   _window.draw(yA);
 }
 
-void Plotter::_drawPoint(_Plot& current, _Plot& prev){
+void Plotter::_drawPoint(_Plot& current){
   using namespace sf;
   auto color = Color(45, 68, 124);
 
@@ -150,19 +161,42 @@ void Plotter::_drawPoint(_Plot& current, _Plot& prev){
     _window.draw(p);
   }
     break;
-  case DrawingPolicy::LineConnected:{
-    VertexArray line(Lines, 2);
-    line[0].position = Vector2f(prev.x, prev.y);
-    line[1].position = Vector2f(current.x, current.y);
-    line[0].color = color;
-    line[1].color = color;
-    _window.draw(line);
-  }
-    break;
   
   default:
     break;
   }
+}
+
+void Plotter::_drawAllPoints(){
+  if (_plotdata.size() < 2){
+    return;
+  }
+
+  using namespace sf;
+
+  auto color = Color(45, 68, 124);
+
+  PrimitiveType primitive;
+
+  switch (_policy)
+  {
+  case DrawingPolicy::LineConnected:
+    primitive = PrimitiveType::LineStrip;
+    break;
+  case DrawingPolicy::LineDisconnected:
+    primitive = PrimitiveType::Lines;
+    break;
+  default:
+    break;
+  }
+
+  VertexArray line(primitive, _plotdata.size());
+
+  for (size_t i = 0; i < _plotdata.size(); i++){
+    line[i].position = Vector2f(_plotdata[i].x, _plotdata[i].y);
+    line[i].color = color;
+  }
+  _window.draw(line);
 }
 
 void Plotter::_prepareData(){
@@ -200,7 +234,7 @@ void Plotter::_prepareData(){
     // the graph is to the right of the Y axis
     xDelta = -_yAxisPos;
     _yAxisPos = 0;
-    // _maxRange += _getNormalizedX(xDelta); // extend the range
+    _minRange = 0; // extend the range
   }
 
   if (_maxRange < 0){
@@ -208,7 +242,7 @@ void Plotter::_prepareData(){
     // the graph is to the left of the Y axis
     xDelta =_yAxisPos - _maxWidth; // must be positive
     _yAxisPos = static_cast<int>(_maxWidth) - axisThickness;
-    // _minRange -= _getNormalizedX(xDelta); // extend the range
+    _maxRange = 0; // extend the range
   }
 
   if (_minValue > 0){
@@ -216,7 +250,7 @@ void Plotter::_prepareData(){
     // (the graph is below the X axis)
     yDelta = _maxHeight - _xAxisPos; // must be negative
     _xAxisPos = static_cast<int>(_maxHeight) - axisThickness;
-    // _minValue += _getNormalizedY(yDelta); // extend the range
+    _minValue = 0; // extend the range
   }
 
   if (_maxValue < 0){
@@ -224,7 +258,7 @@ void Plotter::_prepareData(){
     // (the graph is above the X axis)
     yDelta = -_xAxisPos;
     _xAxisPos = 0;
-    // _maxValue/ += _getNormalizedY(yDelta); // extend the range
+    _maxValue = 0; // extend the range
   }
 
   _xAxisPos = std::min(_xAxisPos, static_cast<int>(_maxHeight) - axisThickness);
@@ -245,11 +279,14 @@ void Plotter::_drawData(){
     return;
   }
 
-  _Plot prev = _plotdata.front();
-  for (auto& point : _plotdata){
-    _drawPoint(point, prev);
-    prev = point;
+  if (_drawMethod == _DrawMethod::Multiple){
+    _drawAllPoints();
+  } else {
+    for (auto& point : _plotdata){
+      _drawPoint(point);
+    }
   }
+  
 }
 
 END_NAMESPACE
