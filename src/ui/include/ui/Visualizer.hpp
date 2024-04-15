@@ -1,46 +1,51 @@
 #pragma once
 
 #include <iostream>
+#include <list>
 
-
+#include "Plotter.hpp"
 #include "namespaces.hpp"
+
 
 START_NAMESPACE_UI
 
-template<typename _DataType>
+struct _DataType{
+  int batch;
+  double loss;
+  int64_t time;
+};
+
 class Visualizer{
   public:
   Visualizer() = default;
+  virtual ~Visualizer() = default;
 
-  virtual void visualize() = 0;
+  virtual void visualize() {return;}
   virtual void update(const _DataType& data);
 
   protected:
-  _DataType _data;
+  std::list<_DataType> _data;
 };
 
-template<typename _DataType>
-void Visualizer<_DataType>::update(const _DataType& data){
-  _data = data;
+void Visualizer::update(const _DataType& data){
+  _data.push_back(data);
 }
 
-class ConsoleVisualizer : public Visualizer<std::string>{
+class ConsoleVisualizer : public Visualizer{
   public:
   ConsoleVisualizer() = default;
 
   void visualize() override;
 };
 
-struct _GraphData{
-  double loss; 
-  double accuracy;
-};
-
-class GraphVisualizer : public Visualizer<_GraphData>{
+class GraphVisualizer : public Visualizer{
+  Plotter _plotter;
   public:
-  GraphVisualizer() = default;
+  GraphVisualizer();
+  ~GraphVisualizer() override;
 
   void visualize() override;
+  void update(const _DataType& data) override;
 }; 
 
 END_NAMESPACE

@@ -82,7 +82,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
             .setTestData(testData.get())
             .setBatchSize(64)
             .setEpochs(1)
-            .setLearningRate(0.2);
+            .setLearningRate(0.25);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -112,7 +112,7 @@ int main()
 {
     // pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(false, true, "mnistMT");
+    digitDrawerMnist(true, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 

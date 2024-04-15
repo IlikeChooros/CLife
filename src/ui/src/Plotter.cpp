@@ -72,6 +72,35 @@ void Plotter::addCallback(std::function<void(data_t*)> callb){
   _callb = callb;
 }
 
+void Plotter::show(){
+  _forceUpdate = true;
+  _prepareData();
+  _drawBackground();
+  _drawAxis();
+  _drawData();
+  _window.display();
+}
+
+void Plotter::keepAlive(){
+  if(_window.isOpen()){
+      sf::Event e;
+    if (_window.pollEvent(e)){
+      switch (e.type)
+      {
+      case sf::Event::Closed:
+        _window.close();
+        break;
+      default:
+        break;
+      }
+    }
+  }
+}
+
+void Plotter::close(){
+  _window.close();
+}
+
 void Plotter::open(){
 
   _window.setActive(true);

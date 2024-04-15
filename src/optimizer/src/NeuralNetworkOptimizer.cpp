@@ -30,7 +30,9 @@ void plot_loss(ui::Plotter* plotter)
     plotter->open();
 }
 
-double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Plotter* plotter)
+
+
+double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer& visualizer)
 {
     std::shuffle(
         params.trainingData->begin(), 
@@ -64,12 +66,10 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Plotter* pl
         ).count();
         total_time += delta;
 
-        std::cout << "Batch " << i << " loss: " << current_loss << " time: " 
-            << delta
-            << "ms" << std::endl;
-        
-        std::lock_guard<std::mutex> lock(loss_mutex);
-        losses.push_back({(float)total_time, (float)current_loss});
+        visualizer.update({
+            (int)i, current_loss, total_time
+        });
+        visualizer.visualize();
     }
     return average_loss / total_batches;
 }
@@ -85,19 +85,13 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
 
     size_t total_batches = params.trainingData->size() / params.batchSize;
 
-    // ui::Plotter plotter(ui::DrawingPolicy::LineConnected);
-    // plotter.values(0, 1.1);
-
-    losses.clear();
-    losses.reserve(total_batches * params.epochs);
-
-    // std::thread plot_thread(plot_loss, &plotter);
+    ui::GraphVisualizer visualizer;
 
     for (size_t i = 0; i < params.epochs; ++i)
     {
         auto startTime = std::chrono::high_resolution_clock::now();
 
-        auto average_loss = train_epoch(total_batches);
+        auto average_loss = train_epoch(total_batches, visualizer);
         result.setTrainingAccuracy(1 - average_loss);
 
         std::cout << "**** Epoch " << i << " average loss: " << average_loss << " time: " 

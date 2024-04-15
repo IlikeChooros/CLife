@@ -64,8 +64,19 @@ class Plotter{
 
   _callbackType _callb;
 
+  /*
+  Draws the background, clears whole screen
+  */
   void _drawBackground();
+
+  /*
+  Draws axis, data should be already prepared
+  */
   void _drawAxis();
+
+  /*
+  Draws the data, by given drawing policy
+  */
   void _drawData();
   void _drawPoint(_Plot& current);
   void _drawAllPoints();
@@ -80,17 +91,64 @@ class Plotter{
   public:
   Plotter(DrawingPolicy policy = DrawingPolicy::Point, std::size_t maxWidth = 1000, std::size_t maxHeight = 1000);
 
+  /**
+   * @brief Prepare the plotter for drawing
+  */
   void prepare(DrawingPolicy policy, std::size_t maxWidth, std::size_t maxHeight);
+
+  /**
+   * @brief Set the fixed values of the plotter (y-axis values)
+  */
   void values(float min, float max);
+
+  /**
+   * @brief Set the fixed range of the plotter (x-axis range)
+  */
   void range(float min, float max);
 
+  /**
+   * @brief Adds a point to the plotter
+  */
   void add(const _PlotPoint& point);
+
+  /**
+   * @brief Add the vector data to the plotter
+  */
   void add(const data_t& data);
+
+  /**
+   * @brief Set the data to the plotter
+  */
   void set(const data_t& data);
+
+  /**
+   * @brief Force update the data normalizing it
+  */
   void update();
 
+  /**
+   * @brief Add a callback to the plotter
+  */
   void addCallback(_callbackType callback);
 
+  /**
+   * @brief Show one frame of the plotter
+  */
+  void show();
+
+  /**
+   * @brief Keep the plotter alive, used in the loop
+  */
+  void keepAlive();
+
+  /**
+   * @brief Close the plotter, stops the loop and closes the window
+  */
+  void close();
+
+  /**
+   * @brief Open the plotter, and start the loop
+  */
   void open();
 };
 
