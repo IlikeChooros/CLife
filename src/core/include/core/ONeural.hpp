@@ -142,10 +142,10 @@ class ONeural{
     real_number_t cost();
 
     /// @brief Tell wheter the network's guess was correct, outputs must be already calculated
-    bool correct() const;
+    bool correct();
 
     /// @brief return the index of the most activated neuron, outputs must be already calculated
-    size_t classify() const;
+    size_t classify();
 
     /// @brief return the structure of the network
     const std::vector<size_t>& structure();

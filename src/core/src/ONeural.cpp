@@ -195,15 +195,16 @@ bool ONeural::_correct_feed(_NetworkFeedData& feed_data, vector_t& expected){
     return expected[_classify_feed(feed_data)] == 1;
 }
 
-size_t ONeural::classify() const{
-    auto maxElementIterator = std::max_element(
-        _outputs.begin(), _outputs.end()
-    );
-    return std::distance(_outputs.begin(), maxElementIterator);
+size_t ONeural::classify(){
+    _NetworkFeedData feed(_output_layer, _hidden_layers);
+    feed._layer_feed_data.back()._activations = outputs();
+    return _classify_feed(feed);
 }
 
-bool ONeural::correct() const{
-    return _input.expect[classify()] == 1;
+bool ONeural::correct(){
+    _NetworkFeedData feed(_output_layer, _hidden_layers);
+    feed._layer_feed_data.back()._activations = outputs();
+    return _correct_feed(feed, _input.expect);
 }
 
 const std::vector<size_t>& ONeural::structure(){
@@ -228,8 +229,6 @@ size_t ONeural::_accuracy_multithread(data_batch* mini_test){
         );
     }
     pool.execute();
-    
-    std::cout << "correct_count: " << correct_count << " / " << mini_test->size() << "\n";
 
     return correct_count;
 }
