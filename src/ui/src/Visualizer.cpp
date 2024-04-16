@@ -11,6 +11,7 @@ void ConsoleVisualizer::visualize(){
 
 GraphVisualizer::GraphVisualizer(): _plotter(DrawingPolicy::LineConnected, 600, 600){
   _plotter.values(0, 1);
+  _plotter.keepAlive();
 }
 
 GraphVisualizer::~GraphVisualizer(){
@@ -18,12 +19,17 @@ GraphVisualizer::~GraphVisualizer(){
 }
 
 void GraphVisualizer::update(const _DataType& data){
+  if (_plotter.closed()){
+    return;
+  }
   _plotter.add({(float)data.time, (float)data.loss});
 }
 
 void GraphVisualizer::visualize(){
+  if (_plotter.closed()){
+    return;
+  }
   _plotter.show();
-  _plotter.keepAlive();
 }
 
 END_NAMESPACE

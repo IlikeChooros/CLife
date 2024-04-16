@@ -11,6 +11,7 @@ PRIVATE
     src/activation.cpp
     src/LinearModel.cpp
     src/utils.cpp
+    src/thread.cpp
 )
 
 target_link_libraries(core PUBLIC data)

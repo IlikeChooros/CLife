@@ -107,18 +107,18 @@ void ONeural::learn(data::Data& data, double learn_rate){
 }
 
 void ONeural::_learn_multithread(data_batch* mini_batch, double learn_rate){
-    std::vector<std::thread> threads;
-    threads.reserve(mini_batch->size());
+    ThreadPool pool(std::thread::hardware_concurrency());
 
     for (size_t i = 0; i < mini_batch->size(); i++){
-        threads.emplace_back(_update_gradients, (*mini_batch)[i], this);
+        pool.enqueue(
+            [this, mini_batch, i, learn_rate](){
+                _update_gradients(
+                    std::forward<data::Data>(mini_batch->at(i)), 
+                    this
+                );
+            }
+        );
     }
-
-    // Now wait for them to finnish
-    for (size_t i = 0; i < mini_batch->size(); i++){
-        threads[i].join();
-    }
-    apply(learn_rate, mini_batch->size());
 }
 
 void ONeural::learn(data_batch* training_data, double learn_rate){
@@ -129,6 +129,7 @@ void ONeural::learn(data_batch* training_data, double learn_rate){
     // apply(learn_rate, training_data->size());
 
     _learn_multithread(training_data, learn_rate);
+    apply(learn_rate, training_data->size());
 }
 
 void ONeural::batch_learn(data_batch* whole_data, double learn_rate, size_t batch_size){
@@ -182,6 +183,18 @@ real_number_t ONeural::cost(){
     return _cost;
 }
 
+size_t ONeural::_classify_feed(_NetworkFeedData& feed_data){
+    auto outputLayer = feed_data._layer_feed_data.back();
+    auto maxElementIterator = std::max_element(
+        outputLayer._activations.begin(), outputLayer._activations.end()
+    );
+    return std::distance(outputLayer._activations.begin(), maxElementIterator);
+}
+
+bool ONeural::_correct_feed(_NetworkFeedData& feed_data, vector_t& expected){
+    return expected[_classify_feed(feed_data)] == 1;
+}
+
 size_t ONeural::classify() const{
     auto maxElementIterator = std::max_element(
         _outputs.begin(), _outputs.end()
@@ -197,15 +210,53 @@ const std::vector<size_t>& ONeural::structure(){
     return _structure;
 }
 
-real_number_t ONeural::accuracy(data_batch* test){
+size_t ONeural::_accuracy_multithread(data_batch* mini_test){
+    ThreadPool pool(std::thread::hardware_concurrency());
+
+    std::mutex mutex;
     size_t correct_count = 0;
-    for (auto& data : *test){
-        input(data);
-        outputs();
-        if (correct()){
-            correct_count++;
-        }
+    for (size_t i = 0; i < mini_test->size(); i++){
+        pool.enqueue(
+            [this, mini_test, i, &correct_count, &mutex](){
+                _NetworkFeedData feed(_output_layer, _hidden_layers);
+                feed_forward(feed, mini_test->at(i).input);
+                if (_correct_feed(feed, mini_test->at(i).expect)){
+                    std::lock_guard<std::mutex> lock(mutex);
+                    correct_count++;
+                }
+            }
+        );
     }
+    pool.execute();
+    
+    std::cout << "correct_count: " << correct_count << " / " << mini_test->size() << "\n";
+
+    return correct_count;
+}
+
+real_number_t ONeural::accuracy(data_batch* test){
+    constexpr size_t batch_size = 32;
+    
+    size_t correct_count = 0, begin_itr = 0, end_itr = 0,
+            mini_batch_count = test->size() / batch_size,
+            remainder = test->size() % batch_size;
+    
+    // divide the data into batch sized chunk
+    for (size_t i = 0; i < mini_batch_count; i++){
+        begin_itr = i * batch_size;
+        end_itr = begin_itr + batch_size;
+        // This is correct, because in the end, the `_accuracy_multithread(...)` function
+        // waits for all the threads to finish, so it's safe to store this data in the stack
+        data_batch mini_batch(test->begin() + begin_itr, test->begin() + end_itr);
+        correct_count += _accuracy_multithread(&mini_batch);
+    }
+
+    // Handle the remainder
+    if (remainder != 0){
+        data_batch mini_batch(test->begin() + end_itr, test->end());
+        correct_count += _accuracy_multithread(&mini_batch);
+    }
+
     return static_cast<real_number_t>(correct_count) / static_cast<real_number_t>(test->size());
 }
 

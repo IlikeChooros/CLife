@@ -28,8 +28,16 @@ Plotter::Plotter(
 ): _maxWidth(maxWidth), _maxHeight(maxHeight), _xAxisPos(maxHeight - axisThickness), _yAxisPos(0),
 _maxValue(_MIN), _minValue(_MAX), _minRange(_MAX), _maxRange(_MIN), 
 _state(0), _forceUpdate(true), _policy(policy), _drawMethod(getMethod(policy)), _plotdata(), 
-_window(sf::VideoMode(maxWidth, maxHeight), "Plotter"), _callb(do_nothing)
+_window(sf::VideoMode(maxWidth, maxHeight), "Plotter"), _callb(do_nothing),
+_threadData(new _ThreadData)
 {}
+
+Plotter::~Plotter(){
+  close();
+  if(_keepAliveThread.joinable()){
+    _keepAliveThread.join();
+  }
+}
 
 void Plotter::prepare(DrawingPolicy policy, std::size_t maxWidth, std::size_t maxHeight){
   _policy = policy;
@@ -73,37 +81,82 @@ void Plotter::addCallback(std::function<void(data_t*)> callb){
 }
 
 void Plotter::show(){
+  // Lock the mutex, and set the window to active, since
+  // the window is shared between threads
+  std::lock_guard<std::mutex> lock(_threadData->mutex);
+  _window.setActive();
+
   _forceUpdate = true;
   _prepareData();
   _drawBackground();
   _drawAxis();
   _drawData();
   _window.display();
+
+  // Set the window to inactive, and unlock the mutex
+  _window.setActive(false);
 }
 
-void Plotter::keepAlive(){
-  if(_window.isOpen()){
-      sf::Event e;
-    if (_window.pollEvent(e)){
-      switch (e.type)
-      {
-      case sf::Event::Closed:
-        _window.close();
-        break;
-      default:
-        break;
+void Plotter::_keepAlive(Plotter* plotter){
+
+  std::shared_ptr<_ThreadData> data(plotter->_threadData);
+  {
+    std::lock_guard<std::mutex> lock(data->mutex);
+    // If the window is already detached, return
+    if (plotter->_isDetached()){
+      return;
+    }
+    // Set the keepAlive flag to true (_isDetached() will return true)
+    data->keepAlive = true;
+  }
+  
+  while(true){
+    data->mutex.lock();
+    
+    // Check if the window is already killed, or closed    
+    if (data->killed || !plotter->_window.isOpen()){
+      data->mutex.unlock();
+      break;
+    }
+
+    sf::Event e;
+    if (plotter->_window.pollEvent(e)){
+      if (sf::Event::Closed == e.type){
+        plotter->_window.setActive();
+        plotter->_window.close();
       }
     }
+
+    data->mutex.unlock();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
 
+void Plotter::keepAlive(){
+  if(_isDetached()){
+    return;
+  }
+  _window.setActive(false);
+  _keepAliveThread = std::thread(_keepAlive, this);
+  _keepAliveThread.detach();
+}
+
 void Plotter::close(){
+  std::lock_guard<std::mutex> lock(_threadData->mutex);
+  _threadData->killed = true;
+
+  _window.setActive();
   _window.close();
 }
 
 void Plotter::open(){
 
-  _window.setActive(true);
+  std::lock_guard<std::mutex> lock(_threadData->mutex);
+  if (_isDetached()){
+    return;
+  }
+
+  _window.setActive();
   _window.display();
 
   sf::Clock timer;
@@ -137,11 +190,20 @@ void Plotter::open(){
     _drawData();
     _window.display();
   }
+
+  _window.setActive(false);
 }
 
+bool Plotter::closed(){
+  return !_window.isOpen();
+}
 
 bool Plotter::_isStrict(){
   return _checkState(_state, _stateStrictValues) && _checkState(_state, _stateStrictRanges);
+}
+
+bool Plotter::_isDetached(){
+  return _threadData->keepAlive;
 }
 
 int Plotter::_getNormalizedY(float y, bool policyEffect){
@@ -229,9 +291,10 @@ void Plotter::_drawAllPoints(){
   }
 
   VertexArray line(primitive, _plotdata.size());
-
-  for (size_t i = 0; i < _plotdata.size(); i++){
-    line[i].position = Vector2f(_plotdata[i].x, _plotdata[i].y);
+  
+  int i = 0;
+  for (auto it = _plotdata.begin(); it != _plotdata.end(); it++, i++){
+    line[i].position = Vector2f(it->x, it->y);
     line[i].color = color;
   }
   _window.draw(line);
@@ -243,14 +306,14 @@ void Plotter::_prepareData(){
   }
 
   if (!_isStrict()){
-    for (size_t i = 0; i < _rawdata.size(); i++){
+    for (auto it = _rawdata.begin(); it != _rawdata.end(); it++){
       if (!_checkState(_state, _stateStrictValues)){
-        _maxValue = std::max(_maxValue, _rawdata[i].y);
-        _minValue = std::min(_minValue, _rawdata[i].y);
+        _maxValue = std::max(_maxValue, it->y);
+        _minValue = std::min(_minValue, it->y);
       }
       if (!_checkState(_state, _stateStrictRanges)){
-        _minRange = std::min(_minRange, _rawdata[i].x);
-        _maxRange = std::max(_maxRange, _rawdata[i].x);
+        _minRange = std::min(_minRange, it->x);
+        _maxRange = std::max(_maxRange, it->x);
       }
     }
   }
@@ -307,10 +370,9 @@ void Plotter::_prepareData(){
   _yAxisPos = std::min(_yAxisPos, static_cast<int>(_maxWidth) - axisThickness);
 
   _plotdata.clear();
-  _plotdata.reserve(_rawdata.size());
 
-  for (size_t i = 0; i < _rawdata.size(); i++){
-    _plotdata.push_back(_normalize(_rawdata[i], xDelta, yDelta));
+  for (auto it = _rawdata.begin(); it != _rawdata.end(); it++){
+    _plotdata.push_back(_normalize(*it, xDelta, yDelta));
   }
 
   _forceUpdate = false;

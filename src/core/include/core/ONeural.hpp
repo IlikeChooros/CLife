@@ -1,10 +1,11 @@
 #pragma once
 
 #include <algorithm>
-
+#include <iostream>
 
 #include <data/data.hpp>
 #include "OLayer.hpp"
+#include "thread.hpp"
 
 /*
 
@@ -55,6 +56,10 @@ class ONeural{
     @param learn_rate learning rate, make it small, since the batch size is also small
     */
     void _learn_multithread(data_batch* training_data, double learn_rate);
+
+    size_t _accuracy_multithread(data_batch* mini_test);
+    size_t _classify_feed(_NetworkFeedData&);
+    bool _correct_feed(_NetworkFeedData&, vector_t& expect);
 
     size_t _iterator;
 

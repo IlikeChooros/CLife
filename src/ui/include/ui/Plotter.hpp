@@ -1,6 +1,9 @@
 #pragma once
 
-#include <vector>
+#include <memory>
+#include <mutex>
+#include <thread>
+#include <list>
 #include <stddef.h>
 #include <SFML/Graphics.hpp>
 
@@ -8,6 +11,15 @@
 
 
 START_NAMESPACE_UI
+
+struct _ThreadData{
+  // Wheter the Plotter is already killed, used for the keepAlive thread
+  bool killed = false;
+  // Wheter the keepAlive thread should keep the window alive
+  bool keepAlive = false;
+  // Mutex used for multithreading
+  std::mutex mutex;
+};
 
 struct _PlotPoint{
   float x;
@@ -33,8 +45,8 @@ enum class _DrawMethod{
 
 constexpr int _stateStrictValues = 1, _stateStrictRanges = 2;
 
-using pltdata = std::vector<_Plot>;
-using data_t = std::vector<_PlotPoint>;
+using pltdata = std::list<_Plot>;
+using data_t = std::list<_PlotPoint>;
 
 class Plotter{
 
@@ -64,6 +76,15 @@ class Plotter{
 
   _callbackType _callb;
 
+  std::shared_ptr<_ThreadData> _threadData;
+  std::thread _keepAliveThread;
+
+  /*
+  Should be run in a detached thread, keeps the window alive, handles
+  only the window events
+  */
+  static void _keepAlive(Plotter* plotter);
+
   /*
   Draws the background, clears whole screen
   */
@@ -87,9 +108,11 @@ class Plotter{
   void _prepareData();
 
   bool _isStrict();
+  bool _isDetached();
 
   public:
   Plotter(DrawingPolicy policy = DrawingPolicy::Point, std::size_t maxWidth = 1000, std::size_t maxHeight = 1000);
+  ~Plotter();
 
   /**
    * @brief Prepare the plotter for drawing
@@ -137,7 +160,10 @@ class Plotter{
   void show();
 
   /**
-   * @brief Keep the plotter alive, used in the loop
+   * @brief Keeps the plotter alive, until the window is closed, 
+   * creates a new detached thread to handle the window. To close the window
+   * call the `close` method
+   * @warning This function should be called only once, not thread safe
   */
   void keepAlive();
 
@@ -147,9 +173,14 @@ class Plotter{
   void close();
 
   /**
-   * @brief Open the plotter, and start the loop
+   * @brief Open the plotter, and start the loop 
   */
   void open();
+
+  /**
+   * @brief Check if the plotter is closed
+  */
+  bool closed();
 };
 
 

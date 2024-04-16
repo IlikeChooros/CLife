@@ -16,21 +16,6 @@ NeuralNetworkOptimizer& NeuralNetworkOptimizer::setParameters(
     return *this;
 }
 
-std::vector<ui::_PlotPoint> losses;
-std::mutex loss_mutex;
-
-
-void plot_loss(ui::Plotter* plotter)
-{
-    plotter->addCallback([&](ui::data_t* data){
-        std::lock_guard<std::mutex> lock(loss_mutex);
-        *data = losses;
-        plotter->update();
-    });
-    plotter->open();
-}
-
-
 
 double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer& visualizer)
 {
