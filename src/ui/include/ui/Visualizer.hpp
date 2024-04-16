@@ -42,7 +42,6 @@ class GraphVisualizer : public Visualizer{
   Plotter _plotter;
   public:
   GraphVisualizer();
-  ~GraphVisualizer() override;
 
   void visualize() override;
   void update(const _DataType& data) override;
