@@ -35,12 +35,10 @@ data::data_batch* transformator::add_noise(
         data::vector_t new_pixels = move(pixels, cols, rows, x, y);
 
         // add random rotation
-        // std::uniform_int_distribution center_dist(cols / 2 - 2, cols / 2 + 2);
-        std::uniform_real_distribution angle_dist(-40.0f, 40.0f);
-        new_pixels = rotate(
-            new_pixels, cols, rows, angle_dist(engine) * RADIANS
-            // ,center_dist(engine), center_dist(engine)
-        );
+        // std::uniform_real_distribution angle_dist(-30.0f, 30.0f);
+        // new_pixels = rotate(
+        //     new_pixels, cols, rows, angle_dist(engine) * RADIANS
+        // );
         
         // add random noise
         size_t noises = number_of_noise_gen(engine);

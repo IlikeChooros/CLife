@@ -383,11 +383,14 @@ void OLayer::apply_gradients(double learn_rate, size_t batch_size) {
         }
 
         gradient_ptr = &_gradient_biases[n];
-        _m_gradient_bias[n] = beta1 * _m_gradient_bias[n] + (1 - beta1) * *gradient_ptr;
-        _v_gradient_bias[n] = beta2 * _v_gradient_bias[n] + (1 - beta2) * *gradient_ptr * *gradient_ptr;
+        _m_gradient_ptr = &_m_gradient_bias[n];
+        _v_gradient_ptr = &_v_gradient_bias[n];
 
-        real_number_t m_hat = _m_gradient_bias[n] / (1.0 - beta1);
-        real_number_t v_hat = _v_gradient_bias[n] / (1.0 - beta2);
+        *_m_gradient_ptr = beta1 * *_m_gradient_ptr + (1 - beta1) * *gradient_ptr;
+        *_v_gradient_ptr = beta2 * *_v_gradient_ptr + (1 - beta2) * *gradient_ptr * *gradient_ptr;
+
+        real_number_t m_hat = *_m_gradient_ptr / (1.0 - beta1);
+        real_number_t v_hat = *_v_gradient_ptr / (1.0 - beta2);
 
         _biases[n] -= weighted_learn_rate * m_hat / (sqrt(v_hat) + epsilon);
         *gradient_ptr = 0.0;

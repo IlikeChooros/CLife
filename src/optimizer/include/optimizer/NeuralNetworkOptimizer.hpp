@@ -81,11 +81,7 @@ public:
     );
 
     NeuralNetworkOptimizerResult optimize();
-    NeuralNetworkOptimizerResult partialOptimize(
-        size_t epochs = 0UL, size_t batchSize = 32UL
-    );
-
-    double train_epoch(size_t total_batches, ui::Visualizer& visualizer);
+    double train_epoch(size_t total_batches, ui::Visualizer& visualizer, size_t start_time = 0);
 
 private:
     NeuralNetworkOptimizerParameters params;
