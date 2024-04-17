@@ -12,6 +12,8 @@ PRIVATE
     src/LinearModel.cpp
     src/utils.cpp
     src/thread.cpp
+    src/CNN.cpp
+    src/ConvolutionLayer.cpp
 )
 
 target_link_libraries(core PUBLIC data)

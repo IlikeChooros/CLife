@@ -52,10 +52,10 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
     _match_activations(type);
 
-    _weights.assign(outputs, vector_t(inputs, 0));
-    _gradient_weights.assign(outputs, vector_t(inputs, 0));
-    _m_gradient.assign(outputs, vector_t(inputs, 0));
-    _v_gradient.assign(outputs, vector_t(inputs, 0));
+    _weights.assign(outputs * inputs, 0);
+    _gradient_weights.assign(outputs * inputs, 0);
+    _m_gradient.assign(outputs * inputs, 0);
+    _v_gradient.assign(outputs * inputs, 0);
 
     _biases.assign(outputs, 0);
     _gradient_biases.assign(outputs, 0);
@@ -70,10 +70,7 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 }
 
 OLayer& OLayer::initialize(){
-    for(auto& weights : _weights){
-        // std::generate calls _dist(_engine) for each element in weights
-        randomize(&weights, _inputs_size);
-    }
+    randomize(&_weights, _neurons_size * _inputs_size);
     randomize(&_biases, _neurons_size);
 
     return *this;
@@ -131,9 +128,10 @@ vector_t& OLayer::calc_activations(_FeedData& feed_data){
         // weighted_input = input * weight + bias
         // For mulitple, it is just a sum of all weighted_inputs
         
-        // std::inner_product calculates sum of all weighted_inputs, with starting value of bias
-        // on some hardware it is faster than for loop
-        feed_data._weighted_inputs[i] = std::inner_product(_weights[i].begin(), _weights[i].end(), feed_data._inputs.begin(), _biases[i]);
+        feed_data._weighted_inputs[i] = _biases[i];
+        for (size_t j = 0; j < _inputs_size; j++){
+            feed_data._weighted_inputs[i] += weight(j, i) * feed_data._inputs[j];
+        }
     }
 
     feed_data._activations = _activation_function(feed_data._weighted_inputs);
@@ -279,7 +277,7 @@ Without transposed matrix:
 
         double new_partial_derviative = 0.0;
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
-            new_partial_derviative += prev_layer->_weights[prev][n] * _prev_partial_derivatives[prev];
+            new_partial_derviative += prev_layer->weight(n, prev) * _prev_partial_derivatives[prev];
         }
         partial_derivs[n] = new_partial_derviative * derviatives[n];
     }
@@ -302,10 +300,6 @@ OLayer* OLayer::calc_output_gradient(vector_t&& expected, _FeedData& feed_data){
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
         partial_derivs[n] = error_deriv * derviatives[n];
-
-        // if (std::isnan(deriv_with_error_and_activation)){
-        //     while(1){}
-        // }
     }
 
     feed_data._partial_derivatives = std::move(partial_derivs);
@@ -331,7 +325,7 @@ void OLayer::update_gradients(_FeedData& feed_data){
 
                 For hidden layers see `calc_hidden_gradient`
             */
-            _gradient_weights[i][j] += partial_derivative * feed_data._inputs[j];
+            _gradient_weights[i * _inputs_size + j] += partial_derivative * feed_data._inputs[j];
         }
 
         /* 
@@ -370,31 +364,33 @@ void OLayer::apply_gradients(double learn_rate, size_t batch_size) {
     std::lock_guard<std::mutex> lock(_mutex);
 
     double weighted_learn_rate = learn_rate / static_cast<double>(batch_size);
-    real_number_t gradient;
+    real_number_t *gradient_ptr, *_m_gradient_ptr, *_v_gradient_ptr;
 
     for (size_t n = 0; n < _neurons_size; ++n) {
         for(size_t w = 0; w < _inputs_size; ++w) {
-            gradient = _gradient_weights[n][w];
+            gradient_ptr = &_gradient_weights[n * _inputs_size + w];
+            _m_gradient_ptr = &_m_gradient[n * _inputs_size + w];
+            _v_gradient_ptr = &_v_gradient[n * _inputs_size + w];
 
-            _m_gradient[n][w] = beta1 * _m_gradient[n][w] + (1 - beta1) * gradient;
-            _v_gradient[n][w] = beta2 * _v_gradient[n][w] + (1 - beta2) * gradient * gradient;
+            *_m_gradient_ptr = beta1 * *_m_gradient_ptr + (1 - beta1) * *gradient_ptr;
+            *_v_gradient_ptr = beta2 * *_v_gradient_ptr + (1 - beta2) * *gradient_ptr * *gradient_ptr;
             
-            real_number_t m_hat = _m_gradient[n][w] / (1.0 - beta1);
-            real_number_t v_hat = _v_gradient[n][w] / (1.0 - beta2);
+            real_number_t m_hat = *_m_gradient_ptr / (1.0 - beta1);
+            real_number_t v_hat = *_v_gradient_ptr / (1.0 - beta2);
 
-            _weights[n][w] -= weighted_learn_rate * m_hat / (sqrt(v_hat) + epsilon);
-            _gradient_weights[n][w] = 0.0;
+            _weights[n * _inputs_size + w] -= weighted_learn_rate * m_hat / (sqrt(v_hat) + epsilon);
+            *gradient_ptr = 0.0;
         }
 
-        gradient = _gradient_biases[n];
-        _m_gradient_bias[n] = beta1 * _m_gradient_bias[n] + (1 - beta1) * gradient;
-        _v_gradient_bias[n] = beta2 * _v_gradient_bias[n] + (1 - beta2) * gradient * gradient;
+        gradient_ptr = &_gradient_biases[n];
+        _m_gradient_bias[n] = beta1 * _m_gradient_bias[n] + (1 - beta1) * *gradient_ptr;
+        _v_gradient_bias[n] = beta2 * _v_gradient_bias[n] + (1 - beta2) * *gradient_ptr * *gradient_ptr;
 
         real_number_t m_hat = _m_gradient_bias[n] / (1.0 - beta1);
         real_number_t v_hat = _v_gradient_bias[n] / (1.0 - beta2);
 
         _biases[n] -= weighted_learn_rate * m_hat / (sqrt(v_hat) + epsilon);
-        _gradient_biases[n] = 0.0;
+        *gradient_ptr = 0.0;
     }
 }
 
@@ -407,11 +403,6 @@ real_number_t OLayer::cost(vector_t&& expected, _FeedData& feed_data) {
     }
 
     return cost;
-}
-
-
-const real_number_t& OLayer::weight(size_t inputIdx, size_t neuronIdx){
-    return _weights[neuronIdx][inputIdx];
 }
 
 OLayer& OLayer::operator=(const OLayer& other){
@@ -440,7 +431,7 @@ bool OLayer::operator==(const OLayer& other){
             return false;
         }
         for (size_t j = 0;j < _inputs_size; j++){
-            if (!isApproximatelyEqual(_weights[i][j], other._weights[i][j])){
+            if (!isApproximatelyEqual(weight(j, i), other._weights[i * _inputs_size + j])){
                 return false;
             }
         }

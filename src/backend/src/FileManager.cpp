@@ -79,8 +79,8 @@ void FileManager::_write_binary(
             real_number_t bias = static_cast<real_number_t>(network._hidden_layers[l]._biases[n]);
             writer.write(reinterpret_cast<char*>(&bias), sizeof(bias));
             // text_file << bias << ", ";
-            for (size_t w = 0; w < network._hidden_layers[l]._weights[n].size(); w++){
-                real_number_t weight = static_cast<real_number_t>(network._hidden_layers[l]._weights[n][w]);
+            for (size_t w = 0; w < network._hidden_layers[l]._inputs_size; w++){
+                real_number_t weight = static_cast<real_number_t>(network._hidden_layers[l].weight(n, w));
                 writer.write(reinterpret_cast<char*>(&weight), sizeof(weight));
                 // text_file << weight << ", ";
             }
@@ -92,8 +92,8 @@ void FileManager::_write_binary(
         real_number_t bias = static_cast<real_number_t>(network._output_layer._biases[n]);
         writer.write(reinterpret_cast<char*>(&bias), sizeof(bias));
         // text_file << bias << ", ";
-        for (size_t w = 0; w < network._output_layer._weights[n].size(); w++){
-            real_number_t weight = static_cast<real_number_t>(network._output_layer._weights[n][w]);
+        for (size_t w = 0; w < network._output_layer._inputs_size; w++){
+            real_number_t weight = static_cast<real_number_t>(network._output_layer.weight(w, n));
             writer.write(reinterpret_cast<char*>(&weight), sizeof(weight));
             // text_file << weight << ", ";
         }
@@ -145,7 +145,7 @@ neural_network::ONeural* FileManager::_read_binary(std::ifstream& file){
                             std::to_string(neuron) + " col = " + std::to_string(weight));
                     }
                     file.read(reinterpret_cast<char*>(&f), sizeof(f));
-                    net->_hidden_layers[prevLayer]._weights[neuron][weight] = f;
+                    net->_hidden_layers[prevLayer]._weights[neuron * neuronsOut + weight] = f;
                 }
             }
         }
@@ -164,7 +164,7 @@ neural_network::ONeural* FileManager::_read_binary(std::ifstream& file){
                     std::to_string(neuron) + " col = " + std::to_string(weight));
             }
             file.read(reinterpret_cast<char*>(&f), sizeof(f));
-            net->_output_layer._weights[neuron][weight] = f;
+            net->_output_layer._weights[neuron * neuronsOut + weight] = f;
         }
     }
     return net.release();

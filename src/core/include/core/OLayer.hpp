@@ -36,6 +36,27 @@ struct _FeedData{
     vector_t _partial_derivatives; 
 };
 
+/*
+
+Heavily optimized Neural Network Layer
+
+Layer is a collection of neurons, each neuron has multiple weights 
+(fully connected to the previous) and a bias. The activation function
+is applied to the sum of the weighted inputs and the bias.
+
+In simple terms, layer is an array of neurons, each neuron has a set of weights
+and a bias. 
+
+(many connections - weights)
+        ----\
+        ----- (neuron, +bias) ---- (output)
+        ----/
+
+This implementation is heavily optimized for speed and memory usage.
+Data is stored in a flatened matrix, has multithreading support.
+
+
+*/
 class OLayer{
     
     friend class ONeural;
@@ -106,7 +127,9 @@ class OLayer{
      * @param neuronIdx The index of the neuron.
      * @return A constant reference to the weight.
      */
-    const real_number_t& weight(size_t inputIdx, size_t neuronIdx);
+    inline const real_number_t& weight(size_t inputIdx, size_t neuronIdx){
+        return _weights[neuronIdx * _inputs_size + inputIdx];
+    }
     
     /**
      * @brief Overloads the assignment operator for the OLayer class.
@@ -119,17 +142,18 @@ class OLayer{
 
     size_t _neurons_size;
     size_t _inputs_size;
-    matrix_t _weights;
-    matrix_t _gradient_weights;
+    vector_t _weights; // flatened matrix
+    vector_t _gradient_weights; // flatened matrix
 
     vector_t _biases;
     vector_t _gradient_biases;
     
     // momentum gradient
-    matrix_t _m_gradient;
+    vector_t _m_gradient; // flatened matrix
     vector_t _m_gradient_bias;
+
     // velocity gradient
-    matrix_t _v_gradient;
+    vector_t _v_gradient; // flatened matrix
     vector_t _v_gradient_bias;
     
     std::function<vector_t(vector_t&)> _activation_function;
