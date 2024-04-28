@@ -5,23 +5,27 @@ START_NAMESPACE_NEURAL_NETWORK
 ONeural::ONeural(
     const std::vector<size_t>& structure, 
     ActivationType output_activation,
-    ActivationType hidden_activation
+    ActivationType hidden_activation,
+    double dropout_rate
 ){
-    build(structure, output_activation, hidden_activation);
+    build(structure, output_activation, hidden_activation, dropout_rate);
 }
 
 ONeural& ONeural::build(
     const std::vector<size_t>& structure,
     ActivationType output_activation,
-    ActivationType hidden_activation
+    ActivationType hidden_activation,
+    double dropout_rate
 ){
     size_t structure_size = structure.size();
-    // using macro
-    ASSERT(structure_size > 1, invalid_structure, 
-        "given neural network structure is invalid: " 
-        + std::to_string(structure_size) 
-        + " expected > 1 (at least with inputs + outputs, no hidden layer)"
-    )
+
+    if(structure_size < 2){
+        throw invalid_structure(
+            "given neural network structure is invalid: " 
+            + std::to_string(structure_size) 
+            + " expected > 1 (at least with inputs + outputs, no hidden layer)"
+        );
+    }
     
     _structure = structure;
     
@@ -32,7 +36,8 @@ ONeural& ONeural::build(
         for (size_t i = 0; i < hidden_size; i++){
             _hidden_layers.emplace_back(
                 structure[i], structure[i + 1], 
-                std::forward<ActivationType>(hidden_activation)
+                std::forward<ActivationType>(hidden_activation),
+                dropout_rate
             );
         }
     }
@@ -42,6 +47,7 @@ ONeural& ONeural::build(
         structure[inputs], structure[inputs + 1], 
         std::forward<ActivationType>(output_activation)
     );
+
     _iterator = 0;
     _cost = 0;
     _loss = 0;
@@ -53,6 +59,12 @@ void ONeural::initialize(){
         layer.initialize();
     }
     _output_layer.initialize();
+}
+
+void ONeural::training_mode(bool mode){
+    for(auto& layer : _hidden_layers){
+        layer.training_mode(mode);
+    }
 }
 
 void ONeural::_update_gradients(data::Data&& data, ONeural* context){

@@ -23,22 +23,31 @@ ConvLayer& ConvLayer::build(int kernel_size, int number_of_kernels, int input_ch
 
 void ConvLayer::initialize()
 {
-  // for(auto& kernel : _weights)
-  // {
-  //   for(auto& weights : kernel)
-  //   {
-  //     randomize(&weights, _kernel_size);
-  //   }
-  // }
+  for(auto& kernel : _weights)
+  {
+    for(auto& weights : kernel)
+    {
+      randomize(&weights, _kernel_size);
+    }
+  }
 
-  _weights[0] = {
-    // {0.25, 0, -0.25},
-    // {0.5, 0, -0.5},
-    // {0.25, 0, -0.25}
-    {0.25, 0.5, 0.25},
-    {0, 0, 0},
-    {-0.25, -0.5, -0.25}
-  };
+  // _weights[0] = {
+  //   // {0.25, 0, -0.25},
+  //   // {0.5, 0, -0.5},
+  //   // {0.25, 0, -0.25}
+
+  //   {0.25, 0.5, 0.25},
+  //   {0, 0, 0},
+  //   {-0.25, -0.5, -0.25}
+
+  // };
+
+  // Gaussian kernel
+  // for (int x = -1; x < 2; x++){
+  //       for (int y = -1; y < 2; y++){
+  //           _weights[0][x+1][y+1] = exp(-(x*x + y*y) / 2.0) / (2 * M_PI);
+  //       }
+  //   }
 }
 
 matrix3d_t ConvLayer::forward(const matrix3d_t& input)

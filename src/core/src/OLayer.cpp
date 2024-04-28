@@ -11,6 +11,7 @@ _FeedData& _FeedData::build(size_t inputs, size_t outputs){
     _inputs = vector_t(inputs, 0);
     _weighted_inputs = vector_t(outputs, 0);
     _partial_derivatives = vector_t(outputs, 0);
+    _dropout_mask = vector_t(outputs, 1);
     return *this;
 }
 
@@ -40,15 +41,15 @@ _FeedData& _FeedData::build(size_t inputs, size_t outputs){
  * 
 */
 
-OLayer::OLayer(size_t inputs, size_t outputs, ActivationType&& type){
-    (void)build(inputs, outputs, std::forward<ActivationType>(type));
+OLayer::OLayer(size_t inputs, size_t outputs, ActivationType&& type, double dropout){
+    (void)build(inputs, outputs, std::forward<ActivationType>(type), dropout);
 }
 
 OLayer::OLayer(const OLayer& other){
     (void)(*this = other);
 }
 
-OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
+OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type, double dropout){
 
     _match_activations(type);
 
@@ -66,6 +67,8 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
 
     _neurons_size = outputs;
     _inputs_size = inputs;
+    _dropout_rate = dropout;
+    _calc_outputs_function = _calc_outputs;
 
     return *this;
 }
@@ -75,6 +78,14 @@ OLayer& OLayer::initialize(){
     randomize(&_biases, _neurons_size);
 
     return *this;
+}
+
+void OLayer::training_mode(bool mode){
+    if (mode){
+        _calc_outputs_function = _calc_outputs_training;
+    } else {
+        _calc_outputs_function = _calc_outputs;
+    }
 }
 
 void OLayer::_match_activations(const ActivationType& activation){
@@ -121,22 +132,42 @@ inline vector_t OLayer::_derivative(_FeedData& feed_data){
     }
 }
 
-vector_t& OLayer::calc_activations(_FeedData& feed_data){
+vector_t& OLayer::_calc_outputs(OLayer* layer, _FeedData& feed_data){
     // assuming that inputs are already set
-    for (size_t i = 0; i < _neurons_size; i++){
-
+    for (size_t i = 0; i < layer->_neurons_size; i++){
         // using equasion:
         // weighted_input = input * weight + bias
         // For mulitple, it is just a sum of all weighted_inputs
+        feed_data._weighted_inputs[i] = layer->_biases[i];
+        for (size_t j = 0; j < layer->_inputs_size; j++){
+            feed_data._weighted_inputs[i] += layer->weight(j, i) * feed_data._inputs[j];
+        }
+    }
+    feed_data._activations = layer->_activation_function(feed_data._weighted_inputs);
+    return feed_data._activations;
+}
+
+vector_t& OLayer::_calc_outputs_training(OLayer* layer, _FeedData& feed_data){
+    // For dropout
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::bernoulli_distribution dist(1.0 - layer->_dropout_rate);
+
+    for (size_t i = 0; i < layer->_neurons_size; i++){
         
-        feed_data._weighted_inputs[i] = _biases[i];
-        for (size_t j = 0; j < _inputs_size; j++){
-            feed_data._weighted_inputs[i] += weight(j, i) * feed_data._inputs[j];
+        feed_data._dropout_mask[i] = dist(gen);
+        feed_data._weighted_inputs[i] = layer->_biases[i] * feed_data._dropout_mask[i];
+        for (size_t j = 0; j < layer->_inputs_size; j++){
+            feed_data._weighted_inputs[i] += layer->weight(j, i) * feed_data._inputs[j];
         }
     }
 
-    feed_data._activations = _activation_function(feed_data._weighted_inputs);
+    feed_data._activations = layer->_activation_function(feed_data._weighted_inputs);
     return feed_data._activations;
+}
+
+vector_t& OLayer::calc_activations(_FeedData& feed_data){
+    return _calc_outputs_function(this, feed_data);
 }
 
 OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer, _FeedData& feed_data, vector_t& _prev_partial_derivatives){

@@ -32,10 +32,10 @@ class SquaredError: public BaseErrorFunction{
 public:
     SquaredError() : BaseErrorFunction(ErrorFunctionType::squared_error) {}
     double output(double arg) override{
-        return 0.5 * arg * arg;
+        return arg * arg;
     }
     double derivative(double error) override{
-        return error;
+        return 2 * error;
     }
 };
 

@@ -75,7 +75,7 @@ Drawer& Drawer::loadPixels(const neural_network::vector_t& pixels){
     for(size_t i = 0; i < pixels.size(); i++){
         int x = i/pixelCols;
         int y = i%pixelCols;
-        double R = pixels[i] * 255.0, G = R, B = R;
+        double R = pixels[i] * 255.0, G = 0, B = 0;
     
         if (!_monochromatic){
             if (abs(R) > 255){
@@ -84,14 +84,16 @@ Drawer& Drawer::loadPixels(const neural_network::vector_t& pixels){
 
             if (R < 0){
                 R = abs(R);
-                G = 0;
-                B = 0;
             }
             else{
                 G = R;
                 B = R;
                 R = 0;
             }
+        } else {
+            R = std::min(255.0, std::abs(R));
+            G = R;
+            B = R;
         }
 
         _pixels[0][x][y] = (uint8_t)R;

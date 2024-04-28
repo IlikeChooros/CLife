@@ -73,7 +73,8 @@ class ONeural{
     ONeural(
         const std::vector<size_t>& structure, 
         ActivationType output_activation = ActivationType::softmax,
-        ActivationType hidden_activation = ActivationType::relu
+        ActivationType hidden_activation = ActivationType::relu,
+        double dropout_rate = 0.0
     );
 
     /// @brief builds the neural network with given structure
@@ -83,12 +84,16 @@ class ONeural{
     ONeural& build(
         const std::vector<size_t>& structure, 
         ActivationType output_activation = ActivationType::softmax,
-        ActivationType hidden_activation = ActivationType::relu
+        ActivationType hidden_activation = ActivationType::relu,
+        double dropout_rate = 0.0
     );
 
     /// @brief Initializes the weights and biases with random values,
     /// may be called only after `build()`
     void initialize();
+
+    /// @brief Sets the network to training mode, dropout is applied
+    void training_mode(bool mode = true);
 
     /// @brief Trains the network on given `data`, doesn't apply gradients
     /// @param data single data point

@@ -34,6 +34,7 @@ struct _FeedData{
     vector_t _inputs;
     vector_t _weighted_inputs;
     vector_t _partial_derivatives; 
+    vector_t _dropout_mask;
 };
 
 /*
@@ -64,6 +65,9 @@ class OLayer{
     void _match_activations(const ActivationType& activation);
     inline vector_t _derivative(_FeedData& feed_data);
 
+    static vector_t& _calc_outputs_training(OLayer* layer, _FeedData& feed_data);
+    static vector_t& _calc_outputs(OLayer* layer, _FeedData& feed_data);
+
     // Mutex used for multithreading when accessing the `_gradient_weights` and `_gradient_biases`
     std::mutex _mutex;
 
@@ -72,18 +76,33 @@ class OLayer{
     OLayer(const OLayer& other);
 
     /// @brief Calls `build(...)` internally
-    OLayer(size_t inputs, size_t outputs, ActivationType&& type = ActivationType::sigmoid);
+    OLayer(
+        size_t inputs, size_t outputs,
+        ActivationType&& type = ActivationType::sigmoid,
+        double dropout_rate = 0.0
+    );
 
     /// @brief Builds the structure, reserves memory for this layer: allocates weights and biases
     /// @param inputs number of inputs for the layer
     /// @param outputs number of outputs 
     /// @param type type of activation function
     /// @return *this
-    OLayer& build(size_t inputs, size_t outputs, ActivationType&& type = ActivationType::sigmoid);
+    OLayer& build(
+        size_t inputs, size_t outputs,
+        ActivationType&& type = ActivationType::sigmoid,
+        double dropout_rate = 0.0
+    );
 
     /// @brief Initializes weights and biases with random values
     /// @return *this
     OLayer& initialize();
+
+    /**
+     * @brief Uses the dropout technique to prevent overfitting.
+     * @param mode If true, the dropout technique is applied.
+     * @return *this
+    */
+    void training_mode(bool mode = true);
 
     /// @brief This does excacly what you think it does. Call this before calculating gradients
     /// @param inputs 
@@ -140,6 +159,8 @@ class OLayer{
     bool operator==(const OLayer& other);
     bool operator!=(const OLayer& other);
 
+    double _dropout_rate;
+
     size_t _neurons_size;
     size_t _inputs_size;
     vector_t _weights; // flatened matrix
@@ -156,6 +177,7 @@ class OLayer{
     vector_t _v_gradient; // flatened matrix
     vector_t _v_gradient_bias;
     
+    std::function<vector_t& (OLayer*, _FeedData&)> _calc_outputs_function;
     std::function<vector_t(vector_t&)> _activation_function;
     std::function<vector_t(vector_t&)> _derivative_of_activ;
     ActivationType _activ_type;

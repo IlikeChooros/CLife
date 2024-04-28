@@ -65,6 +65,8 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
     result.setTrainingAccuracy(0.0);
     result.setTestAccuracy(0.0);
 
+    params.network->training_mode();
+
     auto startTime = std::chrono::high_resolution_clock::now();
     std::cout << "Training network..." << std::endl;
 
@@ -88,6 +90,8 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
             << timeDiff << "ms" << std::endl;
     }
 
+    params.network->training_mode(false);
+
     result.setTestAccuracy(params.network->accuracy(
         params.testData
     ));
@@ -103,6 +107,8 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         << "ms " << "trainingAccuracy: " << result.trainingAccuracy << std::endl
         << "\tNoisy Test Accuracy: " << noisy_acc << std::endl
         << "\tTest Acc: "<< result.testAccuracy << std::endl;
+
+    
 
     return result;
 }

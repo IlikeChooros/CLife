@@ -6,10 +6,6 @@
 
 #include "namespaces.hpp"
 
-#ifndef ASSERT
-    #define ASSERT(expression, exceptionType, errMsg) if(!(expression)){throw exceptionType(errMsg);}
-#endif
-
 START_NAMESPACE_NEURAL_NETWORK
 
 class invalid_structure: public std::exception {
