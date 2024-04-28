@@ -159,6 +159,7 @@ class OLayer{
     std::function<vector_t(vector_t&)> _activation_function;
     std::function<vector_t(vector_t&)> _derivative_of_activ;
     ActivationType _activ_type;
+    std::unique_ptr<BaseErrorFunction> _error_function;
 };
 
 

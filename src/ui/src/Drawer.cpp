@@ -6,10 +6,14 @@ void do_nothing(neural_network::vector_t){return;}
 
 Drawer::Drawer(
     size_t width, size_t height,
-    size_t pixelRows, size_t pixelCols
-): width(width), height(height),pixelRows(pixelRows),pixelCols(pixelCols), _callback(do_nothing)
+    size_t pixelRows, size_t pixelCols,
+    bool monochromatic
+): 
+width(width), height(height), 
+pixelRows(pixelRows), pixelCols(pixelCols), 
+_monochromatic(monochromatic), _callback(do_nothing)
 {
-    _pixels.assign(pixelRows, std::vector<uint8_t>(pixelCols, 0));
+    _pixels.assign(3, std::vector<std::vector<uint8_t>>(pixelRows, std::vector<uint8_t>(pixelCols, 0)));
     window.create(
         sf::VideoMode(width, height),
         "Neural Network Drawer",
@@ -69,7 +73,30 @@ Drawer& Drawer::loadPixels(const neural_network::vector_t& pixels){
     }
 
     for(size_t i = 0; i < pixels.size(); i++){
-        _pixels[i/pixelCols][i%pixelCols] = static_cast<uint8_t>(pixels[i] * 255.0);
+        int x = i/pixelCols;
+        int y = i%pixelCols;
+        double R = pixels[i] * 255.0, G = R, B = R;
+    
+        if (!_monochromatic){
+            if (abs(R) > 255){
+                R = 255;
+            }
+
+            if (R < 0){
+                R = abs(R);
+                G = 0;
+                B = 0;
+            }
+            else{
+                G = R;
+                B = R;
+                R = 0;
+            }
+        }
+
+        _pixels[0][x][y] = (uint8_t)R;
+        _pixels[1][x][y] = (uint8_t)G;
+        _pixels[2][x][y] = (uint8_t)B;
     }
 
     return *this;
@@ -79,7 +106,7 @@ neural_network::vector_t Drawer::getPixels(){
     neural_network::vector_t pixels(pixelRows*pixelCols, 0);
     for(size_t i = 0; i < pixelRows; i++){
         for(size_t j = 0; j < pixelCols; j++){
-            pixels[i*pixelCols + j] = static_cast<neural_network::real_number_t>(_pixels[i][j]) / 255.0;
+            pixels[i*pixelCols + j] = static_cast<neural_network::real_number_t>(_pixels[0][i][j]) / 255.0;
         }
     }
     return pixels;
@@ -93,7 +120,7 @@ void Drawer::_drawPixels(){
                 j * width/pixelCols,
                 i * height/pixelRows
             );
-            pixel.setFillColor(sf::Color(_pixels[i][j], _pixels[i][j], _pixels[i][j]));
+            pixel.setFillColor(sf::Color(_pixels[0][i][j], _pixels[1][i][j], _pixels[2][i][j]));
             pixel.setOutlineColor(sf::Color::White);
             pixel.setOutlineThickness(1);
             window.draw(pixel);
@@ -112,18 +139,24 @@ void Drawer::_draw(sf::Event::MouseButtonEvent& event, bool erase){
 
     for(int i = -radius; i <= radius; i++){
         for(int j = -radius; j <= radius; j++){
+            int nx = x + i, ny = y + j;
+
             if(
-                x + i >= 0 && x + i < static_cast<int>(pixelCols) &&
-                y + j >= 0 && y + j < static_cast<int>(pixelRows)
+                nx >= 0 && nx < static_cast<int>(pixelCols) &&
+                ny >= 0 && ny < static_cast<int>(pixelRows)
             ){
                 if(erase){
-                    _pixels[y + j][x + i] = 0;
+                    _pixels[0][ny][nx] = 0;
+                    _pixels[1][ny][nx] = 0;
+                    _pixels[2][ny][nx] = 0;
                 } 
                 else {
-                    _pixels[y + j][x + i] = std::min<int>(
+                    _pixels[0][ny][nx] = std::min<int>(
                         255, 
-                        _pixels[y + j][x + i] + 255 * (1 - static_cast<float>(std::abs(i) + std::abs(j)) / static_cast<float>(radius * 2 + 1))
+                        _pixels[0][ny][nx] + 255 * (1 - static_cast<float>(std::abs(i) + std::abs(j)) / static_cast<float>(radius * 2 + 1))
                     );
+                    _pixels[1][ny][nx] = _pixels[0][ny][nx];
+                    _pixels[2][ny][nx] = _pixels[0][ny][nx];
                 }
             }
         }

@@ -20,10 +20,11 @@ class Drawer{
     size_t height;
     size_t pixelRows;
     size_t pixelCols;
+    bool _monochromatic;
 
     void _draw(sf::Event::MouseButtonEvent& event, bool erase);
 
-    std::vector<std::vector<uint8_t>> _pixels;
+    std::vector<std::vector<std::vector<uint8_t>>> _pixels;
 
     void _drawPixels();
 
@@ -32,7 +33,8 @@ class Drawer{
     public:
     Drawer(
         size_t width = 512, size_t height = 512,
-        size_t pixelRows = 28, size_t pixelCols = 28
+        size_t pixelRows = 28, size_t pixelCols = 28,
+        bool monochromatic = true
     );
 
     /**

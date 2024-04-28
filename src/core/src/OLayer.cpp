@@ -62,6 +62,7 @@ OLayer& OLayer::build(size_t inputs, size_t outputs, ActivationType&& type){
     _v_gradient_bias.assign(outputs, 0);
     _m_gradient_bias.assign(outputs, 0);
     
+    _error_function.reset(new SquaredError());
 
     _neurons_size = outputs;
     _inputs_size = inputs;
@@ -296,7 +297,7 @@ OLayer* OLayer::calc_output_gradient(vector_t&& expected, _FeedData& feed_data){
     vector_t derviatives(_derivative(feed_data));
 
     for (size_t n = 0; n < _neurons_size; n++){
-        error_deriv = 2 * (feed_data._activations[n] - expected[n]);
+        error_deriv = _error_function->derivative(feed_data._activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
         partial_derivs[n] = error_deriv * derviatives[n];
@@ -401,8 +402,7 @@ real_number_t OLayer::cost(vector_t&& expected, _FeedData& feed_data) {
     real_number_t cost = 0.0;
 
     for (size_t i = 0; i < _neurons_size; ++i) {
-        real_number_t error = feed_data._activations[i] - expected[i];
-        cost += error * error;
+        cost += _error_function->output(feed_data._activations[i] - expected[i]);
     }
 
     return cost;

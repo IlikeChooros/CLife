@@ -15,43 +15,40 @@ enum class ActivationType {
     prelu
 };
 
-class BaseActivation{
-public:
-    BaseActivation(ActivationType&& type = ActivationType::sigmoid): type(type) {}
-    virtual double activation(double arg) = 0;
-    virtual double derivative(double activation) = 0;
-    ActivationType type;
+enum class ErrorFunctionType {
+    squared_error,
+    cross_entropy
 };
 
-/// One of base activation function types, standard activation function
-/// it smooths out activation beetween values 0 and 1
-/// 
-/// f(x) = 1 / (1 + e^(-x))
-class Sigmoid: public BaseActivation{
+class BaseErrorFunction{
 public:
-    Sigmoid() : BaseActivation(ActivationType::sigmoid) {}
-    double activation(double arg){
-        return 1 /  (1 + exp(-arg));
+    BaseErrorFunction(ErrorFunctionType&& type): type(type) {}
+    virtual double output(double arg) = 0;
+    virtual double derivative(double error) = 0;
+    ErrorFunctionType type;
+};
+
+class SquaredError: public BaseErrorFunction{
+public:
+    SquaredError() : BaseErrorFunction(ErrorFunctionType::squared_error) {}
+    double output(double arg) override{
+        return 0.5 * arg * arg;
     }
-    double derivative(double activation){
-        return activation * (1 - activation);
+    double derivative(double error) override{
+        return error;
     }
 };
 
-/// One of base activation function types, considered the fastest
-/// -> using only addition, multiplication and substraction when backpropagation process
-/// goes on. Causes `dying neurons` effect, because if the activation is below 0, then 
-/// it will never arise again, it dies
-///
-/// f(x) = if x <= 0 then: 0, else: x
-class ReLu: public BaseActivation{
+
+/// @brief Cross-entropy error function - use it only with softmax activation function
+class CrossEntropy: public BaseErrorFunction{
 public:
-    ReLu() : BaseActivation(ActivationType::relu) {}
-    double activation(double arg){
-        return std::max((double)0, arg);
+    CrossEntropy() : BaseErrorFunction(ErrorFunctionType::cross_entropy) {}
+    double output(double arg) override{
+        return -log(arg + 1e-15);
     }
-    double derivative(double activation){
-        return activation > 0 ? 1 : 0;
+    double derivative(double error) override{
+        return -1.0 / error;
     }
 };
 

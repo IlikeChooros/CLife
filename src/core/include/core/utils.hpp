@@ -16,4 +16,20 @@ START_NAMESPACE_NEURAL_NETWORK
 */
 void randomize(vector_t* vec, std::size_t input_size);
 
+/**
+ * @brief Flattens the given matrix into a vector
+ * @param matrix matrix to flatten
+ * @return flattened vector
+*/
+vector_t flatten(const matrix_t& matrix);
+
+/**
+ * @brief Reshapes the given vector into a matrix with the given number of rows and columns
+ * @param vec vector to reshape
+ * @param rows number of rows
+ * @param cols number of columns
+ * @return reshaped matrix
+*/
+matrix_t reshape(const vector_t& vec, std::size_t rows, std::size_t cols);
+
 END_NAMESPACE

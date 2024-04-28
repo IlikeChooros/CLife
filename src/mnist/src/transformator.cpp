@@ -16,7 +16,7 @@ data::data_batch* transformator::add_noise(
     std::uniform_real_distribution<double> noise(0, 0.9);
     std::default_random_engine engine(std::random_device{}());
     
-    constexpr float RADIANS = 0.0174532925f;
+    // constexpr float RADIANS = 0.0174532925f;
 
     std::unique_ptr<data::data_batch> noisy(
         new data::data_batch(*data));

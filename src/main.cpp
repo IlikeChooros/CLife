@@ -18,13 +18,24 @@ void showTrainingDigits(){
         loader.merge_data(trainingImages, trainingLabels)
     );
 
-    mnist::transformator t;
-    std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(trainingData.get())
-    ); 
-    ui::Drawer drawer;
+    // mnist::transformator t;
+    // std::unique_ptr<data::data_batch> noisy(
+    //     t.add_noise(trainingData.get())
+    // ); 
+    ui::Drawer drawer(512, 512, 28, 28, false);
+
+    neural_network::ConvLayer layer;
+    layer.initialize();
+    auto pixels = layer.forward(neural_network::matrix3d_t(1, neural_network::reshape(trainingData->at(0).input, 28, 28)));
+    
+    auto output = neural_network::flatten(pixels[0]);
+
+    for (size_t i = 0; i < output.size(); i++){
+        std::cout << output[i] << " ";
+    }
+
     drawer.loadPixels(
-        noisy->at(2).input
+        output
         // trainingData->at(1).input
     ).open();
 }
@@ -111,8 +122,8 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 int main()
 {
     // pointTest();
-    // showTrainingDigits();
-    digitDrawerMnist(true, true, "digitMT");
+    showTrainingDigits();
+    // digitDrawerMnist(false, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 
