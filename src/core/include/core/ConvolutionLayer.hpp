@@ -7,8 +7,6 @@
 
 START_NAMESPACE_NEURAL_NETWORK
 
-using matrix3d_t = std::vector<matrix_t>;
-
 class ConvLayer{
 
   // Also known as filter, the size of the convolutional matrix

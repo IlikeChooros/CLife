@@ -152,6 +152,11 @@ class ONeural{
     /// @brief return the index of the most activated neuron, outputs must be already calculated
     size_t classify();
 
+    /**
+     * @brief Get the input layer
+    */
+    OLayer& get_input_layer();
+
     /// @brief return the structure of the network
     const std::vector<size_t>& structure();
 

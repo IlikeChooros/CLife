@@ -311,7 +311,7 @@ Without transposed matrix:
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->weight(n, prev) * _prev_partial_derivatives[prev];
         }
-        partial_derivs[n] = new_partial_derviative * derviatives[n];
+        partial_derivs[n] = new_partial_derviative * derviatives[n] * feed_data._dropout_mask[n];
     }
 
     feed_data._partial_derivatives = std::move(partial_derivs);

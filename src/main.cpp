@@ -22,13 +22,23 @@ void showTrainingDigits(){
     // std::unique_ptr<data::data_batch> noisy(
     //     t.add_noise(trainingData.get())
     // ); 
-    ui::Drawer drawer(512, 512, 28, 28, true);
+    ui::Drawer drawer(512, 512, 14, 14, true);
 
     neural_network::ConvLayer layer;
     layer.initialize();
-    auto pixels = layer.forward(neural_network::matrix3d_t(1, neural_network::reshape(trainingData->at(0).input, 28, 28)));    
+    auto pixels = layer.forward(neural_network::matrix3d_t(1, neural_network::reshape(trainingData->at(10).input, 28, 28)));    
+    neural_network::MaxPoolingLayer pool;
+    auto pooled = pool.forward(pixels);
+    
+    // pooled = layer.forward(pooled);
+    // pooled = pool.forward(pooled);
+    
+    auto flattened = neural_network::flatten(pooled[0]);
+    
+
+
     drawer.loadPixels(
-        neural_network::flatten(pixels[0])
+        flattened
         // trainingData->at(0).input
     ).open();
 }
@@ -72,8 +82,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
     if (use_new){
         network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}
-            , ActivationType::softmax, ActivationType::relu,
-            0.2
+            , ActivationType::softmax, ActivationType::relu, 0.2
         );
         network_ptr->initialize();
     } else {
@@ -87,7 +96,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
             .setTestData(testData.get())
             .setBatchSize(64)
             .setEpochs(3)
-            .setLearningRate(0.5);
+            .setLearningRate(0.25);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -116,8 +125,8 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 int main()
 {
     // pointTest();
-    // showTrainingDigits();
-    digitDrawerMnist(true, true, "digitMT");
+    showTrainingDigits();
+    // digitDrawerMnist(true, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 

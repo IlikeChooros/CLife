@@ -281,6 +281,10 @@ void ONeural::activations(
     }
 }
 
+OLayer& ONeural::get_input_layer(){
+    return _hidden_layers.size() > 0 ? _hidden_layers[0] : _output_layer;
+}
+
 // operators
 bool ONeural::operator==(const ONeural& other){
     if (_structure != other._structure){

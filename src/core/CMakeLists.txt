@@ -14,6 +14,7 @@ PRIVATE
     src/thread.cpp
     src/CNN.cpp
     src/ConvolutionLayer.cpp
+    src/MaxPool.cpp
 )
 
 target_link_libraries(core PUBLIC data)
