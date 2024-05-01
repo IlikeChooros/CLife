@@ -95,6 +95,14 @@ class ONeural{
     /// @brief Sets the network to training mode, dropout is applied
     void training_mode(bool mode = true);
 
+
+    /**
+     * @brief Forward pass of the network and calculate the gradients, doesn't apply them
+     * @param inputs input values
+     * @param target expected output values
+    */
+    void backprop(_NetworkFeedData& feed_data, vector_t& target);
+
     /// @brief Trains the network on given `data`, doesn't apply gradients
     /// @param data single data point
     void train(data::Data& data);

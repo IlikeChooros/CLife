@@ -80,9 +80,15 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
     neural_network::ONeural* network_ptr;
 
+    constexpr int input_size = 28;
+
     if (use_new){
-        network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}
-            , ActivationType::softmax, ActivationType::relu, 0.2
+        network_ptr = new neural_network::ONeural(
+            // {14*14, 256, 128, 32, 10}, 
+            {input_size*input_size, 64, 32, 10}, 
+            ActivationType::softmax, 
+            ActivationType::relu, 
+            0.2
         );
         network_ptr->initialize();
     } else {
@@ -96,7 +102,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
             .setTestData(testData.get())
             .setBatchSize(64)
             .setEpochs(3)
-            .setLearningRate(0.25);
+            .setLearningRate(0.4);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -109,7 +115,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     fm.prepare(network_name)
       .to_file(*network);
 
-    ui::Drawer drawer;
+    ui::Drawer drawer(512, 512, input_size, input_size, true);
 
     drawer.setCallback([&](neural_network::vector_t pixels){
         network->raw_input(pixels);
@@ -125,8 +131,8 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 int main()
 {
     // pointTest();
-    showTrainingDigits();
-    // digitDrawerMnist(true, true, "digitMT");
+    // showTrainingDigits();
+    digitDrawerMnist(true, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 

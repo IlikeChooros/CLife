@@ -8,7 +8,9 @@
 
 #include <data/data.hpp>
 #include "namespaces.hpp"
-
+#include <core/MaxPool.hpp>
+#include <core/utils.hpp>
+#include <core/ConvolutionLayer.hpp>
 
 
 START_NAMESPACE_MNIST

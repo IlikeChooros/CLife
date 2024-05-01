@@ -293,8 +293,6 @@ Without transposed matrix:
     //         transposed_weights[i][j] = prev_layer->_weights[j][i];
     //     }
     // }
-
-    vector_t partial_derivs(_neurons_size);
     vector_t derviatives(_derivative(feed_data));
 
     for (size_t n = 0; n < _neurons_size; n++){
@@ -311,10 +309,8 @@ Without transposed matrix:
         for (size_t prev = 0; prev < prev_layer->_neurons_size; prev++){
             new_partial_derviative += prev_layer->weight(n, prev) * _prev_partial_derivatives[prev];
         }
-        partial_derivs[n] = new_partial_derviative * derviatives[n] * feed_data._dropout_mask[n];
+        feed_data._partial_derivatives[n] = new_partial_derviative * derviatives[n] * feed_data._dropout_mask[n];
     }
-
-    feed_data._partial_derivatives = std::move(partial_derivs);
 
     return this;
 }
@@ -324,17 +320,14 @@ OLayer* OLayer::calc_output_gradient(vector_t&& expected, _FeedData& feed_data){
     // Outputs should be already calculated: `feed_data._activations`
 
     double error_deriv;
-    vector_t partial_derivs(_neurons_size);
     vector_t derviatives(_derivative(feed_data));
 
     for (size_t n = 0; n < _neurons_size; n++){
         error_deriv = _error_function->derivative(feed_data._activations[n] - expected[n]);
 
         // Calculate partial derivative: d(cost)/d(activation) * d(activation)/d(weighted_input)
-        partial_derivs[n] = error_deriv * derviatives[n];
+        feed_data._partial_derivatives[n] = error_deriv * derviatives[n];
     }
-
-    feed_data._partial_derivatives = std::move(partial_derivs);
 
     return this;
 }

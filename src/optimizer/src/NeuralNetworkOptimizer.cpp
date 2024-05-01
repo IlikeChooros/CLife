@@ -24,9 +24,10 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer&
         params.trainingData->end(), 
         std::mt19937(std::random_device()())
     );
+    auto size = sqrtf(params.trainingData->at(0).input.size());
     mnist::transformator t;
     std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(params.trainingData, 5)
+        t.add_noise(params.trainingData, 5, size, size, size * size * 0.25)
     );
     double average_loss = 0.0;
     double current_loss = 0.0;
@@ -96,9 +97,10 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         params.testData
     ));
 
+    auto size = sqrtf(params.trainingData->at(0).input.size());
     mnist::transformator t;
     std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(params.testData, 5)
+        t.add_noise(params.testData, 5, size, size, size * size * 0.25)
     );
     auto noisy_acc = params.network->accuracy(noisy.get());
 

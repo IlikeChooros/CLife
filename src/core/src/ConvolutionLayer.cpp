@@ -57,7 +57,7 @@ void ConvLayer::initialize()
 matrix3d_t ConvLayer::forward(const matrix3d_t& input)
 {
   int input_size = input[_input_channels - 1].size();
-  int output_size = (input_size - _kernel_size + 2 * _padding) / _stride + 1;
+  int output_size = get_output_size(input_size);
   matrix3d_t output(_number_of_kernels, matrix_t(output_size, vector_t(output_size, 0.0)));
 
   for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
@@ -77,7 +77,7 @@ matrix3d_t ConvLayer::forward(const matrix3d_t& input)
               int y = j * _stride - _padding + l;
               if(x >= 0 && x < input_size && y >= 0 && y < input_size)
               {
-                sum += input[channel][x][y] * _weights[kernel][k][l];
+                sum += ReLU::activation(input[channel][x][y] * _weights[kernel][k][l]);
               }
             }
           }
@@ -87,6 +87,64 @@ matrix3d_t ConvLayer::forward(const matrix3d_t& input)
     }
   }
   return output;
+}
+
+void ConvLayer::backprop(matrix3d_t& partial_dervis)
+{
+  int input_size = partial_dervis[0].size();
+  matrix3d_t input(_input_channels, matrix_t(input_size, vector_t(input_size, 0.0)));
+
+  for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
+  {
+    for(int i = 0; i < input_size; ++i)
+    {
+      for(int j = 0; j < input_size; ++j)
+      {
+        for(int channel = 0; channel < _input_channels; ++channel)
+        {
+          for(int k = 0; k < _kernel_size; ++k)
+          {
+            for(int l = 0; l < _kernel_size; ++l)
+            {
+              int x = i + k - _padding;
+              int y = j + l - _padding;
+              if(x >= 0 && x < input_size && y >= 0 && y < input_size)
+              {
+                input[channel][x][y] += partial_dervis[kernel][i][j] * _weights[kernel][k][l];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
+  {
+    for(int i = 0; i < _kernel_size; ++i)
+    {
+      for(int j = 0; j < _kernel_size; ++j)
+      {
+        double sum = 0.0;
+        for(int channel = 0; channel < _input_channels; ++channel)
+        {
+          for(int k = 0; k < input_size; ++k)
+          {
+            for(int l = 0; l < input_size; ++l)
+            {
+              int x = k - i + _padding;
+              int y = l - j + _padding;
+              if(x >= 0 && x < input_size && y >= 0 && y < input_size)
+              {
+                sum += partial_dervis[kernel][k][l] * ReLU::derivative(input[channel][x][y]);
+              }
+            }
+          }
+        }
+        _gradient_weights[kernel][i][j] = sum;
+      }
+    }
+  }
 }
 
 END_NAMESPACE

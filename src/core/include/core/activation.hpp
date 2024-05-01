@@ -52,6 +52,16 @@ public:
     }
 };
 
+class ReLU{
+    public:
+    static double activation(double input){
+        return std::max(0.0, input);
+    }
+    static double derivative(double act){
+        return act > 0 ? 1 : 0;
+    }
+};
+
 /// New - namespace approach
 namespace neural_network{
     namespace sigmoid{

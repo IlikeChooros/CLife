@@ -108,6 +108,27 @@ void ONeural::_update_gradients(data::Data&& data, ONeural* context){
     }
 }
 
+void ONeural::backprop(_NetworkFeedData& feed, vector_t& targets){
+    _FeedData* prev_layer_feed = &feed._layer_feed_data.back();
+    OLayer* prev_layer = _output_layer.calc_output_gradient(
+        std::forward<vector_t>(targets),
+        *prev_layer_feed
+    );
+    _output_layer.update_gradients(*prev_layer_feed);
+
+    _FeedData* _hidden_feed;
+    OLayer* _hidden_layer;
+
+    for (int i = (int)_hidden_layers.size() - 1; i >= 0; i--){
+        _hidden_feed = &feed._layer_feed_data[i];
+        _hidden_layer = &_hidden_layers[i];
+
+        prev_layer = _hidden_layer->calc_hidden_gradient(prev_layer, *_hidden_feed, prev_layer_feed->_partial_derivatives);
+        _hidden_layer->update_gradients(*_hidden_feed);
+        prev_layer_feed = _hidden_feed;
+    }
+}
+
 void ONeural::train(data::Data& data){
     _update_gradients(std::forward<data::Data>(data), this);
 }

@@ -12,4 +12,4 @@ target_include_directories(mnist
     PUBLIC include)
 
 target_link_libraries(mnist 
-    PUBLIC data) 
+    PUBLIC data core) 

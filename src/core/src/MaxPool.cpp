@@ -19,10 +19,10 @@ MaxPoolingLayer& MaxPoolingLayer::build(int kernel_size, int input_channels, int
 
 matrix3d_t MaxPoolingLayer::forward(const matrix3d_t& input)
 {
-  int input_size = input[_input_channels - 1].size();
-  int output_size = (input_size - _kernel_size + 2 * _padding) / _stride + 1;
+  _input_size = input[_input_channels - 1].size();
+  int output_size = get_output_size(_input_size);
   matrix3d_t output(_input_channels, matrix_t(output_size, vector_t(output_size, 0.0)));
-  _max_indexes = matrix_t(output_size, vector_t(2, 0)); // 2 -> x, y position
+  _max_indexes = matrix3d_t(output_size, matrix_t(output_size, vector_t(2, 0))); // 2 -> x, y position
 
   for(int channel = 0; channel < _input_channels; ++channel)
   {
@@ -37,13 +37,13 @@ matrix3d_t MaxPoolingLayer::forward(const matrix3d_t& input)
           {
             int x = i * _stride + k - _padding;
             int y = j * _stride + l - _padding;
-            if(x >= 0 && x < input_size && y >= 0 && y < input_size)
+            if(x >= 0 && x < _input_size && y >= 0 && y < _input_size)
             {
               if (input[channel][x][y] > max_value)
               {
                 max_value = input[channel][x][y];
-                _max_indexes[i][0] = x;
-                _max_indexes[i][1] = y;
+                _max_indexes[i][j][0] = x;
+                _max_indexes[i][j][1] = y;
               }
             }
           }
@@ -56,7 +56,26 @@ matrix3d_t MaxPoolingLayer::forward(const matrix3d_t& input)
   return output;
 }
 
-const matrix_t& MaxPoolingLayer::get_max_indexes()
+matrix3d_t MaxPoolingLayer::backprop(matrix3d_t& partial_dervis)
+{
+  int output_size = partial_dervis[0].size();
+  matrix3d_t input(_input_channels, matrix_t(_input_size, vector_t(_input_size, 0.0)));
+
+  for(int channel = 0; channel < _input_channels; ++channel)
+  {
+    for(int i = 0; i < output_size; ++i)
+    {
+      for(int j = 0; j < output_size; ++j)
+      {
+        input[channel][_max_indexes[i][j][0]][_max_indexes[i][j][1]] = partial_dervis[channel][i][j];
+      }
+    }
+  }
+  
+  return input;
+}
+
+const matrix3d_t& MaxPoolingLayer::get_max_indexes()
 {
   return _max_indexes;
 }

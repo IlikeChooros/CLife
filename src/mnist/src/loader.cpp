@@ -95,6 +95,8 @@ data::data_batch* Loader::merge_data(
     data::matrix_t* images,
     data::matrix_t* labels
 ){
+    using namespace neural_network;
+
     if(images->size() != labels->size()){
         throw std::runtime_error("Number of images and labels does not match!");
     }
