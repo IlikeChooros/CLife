@@ -89,35 +89,9 @@ matrix3d_t ConvLayer::forward(const matrix3d_t& input)
   return output;
 }
 
-void ConvLayer::backprop(matrix3d_t& partial_dervis)
+void ConvLayer::backprop(matrix3d_t& partial_dervis, matrix3d_t& inputs)
 {
-  int input_size = partial_dervis[0].size();
-  matrix3d_t input(_input_channels, matrix_t(input_size, vector_t(input_size, 0.0)));
-
-  for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
-  {
-    for(int i = 0; i < input_size; ++i)
-    {
-      for(int j = 0; j < input_size; ++j)
-      {
-        for(int channel = 0; channel < _input_channels; ++channel)
-        {
-          for(int k = 0; k < _kernel_size; ++k)
-          {
-            for(int l = 0; l < _kernel_size; ++l)
-            {
-              int x = i + k - _padding;
-              int y = j + l - _padding;
-              if(x >= 0 && x < input_size && y >= 0 && y < input_size)
-              {
-                input[channel][x][y] += partial_dervis[kernel][i][j] * _weights[kernel][k][l];
-              }
-            }
-          }
-        }
-      }
-    }
-  }
+  int input_size = inputs[_input_channels - 1].size();
 
   for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
   {
@@ -136,12 +110,26 @@ void ConvLayer::backprop(matrix3d_t& partial_dervis)
               int y = l - j + _padding;
               if(x >= 0 && x < input_size && y >= 0 && y < input_size)
               {
-                sum += partial_dervis[kernel][k][l] * ReLU::derivative(input[channel][x][y]);
+                sum += inputs[channel][k][l] * partial_dervis[kernel][x][y];
               }
             }
           }
         }
         _gradient_weights[kernel][i][j] = sum;
+      }
+    }
+  }
+}
+
+void ConvLayer::apply_gradients(double learn_rate, size_t batch_size)
+{
+  for(int kernel = 0; kernel < _number_of_kernels; ++kernel)
+  {
+    for(int i = 0; i < _kernel_size; ++i)
+    {
+      for(int j = 0; j < _kernel_size; ++j)
+      {
+        _weights[kernel][i][j] -= learn_rate * _gradient_weights[kernel][i][j] / batch_size;
       }
     }
   }

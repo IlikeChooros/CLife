@@ -67,9 +67,9 @@ class ConvLayer{
    * @brief Backward pass of the convolutional layer
    * @param partial_dervis the partial derivatives
   */
-  void backprop(matrix3d_t& partial_dervis);
+  void backprop(matrix3d_t& partial_dervis, matrix3d_t& inputs);
   
-  void apply_gradients(double learn_rate);
+  void apply_gradients(double learn_rate, size_t batch_size);
 
   /**
    * @brief Returns the output of the convolutional layer

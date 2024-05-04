@@ -116,6 +116,11 @@ void ONeural::backprop(_NetworkFeedData& feed, vector_t& targets){
     );
     _output_layer.update_gradients(*prev_layer_feed);
 
+    _cost = _output_layer.cost(
+        std::forward<vector_t>(targets),
+        *prev_layer_feed
+    );
+
     _FeedData* _hidden_feed;
     OLayer* _hidden_layer;
 

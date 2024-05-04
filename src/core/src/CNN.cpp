@@ -84,14 +84,15 @@ void cnn::feed_forward(matrix3d_t& input, _NetworkFeedData& feed_data)
   _FC.feed_forward(feed_data, flattened);
 }
 
-void cnn::backprop(matrix3d_t& input, vector_t& target)
+void cnn::backprop(const matrix3d_t& input, vector_t& target)
 {
+  auto ref = input;
   _NetworkFeedData feed(_FC._output_layer, _FC._hidden_layers);
-  feed_forward(input, feed);
+  feed_forward(ref, feed);
 
   _FC.backprop(feed, target);
   
-  auto pool_output_size = _pool.get_output_size(_conv.get_output_size(input[0].size()));
+  auto pool_output_size = _pool.get_output_size(_conv.get_output_size(ref[0].size()));
   matrix3d_t prev_partial_dervis = reshape(
     feed._layer_feed_data[0]._partial_derivatives, 
     _pool._input_channels, 
@@ -100,8 +101,19 @@ void cnn::backprop(matrix3d_t& input, vector_t& target)
   );
   
   prev_partial_dervis = _pool.backprop(prev_partial_dervis);
-  
+  _conv.backprop(prev_partial_dervis, ref);
 }
 
+void cnn::apply(double learning_rate, size_t batch_size)
+{
+  _FC.apply(learning_rate, batch_size);
+  _conv.apply_gradients(learning_rate, batch_size);
+}
+
+
+double cnn::cost()
+{
+  return _FC.cost();
+}
 
 END_NAMESPACE

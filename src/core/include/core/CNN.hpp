@@ -61,13 +61,20 @@ class cnn{
    * @param input the input matrix
    * @param target the target vector (expected output of the network)
   */
-  void backprop(matrix3d_t& input, vector_t& target);
+  void backprop(const matrix3d_t& input, vector_t& target);
 
   /**
    * @brief Applies the gradients to the weights
    * @param learn_rate the learning rate
+   * @param batch_size the size of the batch
   */
-  void apply_gradients(double learn_rate);
+  void apply(double learn_rate, size_t batch_size);
+
+  /**
+   * @brief Returns the output of the network
+   * @return the output of the network
+  */
+  double cost();
 
   /**
    * @brief Returns the output of the fully connected layer

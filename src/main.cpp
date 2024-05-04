@@ -128,11 +128,67 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     }).open();
 }
 
+
+void cnnTest(){
+    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
+    mnist::Loader loader;
+    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
+    auto testImages = loader.load(PATH + mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
+    auto testLabels = loader.load(PATH + mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
+
+    std::cout << trainingImages->size() << std::endl;
+    std::cout << trainingLabels->size() << std::endl;
+    std::cout << testImages->size() << std::endl;
+    std::cout << testLabels->size() << std::endl;
+
+    std::unique_ptr<data::data_batch> trainingData(
+        loader.merge_data(trainingImages, trainingLabels)
+    );
+    std::unique_ptr<data::data_batch> testData(
+        loader.merge_data(testImages, testLabels)
+    );
+
+    delete trainingImages;
+    delete trainingLabels;
+    delete testImages;
+    delete testLabels;
+
+    std::cout << trainingData->size() << std::endl;
+    std::cout << testData->size() << std::endl;
+
+    std::cout << trainingData->at(0).input.size() << std::endl;
+    std::cout << trainingData->at(0).expect.size() << std::endl;
+
+    using namespace neural_network;
+    cnn cnn;
+    cnn.init();
+
+    constexpr size_t epochs = 3, batchSize = 64;
+    const size_t numberOfBatches = 16000 / batchSize;
+
+    double loss[epochs] = {0.0, 0.0, 0.0};
+
+    for (size_t i = 0; i < epochs; i++){
+        for(size_t j = 0; j < numberOfBatches; j++){
+            data::data_batch batch(trainingData->begin() + j * batchSize, trainingData->begin() + (j + 1) * batchSize);
+            for (size_t k = 0; k < batchSize; k++){
+                cnn.backprop(reshape(batch[k].input, 1, 28, 28), batch[k].expect);
+                loss[i] += cnn.cost();
+            }
+            cnn.apply(0.4, batchSize);
+        }
+        std::cout << "Batch " << i << " loss: " << loss[i] / (batchSize * numberOfBatches) << std::endl;
+    }
+
+}
+
 int main()
 {
+    cnnTest();
     // pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(true, true, "digitMT");
+    // digitDrawerMnist(true, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 
