@@ -2,12 +2,10 @@
 
 START_NAMESPACE_NEURAL_NETWORK
 
-
-LinearModel::LinearModel(std::size_t inputs): 
-  _inputs(inputs), _output(0),
-  _weights(inputs, real_number_t(0)), _bias(0),
-  _partial_derviative(0), _gradient_weights(inputs, real_number_t(0)), 
-  _gradient_bias(0)
+LinearModel::LinearModel(std::size_t inputs) : _inputs(inputs), _output(0),
+                                               _weights(inputs, real_number_t(0)), _bias(0),
+                                               _partial_derviative(0), _gradient_weights(inputs, real_number_t(0)),
+                                               _gradient_bias(0)
 {
   randomize(&_weights, inputs);
 }
@@ -27,16 +25,16 @@ void LinearModel::apply(double learning_rate, size_t batch_size)
 void LinearModel::update_gradients()
 {
   _gradient_bias += _partial_derviative;
-  std::transform(_inputs.begin(), _inputs.end(), _gradient_weights.begin(), _gradient_weights.begin(), 
-    [this](real_number_t input, real_number_t gradient_weight) -> real_number_t
-    {
-      return gradient_weight + input * _partial_derviative;
-    });
+  std::transform(_inputs.begin(), _inputs.end(), _gradient_weights.begin(), _gradient_weights.begin(),
+                 [this](real_number_t input, real_number_t gradient_weight) -> real_number_t
+                 {
+                   return gradient_weight + input * _partial_derviative;
+                 });
 }
 
-void LinearModel::batch_learn(data::data_batch* batch, double learning_rate)
+void LinearModel::batch_learn(data::data_batch *batch, double learning_rate)
 {
-  for (auto& data : *batch)
+  for (auto &data : *batch)
   {
     set_inputs(data.input);
     _partial_derviative = (output() - data.expect[0]) * 2;
@@ -51,7 +49,7 @@ real_number_t LinearModel::cost(real_number_t expected_output)
   return diff * diff;
 }
 
-void LinearModel::set_inputs(const vector_t& inputs)
+void LinearModel::set_inputs(const vector_t &inputs)
 {
   _inputs = inputs;
 }

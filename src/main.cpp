@@ -3,34 +3,40 @@
 #include <mnist/mnist.hpp>
 #include <games/games.hpp>
 
-void pointTest(){
+void pointTest()
+{
     ui::windowWithDrawer();
 }
 
-void showTrainingDigits(){
+void showTrainingDigits()
+{
     // testing noisy data
-    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
+    const std::string PATH =
+        // "/home/minis/Desktop/CLife/src/mnist/digits/";
+        "C:\\Users\\pawel\\OneDrive\\Desktop\\CLife\\src\\mnist\\digits\\";
     mnist::Loader loader;
     auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
     auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
 
     std::unique_ptr<data::data_batch> trainingData(
-        loader.merge_data(trainingImages, trainingLabels)
-    );
+        loader.merge_data(trainingImages, trainingLabels));
 
     mnist::transformator t;
     std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(trainingData.get())
-    ); 
+        t.add_noise(trainingData.get()));
     ui::Drawer drawer;
     drawer.loadPixels(
-        noisy->at(2).input
-        // trainingData->at(1).input
-    ).open();
+              noisy->at(2).input
+              // trainingData->at(1).input
+              )
+        .open();
 }
 
-void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2"){
-    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
+void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2")
+{
+    const std::string PATH =
+        //  "/home/minis/Desktop/CLife/src/mnist/digits/";
+        "C:\\Users\\pawel\\OneDrive\\Desktop\\CLife\\src\\mnist\\digits\\";
     mnist::Loader loader;
     auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
     auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
@@ -43,11 +49,9 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     std::cout << testLabels->size() << std::endl;
 
     std::unique_ptr<data::data_batch> trainingData(
-        loader.merge_data(trainingImages, trainingLabels)
-    );
+        loader.merge_data(trainingImages, trainingLabels));
     std::unique_ptr<data::data_batch> testData(
-        loader.merge_data(testImages, testLabels)
-    );
+        loader.merge_data(testImages, testLabels));
 
     delete trainingImages;
     delete trainingLabels;
@@ -59,29 +63,31 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
     std::cout << trainingData->at(0).input.size() << std::endl;
     std::cout << trainingData->at(0).expect.size() << std::endl;
-    
+
     // max trainingAccuracy: 0.876 "mnistNetwork" {784, 128, 64, 10} softmax relu
     // max trainingAccuracy: ~0.89 (max: 89.9) "mnistNetwork2" {784, 255, 128, 10} softmax relu
     db::FileManager fm(network_name);
 
-    neural_network::ONeural* network_ptr;
+    neural_network::ONeural *network_ptr;
 
-    if (use_new){
-        network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}
-            , ActivationType::softmax, ActivationType::relu
-        );
+    if (use_new)
+    {
+        network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}, ActivationType::softmax, ActivationType::relu);
         network_ptr->initialize();
-    } else {
+    }
+    else
+    {
         network_ptr = fm.from_file();
     }
 
-    if (train){
+    if (train)
+    {
         optimizer::NeuralNetworkOptimizerParameters params;
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
             .setBatchSize(64)
-            .setEpochs(5)
+            .setEpochs(3)
             .setLearningRate(0.4);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
@@ -89,23 +95,23 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     }
 
     std::unique_ptr<neural_network::ONeural> network(
-        network_ptr
-    );
-    
+        network_ptr);
+
     fm.prepare(network_name)
-      .to_file(*network);
+        .to_file(*network);
 
     ui::Drawer drawer;
 
-    drawer.setCallback([&](neural_network::vector_t pixels){
+    drawer.setCallback([&](neural_network::vector_t pixels)
+                       {
         network->raw_input(pixels);
         auto outputs = network->outputs();
         auto guess = network->classify();
         std::cout << "Network guess: " << guess << std::endl;
         for (size_t i = 0; i < outputs.size(); i++) {
             std::cout << '\t' << i << ": " << outputs[i] << std::endl;
-        }
-    }).open();
+        } })
+        .open();
 }
 
 int main()
@@ -122,7 +128,7 @@ int main()
     // for (float i = -6.3f; i < 6.3f; i += 0.2f){
     //     plt.add({i, cosf32(i)});
     // }
-    
+
     // constexpr float T = 1.0f, N0 = 100.0f;
     // float x = -3.0f;
 
@@ -136,14 +142,14 @@ int main()
     //     start = now;
     //     printf("Hello\n");
 
-    //     float y = 
+    //     float y =
     //         // (expf32(-M_LN2/T * x)) * N0
     //         x + sinf32(x);
     //         ;
 
     //     data->push_back({x, y});
     //     x += T/4.0f;
-        
+
     //     plt.update();
     // });
     // plt.open();
