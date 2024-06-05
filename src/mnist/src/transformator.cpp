@@ -40,7 +40,7 @@ data::data_batch *transformator::add_noise(
         data::vector_t new_pixels = move((*data)[i].input, cols, rows, x, y);
 
         // add random rotation
-        // std::uniform_real_distribution angle_dist(-30.0f, 30.0f);
+        // std::uniform_real_distribution angle_dist(-15.0f, 15.0f);
         // new_pixels = rotate(
         //     new_pixels, cols, rows, angle_dist(engine) * RADIANS
         // );

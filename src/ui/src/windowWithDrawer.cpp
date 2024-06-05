@@ -127,13 +127,13 @@ void neuralNetworkPointTest()
     std::unique_ptr<data::data_batch> data(
         creator.prepare([MAX, MIN](double x, double y)
                         {
-                            // return -0.5f * x + MAX * 0.6f < y;
+                            return -0.5f * x + MAX * 0.6f < y;
                             // return x * x + (y - MAX) * (y - MAX) < MAX * 0.1;
-                            return x*x + y*y - y * 0.3f * MAX - x * 0.5f<= MAX*MAX*0.3f;
+                            // return x*x + y*y - y * 0.3f * MAX - x * 0.5f<= MAX*MAX*0.3f;
 
                             // return (MAX * 0.000025) * x * x - (MAX * 0.01) * x + (MAX * 1.2) > y;
                             // return y < 100 || y > 300;
-                            return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
+                            // return (x - MAX*0.5f)*(x - MAX*0.5f) + (y - MAX*0.5f)*(y - MAX*0.5f) <= MAX*MAX*0.1f;
                             // return 0.0018*x*x - 6*x + MAX*1.2 > y;
                             // return (MAX*0.000025)*x*x - (MAX*0.01)*x + (MAX*1.2)> y;
                         })
