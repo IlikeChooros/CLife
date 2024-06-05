@@ -17,13 +17,7 @@ FileManager &FileManager::prepare(
 {
     _file_name = file_name;
     _format = format;
-
-    if(fs::current_path().filename() == "bin"){
-        _path = (fs::current_path().parent_path().parent_path() / "data").string();
-    }
-    else{
-        _path = (fs::current_path() / "data").string();
-    }
+    prepare_data_dir();
 
     switch (_format)
     {
@@ -37,6 +31,32 @@ FileManager &FileManager::prepare(
         break;
     }
     return *this;
+}
+
+void FileManager::prepare_data_dir(){
+    if(fs::current_path().filename() == "bin"){
+        _path = (fs::current_path().parent_path().parent_path() / "data").string();
+    }
+    else{
+        _path = (fs::current_path() / "data").string();
+    }
+}
+
+std::vector<std::string> FileManager::list_networks(){
+    fs::path path(_path);
+    if (!fs::exists(path)){
+        std::cout << "Data folder not found!\n";
+        throw storage_not_found("Could not open the directory: " + _path);
+    }
+
+    std::vector<std::string> networks;
+    
+    for (const auto &entry : fs::directory_iterator(path)){
+        if (entry.is_regular_file()){
+            networks.push_back(entry.path().stem().string());
+        }
+    }
+    return networks;
 }
 
 void FileManager::_write_binary(

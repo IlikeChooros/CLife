@@ -47,6 +47,20 @@ void showTrainingDigits()
 
 void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "original")
 {
+    db::FileManager tmp;
+    tmp.prepare_data_dir();
+    auto networks = tmp.list_networks();
+
+    if (networks.empty()){
+        std::cout << "No networks found\n";
+    } else {
+        std::cout << "Available networks: \n";
+        for (auto& net : networks){
+            std::cout << "\t" << net << "\n";
+        }
+    }
+
+
     std::string use_new_str = "n", train_str = "y";
     std::cout << "Use new network? [y/n] >> ";
     std::cin >> use_new_str;

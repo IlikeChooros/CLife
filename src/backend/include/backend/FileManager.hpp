@@ -67,10 +67,20 @@ public:
     void to_file(neural_network::ONeural &network);
 
     /**
-     * @brief Load from file neural network, and save it to the `network`
-     * @tparam activation arguments for the ONeural constructor
-     */
+     * @brief Load from file neural network, and save it to the return value
+     * @return neural network loaded from file
+    */
     neural_network::ONeural *from_file();
+
+    /**
+     * @brief List all networks in the data directory
+    */
+    std::vector<std::string> list_networks();
+
+    /**
+     * @brief Prepare data directory
+    */
+    void prepare_data_dir();
 };
 
 END_NAMESPACE
