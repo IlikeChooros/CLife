@@ -24,7 +24,7 @@ public:
      */
     data::data_batch *add_noise(
         data::data_batch *data,
-        int max_vector = 4,
+        int max_vector = 5,
         size_t cols = 28,
         size_t rows = 28,
         size_t noisiness = 100,

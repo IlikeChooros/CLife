@@ -134,7 +134,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         data::data_batch* training;
         if (use_original == "n"){
             mnist::transformator t;
-            training = t.add_noise(loader.merge_data(trainingImages, trainingLabels), 4, 28, 28, 100, false);
+            training = t.add_noise(loader.merge_data(trainingImages, trainingLabels), 5, 28, 28, 100, false);
         } else {
             training = loader.merge_data(trainingImages, trainingLabels);
         }
