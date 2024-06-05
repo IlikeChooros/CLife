@@ -45,7 +45,7 @@ void showTrainingDigits()
     system("cls");
 }
 
-void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "orignal")
+void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "original")
 {
     const std::string PATH =
         //  "/home/minis/Desktop/CLife/src/mnist/digits/";
@@ -82,7 +82,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     }
 
 
-    std::string use_new_str = "y", train_str = "y";
+    std::string use_new_str = "n", train_str = "y";
     std::cout << "Use new network? [y/n] >> ";
     std::cin >> use_new_str;
 
@@ -136,6 +136,29 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     }
 
     if (train){
+
+        auto printOptions = [](){
+            std::cout << "Training options: \n"
+                  << "(f) Fast\n"
+                  << "(d) Default\n"
+                  << "(l) Long \n"
+                  << "(c) Custom \n"
+                  << "Option (f,d,l,c) >> ";
+        };
+        printOptions();
+        std::string tr_opt;
+        std::cin >> tr_opt;
+
+        while(tr_opt != "f" && tr_opt != "d" && tr_opt != "l" && tr_opt != "c"){
+            if (tr_opt == ""){
+                tr_opt = "d";
+                break;
+            }
+            std::cout << "Invalid option\n";
+            printOptions();
+            std::cin >> tr_opt;
+        }
+
         optimizer::NeuralNetworkOptimizerParameters params;
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
@@ -143,6 +166,34 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
             .setBatchSize(64)
             .setEpochs(1)
             .setLearningRate(0.1);
+
+        if (tr_opt == "f"){
+            params.setBatchSize(64)
+                .setEpochs(1)
+                .setLearningRate(0.3);
+        } else if (tr_opt == "d"){
+            params.setBatchSize(64)
+                .setEpochs(2)
+                .setLearningRate(0.25);
+        } else if (tr_opt == "l"){
+            params.setBatchSize(64)
+                .setEpochs(5)
+                .setLearningRate(0.1);
+        } else{
+            std::cout << "Batch size >> ";
+            int batch_size;
+            std::cin >> batch_size;
+            std::cout << "Epochs >> ";
+            int epochs;
+            std::cin >> epochs;
+            std::cout << "Learning rate >> ";
+            float learning_rate;
+            std::cin >> learning_rate;
+
+            params.setBatchSize(batch_size)
+                .setEpochs(epochs)
+                .setLearningRate(learning_rate);
+        }
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -185,7 +236,7 @@ int main()
     std::string option = "3";
     std::cin >> option;
 
-    while (option != "4")
+    while (option != "4" && option != "exit" && option != "q" && option != "quit")
     {
         system("cls");
         if (option == "1")

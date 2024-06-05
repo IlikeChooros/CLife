@@ -149,8 +149,6 @@ void neuralNetworkPointTest()
             case Event::Closed:
             {
                 window.close();
-                db::FileManager fm("netw.txt");
-                fm.to_file(net);
             }
             break;
 

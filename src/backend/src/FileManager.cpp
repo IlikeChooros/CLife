@@ -67,18 +67,16 @@ void FileManager::_write_binary(
 
     */
 
-       std::ofstream text_file("test.txt");
-
     auto strucutre = network.structure();
 
-    auto size = strucutre.size();
+    size_t size = strucutre.size();
     writer.write(reinterpret_cast<char *>(&size), sizeof(size));
     for (auto n : strucutre)
     {
         writer.write(reinterpret_cast<char *>(&n), sizeof(n));
-        text_file << n << ", ";
+        // std::cout << n << ", ";
     }
-    text_file << std::endl;
+    std::cout << std::endl;
 
     using real_number_t = neural_network::real_number_t;
 
@@ -89,14 +87,14 @@ void FileManager::_write_binary(
         {
             real_number_t bias = static_cast<real_number_t>(network._hidden_layers[l]._biases[n]);
             writer.write(reinterpret_cast<char *>(&bias), sizeof(bias));
-            text_file << bias << ", ";
+            // text_file << bias << ", ";
             for (size_t w = 0; w < network._hidden_layers[l]._inputs_size; w++)
             {
                 real_number_t weight = static_cast<real_number_t>(network._hidden_layers[l].weight(w, n));
                 writer.write(reinterpret_cast<char *>(&weight), sizeof(weight));
-                text_file << weight << ", ";
+                // text_file << weight << ", ";
             }
-            text_file << std::endl;
+            // text_file << std::endl;
         }
     }
     // output layer
@@ -104,14 +102,14 @@ void FileManager::_write_binary(
     {
         real_number_t bias = static_cast<real_number_t>(network._output_layer._biases[n]);
         writer.write(reinterpret_cast<char *>(&bias), sizeof(bias));
-        text_file << bias << ", ";
+        // text_file << bias << ", ";
         for (size_t w = 0; w < network._output_layer._inputs_size; w++)
         {
             real_number_t weight = static_cast<real_number_t>(network._output_layer.weight(w, n));
             writer.write(reinterpret_cast<char *>(&weight), sizeof(weight));
-            text_file << weight << ", ";
+            // text_file << weight << ", ";
         }
-        text_file << std::endl;
+        // text_file << std::endl;
     }
     writer.close();
 }
@@ -119,15 +117,16 @@ void FileManager::_write_binary(
 void FileManager::to_file(neural_network::ONeural &network)
 {
     std::string fullpath = (fs::path(_path) / (_file_name + _fileFormat)).string();
-    std::ofstream writer(fullpath);
-    if (!writer)
-    {
-        throw storage_not_found("Could not open the file: " + fullpath);
-    }
+
     switch (_format)
     {
-    case Format::binary:
-        _write_binary(writer, network);
+    case Format::binary:{
+        std::ofstream _binary_writer(fullpath, std::ios::binary);
+        if(!_binary_writer){
+            throw storage_not_found("Could not open the file: " + fullpath);
+        }
+        _write_binary(_binary_writer, network);
+    }
         break;
 
     default:
@@ -197,15 +196,17 @@ neural_network::ONeural *FileManager::_read_binary(std::ifstream &file)
 neural_network::ONeural *FileManager::from_file()
 {
     std::string fullpath = (fs::path(_path) / (_file_name + _fileFormat)).string();
-    std::ifstream reader(fullpath, std::ios::binary);
-    if (!reader.is_open())
+    
+    if (!fs::exists(fullpath))
     {
         throw storage_not_found("Could not open the file: " + fullpath);
     }
     switch (_format)
     {
-    case Format::binary:
+    case Format::binary:{
+        std::ifstream reader(fullpath, std::ios::binary);
         return _read_binary(reader);
+    }
     default:
         break;
     }
