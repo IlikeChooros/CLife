@@ -1,0 +1,2 @@
+C:\msys64\ucrt64\bin\ar.exe qc libmnist.a CMakeFiles/mnist.dir/src/loader.cpp.obj CMakeFiles/mnist.dir/src/transformator.cpp.obj
+C:\msys64\ucrt64\bin\ranlib.exe libmnist.a

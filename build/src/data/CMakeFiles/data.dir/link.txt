@@ -1,0 +1,2 @@
+C:\msys64\ucrt64\bin\ar.exe qc libdata.a CMakeFiles/data.dir/src/Data.cpp.obj CMakeFiles/data.dir/src/TestData.cpp.obj CMakeFiles/data.dir/src/DoodlesLoader.cpp.obj
+C:\msys64\ucrt64\bin\ranlib.exe libdata.a

@@ -1,0 +1,2 @@
+C:\msys64\ucrt64\bin\ar.exe qc libcore.a CMakeFiles/core.dir/src/OLayer.cpp.obj CMakeFiles/core.dir/src/ONeural.cpp.obj CMakeFiles/core.dir/src/activation.cpp.obj CMakeFiles/core.dir/src/LinearModel.cpp.obj CMakeFiles/core.dir/src/utils.cpp.obj CMakeFiles/core.dir/src/thread.cpp.obj CMakeFiles/core.dir/src/CNN.cpp.obj CMakeFiles/core.dir/src/ConvolutionLayer.cpp.obj
+C:\msys64\ucrt64\bin\ranlib.exe libcore.a

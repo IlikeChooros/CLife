@@ -1,0 +1,1 @@
+-I"C:/Users/pawel/OneDrive/Desktop/CLife/build/_deps/sfml-src/include" -I"C:/Users/pawel/OneDrive/Desktop/CLife/build/_deps/sfml-src/src" -I"C:/Users/pawel/OneDrive/Desktop/CLife/build/_deps/sfml-src/extlibs/headers/vulkan" -isystem "C:/Users/pawel/OneDrive/Desktop/CLife/build/_deps/sfml-src/extlibs/headers/glad/include"

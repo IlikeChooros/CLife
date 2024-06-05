@@ -1,0 +1,2 @@
+C:\msys64\ucrt64\bin\ar.exe qc liboptimizer.a CMakeFiles/optimizer.dir/src/NeuralNetworkOptimizer.cpp.obj
+C:\msys64\ucrt64\bin\ranlib.exe liboptimizer.a

@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\CLife.dir/objects.a
+C:\msys64\ucrt64\bin\ar.exe qc CMakeFiles\CLife.dir/objects.a @CMakeFiles\CLife.dir\objects1.rsp
+C:\msys64\ucrt64\bin\g++.exe -Wall -pthread -g -Wl,--whole-archive CMakeFiles\CLife.dir/objects.a -Wl,--no-whole-archive -o bin\CLife.exe -Wl,--out-implib,libCLife.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\CLife.dir\linkLibs.rsp
