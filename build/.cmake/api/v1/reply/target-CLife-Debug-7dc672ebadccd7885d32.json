@@ -284,6 +284,10 @@
 		},
 		{
 			"backtrace" : 4,
+			"id" : "backend::@525b47d26c118ac1ce89"
+		},
+		{
+			"backtrace" : 4,
 			"id" : "core::@0618756b1ff51bca1a0e"
 		},
 		{
@@ -296,15 +300,11 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "backend::@525b47d26c118ac1ce89"
+			"id" : "ui::@e0ce1d6ecae3dc67b834"
 		},
 		{
 			"backtrace" : 4,
 			"id" : "games::@059c5c8b91d756a381fb"
-		},
-		{
-			"backtrace" : 4,
-			"id" : "ui::@e0ce1d6ecae3dc67b834"
 		}
 	],
 	"id" : "CLife::@6890427a1f51a3e7e1df",

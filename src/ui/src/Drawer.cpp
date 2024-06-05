@@ -139,8 +139,9 @@ void Drawer::_drawPixels()
             pixel.setPosition(
                 j * width / pixelCols,
                 i * height / pixelRows);
-            pixel.setFillColor(sf::Color(_pixels[i][j], _pixels[i][j], _pixels[i][j]));
-            pixel.setOutlineColor(sf::Color::White);
+            auto pixelColor = sf::Color(_pixels[i][j], _pixels[i][j], _pixels[i][j]);
+            pixel.setFillColor(pixelColor);
+            pixel.setOutlineColor(pixelColor);
             pixel.setOutlineThickness(1);
             window.draw(pixel);
         }
