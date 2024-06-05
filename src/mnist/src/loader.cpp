@@ -101,7 +101,8 @@ data::matrix_t *Loader::get_labels()
 
 data::data_batch *Loader::merge_data(
     data::matrix_t *images,
-    data::matrix_t *labels)
+    data::matrix_t *labels,
+    bool erase)
 {
     if (images->size() != labels->size())
     {
@@ -113,6 +114,11 @@ data::data_batch *Loader::merge_data(
     {
         (*data)[i].input = (*images)[i];
         (*data)[i].expect = (*labels)[i];
+    }
+
+    if (erase){
+        delete images;
+        delete labels;
     }
 
     return data.release();

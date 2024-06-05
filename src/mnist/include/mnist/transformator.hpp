@@ -20,14 +20,15 @@ public:
      *
      * @param data The data to add noise to
      * @param max_vector maximum noise vector lenght (shouldn't be bigger than 1/4 of the image width/height)
-     * @return new `noisy` data
+     * @return new `noisy` data if `allocate` is true, otherwise the `data` is modified
      */
     data::data_batch *add_noise(
         data::data_batch *data,
         int max_vector = 4,
         size_t cols = 28,
         size_t rows = 28,
-        size_t noisiness = 100);
+        size_t noisiness = 100,
+        bool allocate = true);
 
     /**
      * @brief Rotate the pixels by angle and given center point

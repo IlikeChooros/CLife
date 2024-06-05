@@ -1,33 +1,27 @@
 #include <optimizer/optimizer.hpp>
 
-
 START_NAMESPACE_OPTIMIZER
 
 NeuralNetworkOptimizer::NeuralNetworkOptimizer(
-    const NeuralNetworkOptimizerParameters& params)
+    const NeuralNetworkOptimizerParameters &params)
 {
     this->params = params;
 }
 
-NeuralNetworkOptimizer& NeuralNetworkOptimizer::setParameters(
-    const NeuralNetworkOptimizerParameters& params)
+NeuralNetworkOptimizer &NeuralNetworkOptimizer::setParameters(
+    const NeuralNetworkOptimizerParameters &params)
 {
     this->params = params;
     return *this;
 }
 
-
-double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer& visualizer, size_t start_time)
+double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer &visualizer, size_t start_time)
 {
     std::shuffle(
-        params.trainingData->begin(), 
-        params.trainingData->end(), 
-        std::mt19937(std::random_device()())
-    );
-    mnist::transformator t;
-    std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(params.trainingData, 5)
-    );
+        params.trainingData->begin(),
+        params.trainingData->end(),
+        std::mt19937(std::random_device()()));
+
     double average_loss = 0.0;
     double current_loss = 0.0;
     int64_t total_time = start_time;
@@ -37,23 +31,19 @@ double NeuralNetworkOptimizer::train_epoch(size_t total_batches, ui::Visualizer&
         auto startTime = std::chrono::high_resolution_clock::now();
 
         params.network->batch_learn(
-            noisy.get(), 
+            params.trainingData,
             params.learningRate,
-            params.batchSize
-        );
+            params.batchSize);
         current_loss = params.network->loss(
-            params.batchSize
-        );
+            params.batchSize);
         average_loss += current_loss;
 
         auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::high_resolution_clock::now() - startTime
-        ).count();
+                         std::chrono::high_resolution_clock::now() - startTime)
+                         .count();
         total_time += delta;
 
-        visualizer.update({
-            (int)i, current_loss, total_time
-        });
+        visualizer.update({(int)i, current_loss, total_time});
         visualizer.visualize();
     }
     return average_loss / total_batches;
@@ -81,28 +71,22 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         result.setTrainingAccuracy(1 - average_loss);
 
         timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::high_resolution_clock::now() - startTime
-        ).count();
+                       std::chrono::high_resolution_clock::now() - startTime)
+                       .count();
         totalTime += timeDiff;
-        std::cout << "**** Epoch " << i << " average loss: " << average_loss << " time: " 
-            << timeDiff << "ms" << std::endl;
+        std::cout << "**** Epoch " << i << " average loss: " << average_loss << " time: "
+                  << timeDiff << "ms" << std::endl;
     }
 
-    result.setTestAccuracy(params.network->accuracy(
-        params.testData
-    ));
+    result.setTestAccuracy(params.network->accuracy(params.testData));
 
     mnist::transformator t;
-    std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(params.testData, 5)
-    );
-    auto noisy_acc = params.network->accuracy(noisy.get());
+    auto noisy_acc = params.network->accuracy(t.add_noise(params.testData, 4, 28, 28, 100, false));
 
-    std::cout << "Training complete. Learning time: " << std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::high_resolution_clock::now() - startTime).count() 
-        << "ms " << "trainingAccuracy: " << result.trainingAccuracy << std::endl
-        << "\tNoisy Test Accuracy: " << noisy_acc << std::endl
-        << "\tTest Acc: "<< result.testAccuracy << std::endl;
+    std::cout << "Training complete. Learning time: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count()
+              << "ms " << "trainingAccuracy: " << result.trainingAccuracy << std::endl
+              << "\tNoisy Test Accuracy: " << noisy_acc << std::endl
+              << "\tTest Acc: " << result.testAccuracy << std::endl;
 
     return result;
 }

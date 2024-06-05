@@ -8,11 +8,11 @@
 #include "exceptions.hpp"
 #include <core/core.hpp>
 
+
 #define DEBUG_FILE_MANAGER false
 
-#if DEBUG_FILE_MANAGER
 #include <iostream>
-#endif
+#include <filesystem>
 
 START_NAMESPACE_BACKEND
 
@@ -26,6 +26,7 @@ class FileManager
 {
 
     std::string _path;
+    std::string _file_name;
     Format _format;
     std::string _fileFormat;
 
@@ -39,11 +40,11 @@ class FileManager
         std::ifstream &reader);
 
 public:
-    FileManager(const std::string &filepath, Format format = Format::binary);
+    FileManager(const std::string &file_name, Format format = Format::binary);
     FileManager() = default;
 
     FileManager &prepare(
-        const std::string &path,
+        const std::string &file_name,
         Format format = Format::binary);
 
     /*

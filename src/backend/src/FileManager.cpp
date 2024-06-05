@@ -2,19 +2,29 @@
 
 START_NAMESPACE_BACKEND
 
+namespace fs = std::filesystem;
+
 FileManager::FileManager(
-    const std::string &filePath,
+    const std::string &file_name,
     Format format)
 {
-    prepare(filePath, format);
+    prepare(file_name, format);
 }
 
 FileManager &FileManager::prepare(
-    const std::string &path,
+    const std::string &file_name,
     Format format)
 {
-    _path = path;
+    _file_name = file_name;
     _format = format;
+
+    if(fs::current_path().filename() == "bin"){
+        _path = (fs::current_path().parent_path().parent_path() / "data").string();
+    }
+    else{
+        _path = (fs::current_path() / "data").string();
+    }
+
     switch (_format)
     {
     case Format::binary:
@@ -57,7 +67,7 @@ void FileManager::_write_binary(
 
     */
 
-    //    std::ofstream text_file("test.txt");
+       std::ofstream text_file("test.txt");
 
     auto strucutre = network.structure();
 
@@ -65,10 +75,10 @@ void FileManager::_write_binary(
     writer.write(reinterpret_cast<char *>(&size), sizeof(size));
     for (auto n : strucutre)
     {
-        writer.write(reinterpret_cast<char *>(&n), sizeof(int));
-        // text_file << n << ", ";
+        writer.write(reinterpret_cast<char *>(&n), sizeof(n));
+        text_file << n << ", ";
     }
-    // text_file << std::endl;
+    text_file << std::endl;
 
     using real_number_t = neural_network::real_number_t;
 
@@ -79,14 +89,14 @@ void FileManager::_write_binary(
         {
             real_number_t bias = static_cast<real_number_t>(network._hidden_layers[l]._biases[n]);
             writer.write(reinterpret_cast<char *>(&bias), sizeof(bias));
-            // text_file << bias << ", ";
+            text_file << bias << ", ";
             for (size_t w = 0; w < network._hidden_layers[l]._inputs_size; w++)
             {
                 real_number_t weight = static_cast<real_number_t>(network._hidden_layers[l].weight(w, n));
                 writer.write(reinterpret_cast<char *>(&weight), sizeof(weight));
-                // text_file << weight << ", ";
+                text_file << weight << ", ";
             }
-            // text_file << std::endl;
+            text_file << std::endl;
         }
     }
     // output layer
@@ -94,21 +104,21 @@ void FileManager::_write_binary(
     {
         real_number_t bias = static_cast<real_number_t>(network._output_layer._biases[n]);
         writer.write(reinterpret_cast<char *>(&bias), sizeof(bias));
-        // text_file << bias << ", ";
+        text_file << bias << ", ";
         for (size_t w = 0; w < network._output_layer._inputs_size; w++)
         {
             real_number_t weight = static_cast<real_number_t>(network._output_layer.weight(w, n));
             writer.write(reinterpret_cast<char *>(&weight), sizeof(weight));
-            // text_file << weight << ", ";
+            text_file << weight << ", ";
         }
-        // text_file << std::endl;
+        text_file << std::endl;
     }
     writer.close();
 }
 
 void FileManager::to_file(neural_network::ONeural &network)
 {
-    std::string fullpath = _path + _fileFormat;
+    std::string fullpath = (fs::path(_path) / (_file_name + _fileFormat)).string();
     std::ofstream writer(fullpath);
     if (!writer)
     {
@@ -186,7 +196,7 @@ neural_network::ONeural *FileManager::_read_binary(std::ifstream &file)
 
 neural_network::ONeural *FileManager::from_file()
 {
-    std::string fullpath = _path + _fileFormat;
+    std::string fullpath = (fs::path(_path) / (_file_name + _fileFormat)).string();
     std::ifstream reader(fullpath, std::ios::binary);
     if (!reader.is_open())
     {
@@ -213,7 +223,7 @@ std::vector<size_t> FileManager::_read_structure(std::ifstream &reader)
 
     for (size_t i = 0; i < size; i++)
     {
-        int n;
+        size_t n;
         reader.read(reinterpret_cast<char *>(&n), sizeof(n));
         structure[i] = n;
     }

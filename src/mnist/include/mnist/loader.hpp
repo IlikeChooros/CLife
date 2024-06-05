@@ -33,10 +33,14 @@ public:
 
     /**
      * @brief Merge the images and labels into a vector of Data objects
+     * @param images The images
+     * @param labels The labels
+     * @param erase If true, the images and labels will be deleted after merging
     */
     data::data_batch* merge_data(
         data::matrix_t* images,
-        data::matrix_t* labels
+        data::matrix_t* labels,
+        bool erase = true
     );
     /**
      * @brief Get the images object, normalized to [0, 1]

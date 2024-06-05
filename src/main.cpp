@@ -3,6 +3,8 @@
 #include <mnist/mnist.hpp>
 #include <games/games.hpp>
 
+#include <filesystem>
+
 void pointTest()
 {
     ui::windowWithDrawer();
@@ -21,18 +23,29 @@ void showTrainingDigits()
     std::unique_ptr<data::data_batch> trainingData(
         loader.merge_data(trainingImages, trainingLabels));
 
-    mnist::transformator t;
-    std::unique_ptr<data::data_batch> noisy(
-        t.add_noise(trainingData.get()));
+    std::cout << "MNIST dataset loaded\n" 
+              << "Use original dataset? [y/n] >> ";
+    std::string use_original;
+    std::cin >> use_original;
+
+    while(use_original != "y" && use_original != "n"){
+        std::cout << "Invalid option\n";
+        std::cout << "Use original dataset? [y/n] >> ";
+        std::cin >> use_original;
+    }
+
+    if (use_original == "n"){
+        mnist::transformator t;
+        t.add_noise(trainingData.get(), 4, 28, 28, 100, false);
+    }
+
     ui::Drawer drawer;
-    drawer.loadPixels(
-              noisy->at(2).input
-              // trainingData->at(1).input
-              )
-        .open();
+    drawer.showImages(*trainingData);
+
+    system("cls");
 }
 
-void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2")
+void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "orignal")
 {
     const std::string PATH =
         //  "/home/minis/Desktop/CLife/src/mnist/digits/";
@@ -48,15 +61,58 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     std::cout << testImages->size() << std::endl;
     std::cout << testLabels->size() << std::endl;
 
-    std::unique_ptr<data::data_batch> trainingData(
-        loader.merge_data(trainingImages, trainingLabels));
+
+    std::cout << "MNIST dataset loaded\n" 
+            << "Use original dataset? [y/n] >> ";
+    std::string use_original = "y";
+    std::cin >> use_original;
+
+    while(use_original != "y" && use_original != "n"){
+        std::cout << "Invalid option\n";
+        std::cout << "Use original dataset? [y/n] >> ";
+        std::cin >> use_original;
+    }
+
+    data::data_batch* training;
+    if (use_original == "n"){
+        mnist::transformator t;
+        training = t.add_noise(loader.merge_data(trainingImages, trainingLabels), 4, 28, 28, 100, false);
+    } else {
+        training = loader.merge_data(trainingImages, trainingLabels);
+    }
+
+
+    std::string use_new_str = "y", train_str = "y";
+    std::cout << "Use new network? [y/n] >> ";
+    std::cin >> use_new_str;
+
+    while(use_new_str != "y" && use_new_str != "n"){
+        std::cout << "Invalid option\n";
+        std::cout << "Use new network? [y/n] >> ";
+        std::cin >> use_new_str;
+    }
+
+    use_new = use_new_str == "y";
+
+    
+    std::cout << "Network name? >> ";
+    std::cin >> network_name;
+    
+
+    std::cout << "Train network? [y/n] >> ";
+    std::cin >> train_str;
+
+    while(train_str != "y" && train_str != "n"){
+        std::cout << "Invalid option\n";
+        std::cout << "Train network? [y/n] >> ";
+        std::cin >> train_str;
+    }
+
+    train = train_str == "y";
+
+    std::unique_ptr<data::data_batch> trainingData(training);
     std::unique_ptr<data::data_batch> testData(
         loader.merge_data(testImages, testLabels));
-
-    delete trainingImages;
-    delete trainingLabels;
-    delete testImages;
-    delete testLabels;
 
     std::cout << trainingData->size() << std::endl;
     std::cout << testData->size() << std::endl;
@@ -66,29 +122,27 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
     // max trainingAccuracy: 0.876 "mnistNetwork" {784, 128, 64, 10} softmax relu
     // max trainingAccuracy: ~0.89 (max: 89.9) "mnistNetwork2" {784, 255, 128, 10} softmax relu
+
     db::FileManager fm(network_name);
 
     neural_network::ONeural *network_ptr;
 
-    if (use_new)
-    {
+    if (use_new){
         network_ptr = new neural_network::ONeural({784, 256, 128, 32, 10}, ActivationType::softmax, ActivationType::relu);
         network_ptr->initialize();
     }
-    else
-    {
+    else{
         network_ptr = fm.from_file();
     }
 
-    if (train)
-    {
+    if (train){
         optimizer::NeuralNetworkOptimizerParameters params;
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
             .setBatchSize(64)
-            .setEpochs(3)
-            .setLearningRate(0.4);
+            .setEpochs(1)
+            .setLearningRate(0.1);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -114,11 +168,51 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         .open();
 }
 
+void printOptions()
+{
+    std::cout << "Pick option: \n"
+              << "1. Point test\n"
+              << "2. Show training digits\n"
+              << "3. Digit recognition\n"
+              << "4. Exit\n";
+    std::cout << "Option [1-4] >> ";
+}
+
 int main()
 {
+    printOptions();
+
+    std::string option = "3";
+    std::cin >> option;
+
+    while (option != "4")
+    {
+        system("cls");
+        if (option == "1")
+        {
+            pointTest();
+        }
+        else if (option == "2")
+        {
+            showTrainingDigits();
+        }
+        else if (option == "3")
+        {
+            digitDrawerMnist();
+        }
+        else
+        {
+            std::cout << "Invalid option\n";
+        }
+        printOptions();
+        std::cin >> option;
+    }
+
+    std::cout << "Exiting...\n";
+
     // pointTest();
     // showTrainingDigits();
-    digitDrawerMnist(true, true, "digitMT");
+    // digitDrawerMnist(true, true, "digitMT");
 
     // ui::Plotter plt(ui::DrawingPolicy::LineConnected);
 

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <ctime>
@@ -9,11 +8,10 @@
 #include <backend/backend.hpp>
 #include "namespaces.hpp"
 
-
-
 START_NAMESPACE_UI
 
-class Drawer{
+class Drawer
+{
     sf::RenderWindow window;
 
     size_t width;
@@ -21,7 +19,7 @@ class Drawer{
     size_t pixelRows;
     size_t pixelCols;
 
-    void _draw(sf::Event::MouseButtonEvent& event, bool erase);
+    void _draw(sf::Event::MouseButtonEvent &event, bool erase);
 
     std::vector<std::vector<uint8_t>> _pixels;
 
@@ -29,21 +27,22 @@ class Drawer{
 
     std::function<void(neural_network::vector_t)> _callback;
 
-    public:
+public:
     Drawer(
         size_t width = 512, size_t height = 512,
-        size_t pixelRows = 28, size_t pixelCols = 28
-    );
+        size_t pixelRows = 28, size_t pixelCols = 28);
 
     /**
      * @brief Set the callback function, the argument is a 2D vector of doubles - normalized pixels
-    */
-    Drawer& setCallback(std::function<void(neural_network::vector_t)> callback);
+     */
+    Drawer &setCallback(std::function<void(neural_network::vector_t)> callback);
 
     /**
      * @brief Load image from normalized input `pixels`
-    */
-    Drawer& loadPixels(const neural_network::vector_t& pixels);
+     */
+    Drawer &loadPixels(const neural_network::vector_t &pixels);
+
+    void showImages(const data::data_batch &data);
 
     bool closed();
     void open();
