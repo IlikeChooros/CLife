@@ -1,0 +1,500 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						9
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-11d46cff76a267a96cc2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0
+					]
+				},
+				{
+					"build" : "_deps/sfml-build",
+					"childIndexes" : 
+					[
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build-Debug-1cdc4c70db5440b63da2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src"
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML",
+					"childIndexes" : 
+					[
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML-Debug-ce43665c07032d56571e.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML"
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/System",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.System-Debug-b6a99cc24bc03caf5f72.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/System",
+					"targetIndexes" : 
+					[
+						11
+					]
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/Main",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.Main-Debug-9462dcaee5cfefd29ab4.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/Main",
+					"targetIndexes" : 
+					[
+						9
+					]
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/Window",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.Window-Debug-48ae62f5f456d9b24f7f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/Window",
+					"targetIndexes" : 
+					[
+						12
+					]
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/Network",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.Network-Debug-58e54a781cdc6ecd2d16.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/Network",
+					"targetIndexes" : 
+					[
+						10
+					]
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/Graphics",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.Graphics-Debug-d0da86b08e14f2c9f9df.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/Graphics",
+					"targetIndexes" : 
+					[
+						8
+					]
+				},
+				{
+					"build" : "_deps/sfml-build/src/SFML/Audio",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-_deps.sfml-build.src.SFML.Audio-Debug-a88958c814a5bb338529.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.7.2"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "build/_deps/sfml-src/src/SFML/Audio",
+					"targetIndexes" : 
+					[
+						7
+					]
+				},
+				{
+					"build" : "src",
+					"childIndexes" : 
+					[
+						10,
+						11,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					],
+					"jsonFile" : "directory-src-Debug-c94b7c2814d5a21df52c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "src"
+				},
+				{
+					"build" : "src/data",
+					"jsonFile" : "directory-src.data-Debug-7cf72f144d23728b20cf.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/data",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "src/mnist",
+					"childIndexes" : 
+					[
+						12
+					],
+					"jsonFile" : "directory-src.mnist-Debug-5bdbfe755036a3c0d21d.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/mnist",
+					"targetIndexes" : 
+					[
+						5
+					]
+				},
+				{
+					"build" : "src/mnist/digits",
+					"jsonFile" : "directory-src.mnist.digits-Debug-a4aee218a1e8168a073a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 11,
+					"projectIndex" : 0,
+					"source" : "src/mnist/digits"
+				},
+				{
+					"build" : "src/core",
+					"jsonFile" : "directory-src.core-Debug-27980f60b5df84566cd6.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/core",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "src/backend",
+					"jsonFile" : "directory-src.backend-Debug-120330f0137e869bed3f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/backend",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "src/test-creator",
+					"jsonFile" : "directory-src.test-creator-Debug-92e4d720b5cf522ff182.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/test-creator",
+					"targetIndexes" : 
+					[
+						13
+					]
+				},
+				{
+					"build" : "src/optimizer",
+					"jsonFile" : "directory-src.optimizer-Debug-ce0cfc7373264a92b7e7.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/optimizer",
+					"targetIndexes" : 
+					[
+						6
+					]
+				},
+				{
+					"build" : "src/games",
+					"jsonFile" : "directory-src.games-Debug-54fe83cf3f7d880c5b2f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/games",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "src/ui",
+					"jsonFile" : "directory-src.ui-Debug-5715a61d92a03ee0c98a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 9,
+					"projectIndex" : 0,
+					"source" : "src/ui",
+					"targetIndexes" : 
+					[
+						14
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					],
+					"name" : "CLife",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						13,
+						14
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					],
+					"name" : "SFML",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						7,
+						8,
+						9,
+						10,
+						11,
+						12
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "CLife::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-CLife-Debug-a1c390f8a40a631d580c.json",
+					"name" : "CLife",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 14,
+					"id" : "backend::@525b47d26c118ac1ce89",
+					"jsonFile" : "target-backend-Debug-bf5dcd50609a097a29af.json",
+					"name" : "backend",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 13,
+					"id" : "core::@0618756b1ff51bca1a0e",
+					"jsonFile" : "target-core-Debug-2f1b8949fe3021abb7d2.json",
+					"name" : "core",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 10,
+					"id" : "data::@e5ccf62099f28249f155",
+					"jsonFile" : "target-data-Debug-6a89e8fffeed8681c5ce.json",
+					"name" : "data",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 17,
+					"id" : "games::@059c5c8b91d756a381fb",
+					"jsonFile" : "target-games-Debug-54c2f8d21e7d7a24708e.json",
+					"name" : "games",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 11,
+					"id" : "mnist::@41baf5719e1fe38d5c02",
+					"jsonFile" : "target-mnist-Debug-b044e045d20fc9c7a9d1.json",
+					"name" : "mnist",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 16,
+					"id" : "optimizer::@c5fe013df27d67b382af",
+					"jsonFile" : "target-optimizer-Debug-c002737b1bd1aa6b3430.json",
+					"name" : "optimizer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 8,
+					"id" : "sfml-audio::@a153e5727587c53fce98",
+					"jsonFile" : "target-sfml-audio-Debug-94be0366cc63304c6967.json",
+					"name" : "sfml-audio",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "sfml-graphics::@98af38147d5fa7e70f61",
+					"jsonFile" : "target-sfml-graphics-Debug-285b52bc7420ea48de65.json",
+					"name" : "sfml-graphics",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 4,
+					"id" : "sfml-main::@81ec5539f1398dd625f6",
+					"jsonFile" : "target-sfml-main-Debug-6bf224d3689c6e048d3a.json",
+					"name" : "sfml-main",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 6,
+					"id" : "sfml-network::@d7f79968b2699e7782cb",
+					"jsonFile" : "target-sfml-network-Debug-bbc771f6a8702be87411.json",
+					"name" : "sfml-network",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "sfml-system::@8cb1db2982443611e568",
+					"jsonFile" : "target-sfml-system-Debug-55d9afc3475e72ce35be.json",
+					"name" : "sfml-system",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "sfml-window::@5730451e331e3690ae65",
+					"jsonFile" : "target-sfml-window-Debug-96677e0a711fb185e195.json",
+					"name" : "sfml-window",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 15,
+					"id" : "test-creator::@c9bee2802c4d728f8c26",
+					"jsonFile" : "target-test-creator-Debug-7f5bb818739b6c3943f3.json",
+					"name" : "test-creator",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 18,
+					"id" : "ui::@e0ce1d6ecae3dc67b834",
+					"jsonFile" : "target-ui-Debug-5fb8313ab30dd451691b.json",
+					"name" : "ui",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/Users/pawel/OneDrive/Desktop/CLife/build",
+		"source" : "C:/Users/pawel/OneDrive/Desktop/CLife"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}

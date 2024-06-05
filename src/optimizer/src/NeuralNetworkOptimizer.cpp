@@ -79,14 +79,29 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
     }
 
     result.setTestAccuracy(params.network->accuracy(params.testData));
+    auto recallNormal = params.network->recall(params.testData);
 
     mnist::transformator t;
     auto noisy_acc = params.network->accuracy(t.add_noise(params.testData, 4, 28, 28, 100, false));
-
+    auto recallNoisy = params.network->recall(params.testData);
+    
     std::cout << "Training complete. Learning time: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - startTime).count()
-              << "ms " << "trainingAccuracy: " << result.trainingAccuracy << std::endl
-              << "\tNoisy Test Accuracy: " << noisy_acc << std::endl
-              << "\tTest Acc: " << result.testAccuracy << std::endl;
+              << "ms \n"
+              << "Accuracy original: " << result.testAccuracy << "\n"
+                << "Accuracy noisy: " << noisy_acc << "\n"
+                << "Recall original: \n";
+    
+    auto printRecall = [](const data::vector_t &recall) {
+        for (size_t i = 0; i < recall.size(); i++)
+        {
+            std::cout << "\t" << i << ": " << recall[i] << "\n";
+        }
+    };
+
+    printRecall(recallNormal);
+    std::cout << "Recall noisy: \n";
+    printRecall(recallNoisy);
+
 
     return result;
 }

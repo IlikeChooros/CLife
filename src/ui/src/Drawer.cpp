@@ -156,9 +156,11 @@ void Drawer::_draw(sf::Event::MouseButtonEvent &event, bool erase)
 
     const auto radius = erase ? ERASE_RADIUS : BRUSH_RADIUS;
 
-    for (int i = -radius; i <= radius; i++)
+    const auto start = erase ? -radius : 0;
+
+    for (int i = start; i <= radius; i++)
     {
-        for (int j = -radius; j <= radius; j++)
+        for (int j = start; j <= radius; j++)
         {
             if (
                 x + i >= 0 && x + i < static_cast<int>(pixelCols) &&

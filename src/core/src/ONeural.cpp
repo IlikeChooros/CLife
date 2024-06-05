@@ -281,6 +281,44 @@ real_number_t ONeural::accuracy(data_batch *test)
     return static_cast<real_number_t>(correct_count) / static_cast<real_number_t>(test->size());
 }
 
+vector_t ONeural::recall(data_batch *test){
+    vector_t recall_matrix(_output_layer._neurons_size, 0);
+    vector_t count_matrix(_output_layer._neurons_size, 0);
+
+    ThreadPool pool(std::thread::hardware_concurrency());
+
+
+    std::mutex mutex;
+    for (size_t i = 0; i < test->size(); i++)
+    {
+        pool.enqueue(
+            [this, test, i, &recall_matrix, &count_matrix, &mutex]()
+            {
+                _NetworkFeedData feed(this->_output_layer, this->_hidden_layers);
+                feed_forward(feed, test->at(i).input);
+                size_t guess = _classify_feed(feed);
+                size_t expect = std::distance(
+                    test->at(i).expect.begin(),
+                    std::find(test->at(i).expect.begin(), test->at(i).expect.end(), 1)
+                );
+
+                std::lock_guard<std::mutex> lock(mutex);
+                if (expect == guess){
+                    count_matrix[expect]++;
+                }
+                recall_matrix[expect]++;
+            });
+    }
+    pool.execute();
+
+    for (size_t i = 0; i < recall_matrix.size(); i++)
+    {
+        recall_matrix[i] = static_cast<real_number_t>(count_matrix[i]) / static_cast<real_number_t>(recall_matrix[i]);
+    }
+
+    return recall_matrix;
+}
+
 void ONeural::activations(
     ActivationType output_activation,
     ActivationType hidden_activation)

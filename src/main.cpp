@@ -47,41 +47,6 @@ void showTrainingDigits()
 
 void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "original")
 {
-    const std::string PATH =
-        //  "/home/minis/Desktop/CLife/src/mnist/digits/";
-        "C:\\Users\\pawel\\OneDrive\\Desktop\\CLife\\src\\mnist\\digits\\";
-    mnist::Loader loader;
-    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
-    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
-    auto testImages = loader.load(PATH + mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
-    auto testLabels = loader.load(PATH + mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
-
-    std::cout << trainingImages->size() << std::endl;
-    std::cout << trainingLabels->size() << std::endl;
-    std::cout << testImages->size() << std::endl;
-    std::cout << testLabels->size() << std::endl;
-
-
-    std::cout << "MNIST dataset loaded\n" 
-            << "Use original dataset? [y/n] >> ";
-    std::string use_original = "y";
-    std::cin >> use_original;
-
-    while(use_original != "y" && use_original != "n"){
-        std::cout << "Invalid option\n";
-        std::cout << "Use original dataset? [y/n] >> ";
-        std::cin >> use_original;
-    }
-
-    data::data_batch* training;
-    if (use_original == "n"){
-        mnist::transformator t;
-        training = t.add_noise(loader.merge_data(trainingImages, trainingLabels), 4, 28, 28, 100, false);
-    } else {
-        training = loader.merge_data(trainingImages, trainingLabels);
-    }
-
-
     std::string use_new_str = "n", train_str = "y";
     std::cout << "Use new network? [y/n] >> ";
     std::cin >> use_new_str;
@@ -110,16 +75,6 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
     train = train_str == "y";
 
-    std::unique_ptr<data::data_batch> trainingData(training);
-    std::unique_ptr<data::data_batch> testData(
-        loader.merge_data(testImages, testLabels));
-
-    std::cout << trainingData->size() << std::endl;
-    std::cout << testData->size() << std::endl;
-
-    std::cout << trainingData->at(0).input.size() << std::endl;
-    std::cout << trainingData->at(0).expect.size() << std::endl;
-
     // max trainingAccuracy: 0.876 "mnistNetwork" {784, 128, 64, 10} softmax relu
     // max trainingAccuracy: ~0.89 (max: 89.9) "mnistNetwork2" {784, 255, 128, 10} softmax relu
 
@@ -136,6 +91,43 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     }
 
     if (train){
+
+        const std::string PATH =
+            //  "/home/minis/Desktop/CLife/src/mnist/digits/";
+            "C:\\Users\\pawel\\OneDrive\\Desktop\\CLife\\src\\mnist\\digits\\";
+        mnist::Loader loader;
+        auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+        auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
+        auto testImages = loader.load(PATH + mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
+        auto testLabels = loader.load(PATH + mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
+
+        std::cout << trainingImages->size() << std::endl;
+        std::cout << trainingLabels->size() << std::endl;
+        std::cout << testImages->size() << std::endl;
+        std::cout << testLabels->size() << std::endl;
+
+        std::cout << "MNIST dataset loaded\n" 
+                << "Use original dataset? [y/n] >> ";
+        std::string use_original = "y";
+        std::cin >> use_original;
+
+        while(use_original != "y" && use_original != "n"){
+            std::cout << "Invalid option\n";
+            std::cout << "Use original dataset? [y/n] >> ";
+            std::cin >> use_original;
+        }
+
+        data::data_batch* training;
+        if (use_original == "n"){
+            mnist::transformator t;
+            training = t.add_noise(loader.merge_data(trainingImages, trainingLabels), 4, 28, 28, 100, false);
+        } else {
+            training = loader.merge_data(trainingImages, trainingLabels);
+        }
+
+        std::unique_ptr<data::data_batch> trainingData(training);
+        std::unique_ptr<data::data_batch> testData(
+            loader.merge_data(testImages, testLabels));
 
         auto printOptions = [](){
             std::cout << "Training options: \n"
@@ -178,7 +170,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         } else if (tr_opt == "l"){
             params.setBatchSize(64)
                 .setEpochs(5)
-                .setLearningRate(0.1);
+                .setLearningRate(0.15);
         } else{
             std::cout << "Batch size >> ";
             int batch_size;
@@ -199,19 +191,28 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         optimizer.optimize();
     }
 
-    std::unique_ptr<neural_network::ONeural> network(
-        network_ptr);
 
-    fm.prepare(network_name)
-        .to_file(*network);
+    std::unique_ptr<neural_network::ONeural> network(network_ptr);
+    if(use_new || train){
+        fm.prepare(network_name)
+            .to_file(*network);
+        std::cout << "[+] Network saved as " << network_name << "\n";
+    }
 
     ui::Drawer drawer;
 
+    size_t prevGuess = 0;
     drawer.setCallback([&](neural_network::vector_t pixels)
                        {
         network->raw_input(pixels);
         auto outputs = network->outputs();
         auto guess = network->classify();
+
+        if(prevGuess == guess){
+            return;
+        }
+        prevGuess = guess;
+
         std::cout << "Network guess: " << guess << std::endl;
         for (size_t i = 0; i < outputs.size(); i++) {
             std::cout << '\t' << i << ": " << outputs[i] << std::endl;

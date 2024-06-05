@@ -174,7 +174,12 @@ public:
     /// @return *this
     ONeural &operator=(const ONeural &other);
 
+    /// @brief Returns the accuracy of the network on the given `test` data, correct / total
     real_number_t accuracy(data_batch *test);
+
+    /// @brief Calculates the recall for each class, indexes are the class labels, correct / total
+    /// @param test the test data
+    vector_t recall(data_batch *test);
 
     OLayer _output_layer;
     std::vector<OLayer> _hidden_layers;

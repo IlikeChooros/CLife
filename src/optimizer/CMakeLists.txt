@@ -10,6 +10,7 @@ target_sources(optimizer
         ${CMAKE_CURRENT_LIST_DIR}/src/NeuralNetworkOptimizer.cpp
     )
 
+
 target_link_libraries(
     optimizer
     PUBLIC core mnist ui
