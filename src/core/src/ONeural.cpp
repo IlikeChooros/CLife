@@ -5,15 +5,17 @@ START_NAMESPACE_NEURAL_NETWORK
 ONeural::ONeural(
     const std::vector<size_t> &structure,
     ActivationType output_activation,
-    ActivationType hidden_activation)
+    ActivationType hidden_activation,
+    double dropout_rate)
 {
-    build(structure, output_activation, hidden_activation);
+    build(structure, output_activation, hidden_activation, dropout_rate);
 }
 
 ONeural &ONeural::build(
     const std::vector<size_t> &structure,
     ActivationType output_activation,
-    ActivationType hidden_activation)
+    ActivationType hidden_activation,
+    double dropout_rate)
 {
     size_t structure_size = structure.size();
     // using macro
@@ -31,7 +33,9 @@ ONeural &ONeural::build(
         {
             _hidden_layers.emplace_back(
                 structure[i], structure[i + 1],
-                std::forward<ActivationType>(hidden_activation));
+                std::forward<ActivationType>(hidden_activation),
+                dropout_rate
+            );
         }
     }
 
@@ -52,6 +56,12 @@ void ONeural::initialize()
         layer.initialize();
     }
     _output_layer.initialize();
+}
+
+void ONeural::training_mode(bool mode){
+    for(auto& layer : _hidden_layers){
+        layer.training_mode(mode);
+    }
 }
 
 void ONeural::_update_gradients(data::Data &&data, ONeural *context)

@@ -63,6 +63,8 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
 
     ui::GraphVisualizer visualizer;
 
+    params.network->training_mode();
+
     for (size_t i = 0; i < params.epochs; ++i)
     {
         auto startTime = std::chrono::high_resolution_clock::now();
@@ -77,6 +79,8 @@ NeuralNetworkOptimizerResult NeuralNetworkOptimizer::optimize()
         std::cout << "**** Epoch " << i << " average loss: " << average_loss << " time: "
                   << timeDiff << "ms" << std::endl;
     }
+
+    params.network->training_mode(false);
 
     result.setTestAccuracy(params.network->accuracy(params.testData));
     auto recallNormal = params.network->recall(params.testData);

@@ -394,14 +394,14 @@ CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-syste
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Audio/CMakeFiles/sfml-audio.dir/all
-CMakeFiles/CLife.dir/all: src/data/CMakeFiles/data.dir/all
 CMakeFiles/CLife.dir/all: src/mnist/CMakeFiles/mnist.dir/all
+CMakeFiles/CLife.dir/all: src/data/CMakeFiles/data.dir/all
 CMakeFiles/CLife.dir/all: src/backend/CMakeFiles/backend.dir/all
 CMakeFiles/CLife.dir/all: src/core/CMakeFiles/core.dir/all
 CMakeFiles/CLife.dir/all: src/optimizer/CMakeFiles/optimizer.dir/all
 CMakeFiles/CLife.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
-CMakeFiles/CLife.dir/all: src/ui/CMakeFiles/ui.dir/all
 CMakeFiles/CLife.dir/all: src/games/CMakeFiles/games.dir/all
+CMakeFiles/CLife.dir/all: src/ui/CMakeFiles/ui.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CLife.dir\build.make CMakeFiles/CLife.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CLife.dir\build.make CMakeFiles/CLife.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=C:\Users\pawel\OneDrive\Desktop\CLife\build\CMakeFiles --progress-num=1 "Built target CLife"
@@ -718,8 +718,8 @@ src/test-creator/CMakeFiles/test-creator.dir/clean:
 src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
-src/optimizer/CMakeFiles/optimizer.dir/all: src/data/CMakeFiles/data.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/mnist/CMakeFiles/mnist.dir/all
+src/optimizer/CMakeFiles/optimizer.dir/all: src/data/CMakeFiles/data.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/core/CMakeFiles/core.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
@@ -749,8 +749,8 @@ src/optimizer/CMakeFiles/optimizer.dir/clean:
 # Target rules for target src/games/CMakeFiles/games.dir
 
 # All Build rule for target.
-src/games/CMakeFiles/games.dir/all: src/data/CMakeFiles/data.dir/all
 src/games/CMakeFiles/games.dir/all: src/mnist/CMakeFiles/mnist.dir/all
+src/games/CMakeFiles/games.dir/all: src/data/CMakeFiles/data.dir/all
 src/games/CMakeFiles/games.dir/all: src/core/CMakeFiles/core.dir/all
 	$(MAKE) $(MAKESILENT) -f src\games\CMakeFiles\games.dir\build.make src/games/CMakeFiles/games.dir/depend
 	$(MAKE) $(MAKESILENT) -f src\games\CMakeFiles\games.dir\build.make src/games/CMakeFiles/games.dir/build
@@ -780,8 +780,8 @@ src/games/CMakeFiles/games.dir/clean:
 src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/all
 src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
-src/ui/CMakeFiles/ui.dir/all: src/data/CMakeFiles/data.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/mnist/CMakeFiles/mnist.dir/all
+src/ui/CMakeFiles/ui.dir/all: src/data/CMakeFiles/data.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/core/CMakeFiles/core.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
