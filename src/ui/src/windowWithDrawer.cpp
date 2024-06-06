@@ -64,7 +64,7 @@ void renderPoints(
     for (size_t i = 0; i < data->size(); i++)
     {
         auto dataPoint = (*data)[i];
-        auto color = dataPoint.expect[0] == 1
+        auto color = dataPoint.expect[1] == 1
                          ? sf::Color(0x5BAFFCFF)  // green
                          : sf::Color(0xFD4F5AFF); // red
 
@@ -87,7 +87,7 @@ void renderPoints(
 
             network->raw_input({fx, fy});
 
-            auto netColor = network->classify() == 0
+            auto netColor = network->classify() == 1
                                 ? sf::Color(0x5BAFFC40)  // blue
                                 : sf::Color(0xFD4F5A40); // red
 

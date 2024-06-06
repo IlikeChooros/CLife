@@ -264,11 +264,11 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "sfml-window::@5730451e331e3690ae65"
+			"id" : "sfml-graphics::@98af38147d5fa7e70f61"
 		},
 		{
 			"backtrace" : 4,
-			"id" : "sfml-graphics::@98af38147d5fa7e70f61"
+			"id" : "sfml-window::@5730451e331e3690ae65"
 		},
 		{
 			"backtrace" : 4,
@@ -284,15 +284,15 @@
 		},
 		{
 			"backtrace" : 4,
-			"id" : "backend::@525b47d26c118ac1ce89"
-		},
-		{
-			"backtrace" : 4,
 			"id" : "core::@0618756b1ff51bca1a0e"
 		},
 		{
 			"backtrace" : 4,
 			"id" : "optimizer::@c5fe013df27d67b382af"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "backend::@525b47d26c118ac1ce89"
 		},
 		{
 			"backtrace" : 4,

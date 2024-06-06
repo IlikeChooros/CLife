@@ -391,14 +391,14 @@ src/ui/clean: src/ui/CMakeFiles/ui.dir/clean
 
 # All Build rule for target.
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/all
-CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
+CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 CMakeFiles/CLife.dir/all: _deps/sfml-build/src/SFML/Audio/CMakeFiles/sfml-audio.dir/all
 CMakeFiles/CLife.dir/all: src/mnist/CMakeFiles/mnist.dir/all
 CMakeFiles/CLife.dir/all: src/data/CMakeFiles/data.dir/all
-CMakeFiles/CLife.dir/all: src/backend/CMakeFiles/backend.dir/all
 CMakeFiles/CLife.dir/all: src/core/CMakeFiles/core.dir/all
 CMakeFiles/CLife.dir/all: src/optimizer/CMakeFiles/optimizer.dir/all
+CMakeFiles/CLife.dir/all: src/backend/CMakeFiles/backend.dir/all
 CMakeFiles/CLife.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
 CMakeFiles/CLife.dir/all: src/games/CMakeFiles/games.dir/all
 CMakeFiles/CLife.dir/all: src/ui/CMakeFiles/ui.dir/all
@@ -716,12 +716,12 @@ src/test-creator/CMakeFiles/test-creator.dir/clean:
 
 # All Build rule for target.
 src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/all
-src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
+src/optimizer/CMakeFiles/optimizer.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/mnist/CMakeFiles/mnist.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/data/CMakeFiles/data.dir/all
-src/optimizer/CMakeFiles/optimizer.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/core/CMakeFiles/core.dir/all
+src/optimizer/CMakeFiles/optimizer.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
 src/optimizer/CMakeFiles/optimizer.dir/all: src/ui/CMakeFiles/ui.dir/all
 	$(MAKE) $(MAKESILENT) -f src\optimizer\CMakeFiles\optimizer.dir\build.make src/optimizer/CMakeFiles/optimizer.dir/depend
@@ -778,12 +778,12 @@ src/games/CMakeFiles/games.dir/clean:
 
 # All Build rule for target.
 src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/System/CMakeFiles/sfml-system.dir/all
-src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/Graphics/CMakeFiles/sfml-graphics.dir/all
+src/ui/CMakeFiles/ui.dir/all: _deps/sfml-build/src/SFML/Window/CMakeFiles/sfml-window.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/mnist/CMakeFiles/mnist.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/data/CMakeFiles/data.dir/all
-src/ui/CMakeFiles/ui.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/core/CMakeFiles/core.dir/all
+src/ui/CMakeFiles/ui.dir/all: src/backend/CMakeFiles/backend.dir/all
 src/ui/CMakeFiles/ui.dir/all: src/test-creator/CMakeFiles/test-creator.dir/all
 	$(MAKE) $(MAKESILENT) -f src\ui\CMakeFiles\ui.dir\build.make src/ui/CMakeFiles/ui.dir/depend
 	$(MAKE) $(MAKESILENT) -f src\ui\CMakeFiles\ui.dir\build.make src/ui/CMakeFiles/ui.dir/build

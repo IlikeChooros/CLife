@@ -124,11 +124,11 @@
 		},
 		{
 			"backtrace" : 2,
-			"id" : "sfml-window::@5730451e331e3690ae65"
+			"id" : "sfml-graphics::@98af38147d5fa7e70f61"
 		},
 		{
 			"backtrace" : 2,
-			"id" : "sfml-graphics::@98af38147d5fa7e70f61"
+			"id" : "sfml-window::@5730451e331e3690ae65"
 		},
 		{
 			"backtrace" : 2,
@@ -140,11 +140,11 @@
 		},
 		{
 			"backtrace" : 2,
-			"id" : "backend::@525b47d26c118ac1ce89"
+			"id" : "core::@0618756b1ff51bca1a0e"
 		},
 		{
 			"backtrace" : 2,
-			"id" : "core::@0618756b1ff51bca1a0e"
+			"id" : "backend::@525b47d26c118ac1ce89"
 		},
 		{
 			"backtrace" : 2,
