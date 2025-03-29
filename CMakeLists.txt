@@ -4,8 +4,16 @@ cmake_minimum_required(VERSION 3.4)
 
 project(CLife)
 
+
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -pthread")
+
+if (COMPILER_TAG STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS_RELEASE "$/O2 /MD /Zi")
+    set(CMAKE_CXX_FLAGS_DEBUG "$/Zi /Od /MDd")
+elseif (COMPILER_TAG STREQUAL "GCC" OR COMPILER_TAG STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+endif()
 
 set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(TEST_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/test)
@@ -19,13 +27,13 @@ FetchContent_Declare(SFML
 FetchContent_MakeAvailable(SFML)
         
 
-FetchContent_Declare(
-  nlohmann_json
-  GIT_REPOSITORY https://github.com/nlohmann/json.git
-  GIT_TAG v3.10.1
-)
+# FetchContent_Declare(
+#   nlohmann_json
+#   GIT_REPOSITORY https://github.com/nlohmann/json.git
+#   GIT_TAG v3.10.1
+# )
 
-FetchContent_MakeAvailable(nlohmann_json)
+# FetchContent_MakeAvailable(nlohmann_json)
 
 add_subdirectory(src) 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

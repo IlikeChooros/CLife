@@ -2,6 +2,9 @@
 #include <optimizer/optimizer.hpp>
 #include <mnist/mnist.hpp>
 #include <games/games.hpp>
+#include <filesystem>
+
+static std::filesystem::path PATH;
 
 void pointTest(){
     ui::windowWithDrawer();
@@ -9,10 +12,9 @@ void pointTest(){
 
 void showTrainingDigits(){
     // testing noisy data
-    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
-    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
-    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
+    auto trainingImages = loader.load(PATH / mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+    auto trainingLabels = loader.load(PATH / mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
 
     std::unique_ptr<data::data_batch> trainingData(
         loader.merge_data(trainingImages, trainingLabels)
@@ -44,12 +46,12 @@ void showTrainingDigits(){
 }
 
 void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2"){
-    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
-    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
-    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
-    auto testImages = loader.load(PATH + mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
-    auto testLabels = loader.load(PATH + mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
+
+    auto trainingImages = loader.load(PATH / mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+    auto trainingLabels = loader.load(PATH / mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
+    auto testImages = loader.load(PATH / mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
+    auto testLabels = loader.load(PATH / mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
 
     std::cout << trainingImages->size() << std::endl;
     std::cout << trainingLabels->size() << std::endl;
@@ -85,7 +87,7 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
     if (use_new){
         network_ptr = new neural_network::ONeural(
             // {14*14, 256, 128, 32, 10}, 
-            {input_size*input_size, 64, 32, 10}, 
+            {input_size*input_size, 256, 128, 10}, 
             ActivationType::softmax, 
             ActivationType::relu, 
             0.2
@@ -95,14 +97,15 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         network_ptr = fm.from_file();
     }
 
-    if (train){
+    if (train)
+    {
         optimizer::NeuralNetworkOptimizerParameters params;
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
             .setBatchSize(64)
-            .setEpochs(3)
-            .setLearningRate(0.4);
+            .setEpochs(8)
+            .setLearningRate(0.2);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
         optimizer.optimize();
@@ -130,12 +133,11 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
 
 
 void cnnTest(){
-    const std::string PATH = "/home/minis/Desktop/CLife/src/mnist/digits/";
     mnist::Loader loader;
-    auto trainingImages = loader.load(PATH + mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
-    auto trainingLabels = loader.load(PATH + mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
-    auto testImages = loader.load(PATH + mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
-    auto testLabels = loader.load(PATH + mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
+    auto trainingImages = loader.load(PATH / mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
+    auto trainingLabels = loader.load(PATH / mnist::MNIST_TRAINING_SET_LABEL_FILE_NAME).get_labels();
+    auto testImages = loader.load(PATH / mnist::MNIST_TEST_SET_IMAGE_FILE_NAME).get_images();
+    auto testLabels = loader.load(PATH / mnist::MNIST_TEST_SET_LABEL_FILE_NAME).get_labels();
 
     std::cout << trainingImages->size() << std::endl;
     std::cout << trainingLabels->size() << std::endl;
@@ -183,9 +185,12 @@ void cnnTest(){
 
 }
 
-int main()
+int main(int argc, char** argv)
 {
-    cnnTest();
+    // cnnTest();
+    PATH = std::filesystem::path(argv[0]).parent_path();
+    digitDrawerMnist(true, true, "digitMT");
+
     // pointTest();
     // showTrainingDigits();
     // digitDrawerMnist(true, true, "digitMT");

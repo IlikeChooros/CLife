@@ -3,7 +3,6 @@
 #include <fstream>
 #include <memory>
 #include <sstream>
-#include <nlohmann/json.hpp>
 
 #include "namespaces.hpp"
 #include "exceptions.hpp"

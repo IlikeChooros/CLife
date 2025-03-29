@@ -229,62 +229,6 @@ OLayer* OLayer::calc_hidden_gradient(OLayer* prev_layer, _FeedData& feed_data, v
 
     */
    
-   /*
-
-   new_partial_derviative += prev_layer->_weights[prev][n] * prev_layer->_partial_derivatives[prev];
-   Is quite expensive - a lot of cache misses, a better way would be to store the weights in a transposed matrix.
-   Which is what I'm doing here.
-   
-
-    Batch 5 loss: 0.461648 time: 523815us
-Batch 6 loss: 0.474617 time: 521997us
-Batch 7 loss: 0.422769 time: 519369us
-Batch 8 loss: 0.517451 time: 513136us
-Batch 9 loss: 0.484191 time: 513270us
-Batch 10 loss: 0.634847 time: 511389us
-Batch 11 loss: 0.619526 time: 513675us
-Batch 12 loss: 0.64337 time: 512956us
-Batch 13 loss: 0.678748 time: 513511us
-Batch 14 loss: 0.424627 time: 512659us
-Batch 15 loss: 0.451214 time: 514016us
-Batch 16 loss: 0.502156 time: 512944us
-Batch 17 loss: 0.591668 time: 513409us
-Batch 18 loss: 0.459734 time: 513315us
-Batch 19 loss: 0.555463 time: 513417us
-Batch 20 loss: 0.526951 time: 512523us
-Batch 21 loss: 0.527675 time: 511955us
-Batch 22 loss: 0.461886 time: 516144us
-Batch 23 loss: 0.491052 time: 514008us
-Batch 24 loss: 0.565749 time: 518938us
-Batch 25 loss: 0.525129 time: 518238us
-Batch 26 loss: 0.573674 time: 515178us
-Batch 27 loss: 0.493544 time: 521576us
-
-Without transposed matrix:
-    Batch 5 loss: 0.552747 time: 504567us
-    Batch 6 loss: 0.499948 time: 502496us
-    Batch 7 loss: 0.535107 time: 501914us
-    Batch 8 loss: 0.452759 time: 501147us
-    Batch 9 loss: 0.48893 time: 503825us
-    Batch 10 loss: 0.452703 time: 501794us
-    Batch 11 loss: 0.505133 time: 502485us
-    Batch 12 loss: 0.534313 time: 502364us
-    Batch 13 loss: 0.5288 time: 504265us
-    Batch 14 loss: 0.582917 time: 492209us
-    Batch 15 loss: 0.49908 time: 489180us
-    Batch 16 loss: 0.468601 time: 461509us
-    Batch 17 loss: 0.513687 time: 453607us
-    Batch 18 loss: 0.455154 time: 451841us
-    Batch 19 loss: 0.408404 time: 455022us
-    Batch 20 loss: 0.499921 time: 451478us
-    Batch 21 loss: 0.604788 time: 452254us
-    Batch 22 loss: 0.372709 time: 453725us
-    Batch 23 loss: 0.487284 time: 453659us
-    Batch 24 loss: 0.434223 time: 454030us
-
-
-   */
-
     // matrix_t transposed_weights(
     //     prev_layer->_inputs_size, vector_t(prev_layer->_neurons_size, 0)
     // );
