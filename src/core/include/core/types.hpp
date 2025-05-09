@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <functional>
+#include <cstdint>
 
 #include "namespaces.hpp"
 #include <data/types.hpp>

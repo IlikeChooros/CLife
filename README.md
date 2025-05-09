@@ -4,10 +4,15 @@ A neural network project, entirely written in C++. Uses SFML to visualize networ
 
 ## Set up
 
+```
+sudo apt-get install libvorbis-dev libflac-dev
+```
+
 1. Ensure you have the following prerequisites installed on your system:
    - CMake (version 3.4 or later)
    - A C++ compiler that supports C++17
    - SFML
+
 
 1. Clone the repository to your local machine.
 

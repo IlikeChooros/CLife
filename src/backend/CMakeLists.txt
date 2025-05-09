@@ -8,6 +8,7 @@ target_sources(backend
 PRIVATE
     src/Database.cpp
     src/FileManager.cpp
+    src/ArgParser.cpp
 )
 
 target_link_libraries(backend PUBLIC core)

@@ -45,7 +45,13 @@ void showTrainingDigits(){
     ).open();
 }
 
-void digitDrawerMnist(bool use_new = false, bool train = false, std::string network_name = "mnistNetwork2"){
+void digitDrawerMnist(ArgParser::ParsedArguments args){
+    bool train = args.get<bool>("--train");
+    bool use_new = args.get<bool>("--use-new");
+    std::string network_name = args.get<std::string>("--network-name");
+    int epochs = args.get<int>("--epochs");
+    int batch_size = args.get<int>("--batch-size");
+
     mnist::Loader loader;
 
     auto trainingImages = loader.load(PATH / mnist::MNIST_TRAINING_SET_IMAGE_FILE_NAME).get_images();
@@ -103,8 +109,8 @@ void digitDrawerMnist(bool use_new = false, bool train = false, std::string netw
         params.setNeuralNetwork(network_ptr)
             .setTrainingData(trainingData.get())
             .setTestData(testData.get())
-            .setBatchSize(64)
-            .setEpochs(8)
+            .setBatchSize(batch_size)
+            .setEpochs(epochs)
             .setLearningRate(0.2);
 
         optimizer::NeuralNetworkOptimizer optimizer(params);
@@ -189,7 +195,55 @@ int main(int argc, char** argv)
 {
     // cnnTest();
     PATH = std::filesystem::path(argv[0]).parent_path();
-    digitDrawerMnist(true, true, "digitMT");
+
+    ArgParser parser(argc, argv);
+
+    parser.add_argument({"--network-name", "-n"}, {
+        .required = false,
+        .help_message = "Network name",
+        .default_value = "mnist_network",
+        .type = ArgParser::STRING,
+        .validator = ArgParser::stringValidator,
+        .action = ArgParser::store
+    });
+
+    parser.add_argument({"--train", "-t"}, {
+        .required = false,
+        .help_message = "Train the network",
+        .default_value = "true",
+        .type = ArgParser::BOOL,
+        .validator = ArgParser::booleanValidator,
+        .action = ArgParser::store
+    });
+
+    parser.add_argument({"--use-new", "-u"}, {
+        .required = false,
+        .help_message = "Use new network",
+        .default_value = "true",
+        .type = ArgParser::BOOL,
+        .validator = ArgParser::booleanValidator,
+        .action = ArgParser::store
+    });
+
+    parser.add_argument({"--batch-size", "-b"}, {
+        .required = false,
+        .help_message = "Batch size",
+        .default_value = "64",
+        .type = ArgParser::INT,
+        .validator = ArgParser::intValidator,
+        .action = ArgParser::store
+    });
+
+    parser.add_argument({"--epochs", "-e"}, {
+        .required = false,
+        .help_message = "Number of epochs",
+        .default_value = "6",
+        .type = ArgParser::INT,
+        .validator = ArgParser::intValidator,
+        .action = ArgParser::store
+    });
+
+    digitDrawerMnist(parser.parse());
 
     // pointTest();
     // showTrainingDigits();
